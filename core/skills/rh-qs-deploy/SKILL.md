@@ -126,3 +126,13 @@ When deploy configs render locally → **`rh-qs-test-suite`** (if design include
 - [ai-architecture-charts](https://github.com/rh-ai-quickstart/ai-architecture-charts)
 - Design doc: `designs/design.md`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
+
+## Pipeline checkpoint
+
+Run the checkpoint:
+
+```bash
+python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-deploy --qs-name {qs-name}
+```
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"

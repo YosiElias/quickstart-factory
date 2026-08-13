@@ -149,3 +149,13 @@ Comment on or close the related contrib issue. Mark in-progress during review, c
 - [Blog template](./assets/blog-template.md)
 - [Messaging guidelines](./references/messaging-guidelines.md)
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
+
+## Pipeline checkpoint
+
+Run the checkpoint:
+
+```bash
+python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-ship --qs-name {qs-name}
+```
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"

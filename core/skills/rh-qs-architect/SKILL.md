@@ -132,3 +132,13 @@ When design is approved → **`rh-qs-scaffold`**
 - [Security: rh-qs-secure](../rh-qs-secure/SKILL.md)
 - [GitHub workflow catalog](../rh-qs-test-suite/references/workflow-catalog.md)
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
+
+## Pipeline checkpoint
+
+Run the checkpoint:
+
+```bash
+python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-architect --qs-name {qs-name}
+```
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"

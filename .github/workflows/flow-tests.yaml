@@ -1,0 +1,41 @@
+# CI gate: runs pytest for the pipeline checkpoint system on core/flow changes.
+name: Flow Tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'core/flow/**'
+      - '.github/workflows/flow-tests.yaml'
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'core/flow/**'
+      - '.github/workflows/flow-tests.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: flow-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pytest pyyaml
+
+      - name: Run flow tests
+        run: pytest core/flow/ -v

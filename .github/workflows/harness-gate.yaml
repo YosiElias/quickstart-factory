@@ -54,3 +54,18 @@ jobs:
           fi
           echo "✅ No drift detected."
 
+  validate-checkpoint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install yq
+        uses: mikefarah/yq@v4
+
+      - name: Validate pipeline checkpoint block
+        run: bash .github/scripts/validate-checkpoint.sh main core/skills core/flow/pipeline-registry.yaml
+
