@@ -9,7 +9,12 @@
       "Write(./core/oc-policy-gate/**)"
     ], 
     "allow": [
-      "Bash(python3 core/flow/pipeline-checkpoint.py*)"
+      "Bash(python3 core/flow/pipeline-checkpoint.py*)",
+      "Bash(python3 core/scripts/generate-kb-index.py*)",
+      "Bash(python3 core/scripts/idf-score-kb.py*)",
+      "Bash(python3 core/scripts/select-top-kb.py*)",
+      "Bash(mkdir -p .rhoai-qs/*)",
+      "Bash(mkdir -p .tmp/*)"
     ]
   },
   "hooks": {
