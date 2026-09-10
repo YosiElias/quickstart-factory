@@ -1,6 +1,6 @@
 # Architect Subagents
 
-This directory contains the `validation-skill` subagent used by `rh-qs-architect` ([../SKILL.md](../SKILL.md)) to resolve which quickstart a session applies to before reading or writing any files.
+This directory contains the subagents used by `rh-qs-architect` ([../SKILL.md](../SKILL.md)). The validation-skill resolves which quickstart a session applies to, the prd-feature-extractor parses the PRD into structured features, and the chart-selector selects Helm subcharts by matching chart capabilities to those features.
 
 ## Subagent Prompts
 
@@ -28,8 +28,58 @@ This directory contains the `validation-skill` subagent used by `rh-qs-architect
 }
 ```
 
+### 2. prd-feature-extractor-prompt.md
+
+| Field | Description |
+|-------|-------------|
+| **Name** | `prd-feature-extractor-prompt.md` |
+| **Purpose** | Extract structured `input_features` from a PRD for chart selection and architecture mapping |
+| **Input** | `slug` — the quickstart slug (PRD path derived as `.rhoai-qs/{slug}/prds/prd.md`) |
+| **Output** | JSON with `input_features` (5-key schema), `deployment_questions`, and `decision_points` |
+| **When used** | Step 2 — after slug resolution, before chart selection |
+| **Why subagent** | Pure extraction/classification task, self-contained — keeps the main agent's context free for orchestration and design decisions |
+
+**Output schema:**
+
+```json
+{
+  "input_features": {
+    "components": [],
+    "tech_stack": [],
+    "ai_pattern": [],
+    "platform": [],
+    "data_layer": []
+  },
+  "deployment_questions": [],
+  "decision_points": []
+}
+```
+
+The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.yaml`. If the main agent refines `input_features` after resolving decision points with the user, it updates that file directly.
+
+### 3. chart-selector-prompt.md
+
+| Field | Description |
+|-------|-------------|
+| **Name** | `chart-selector-prompt.md` |
+| **Purpose** | Select ai-architecture-charts by matching each chart's capabilities to extracted features and deployment questions |
+| **Input** | `input_features` (5-key object), `deployment_questions`, `slug` (for PRD fallback), `charts_reference_path` |
+| **Output** | JSON with `charts` array — each entry has `name` and `reason` |
+| **When used** | Step 4 — after features are extracted and decision points resolved |
+| **Why subagent** | Capability-based selection against the charts reference, self-contained — isolates chart selection from the main agent |
+
+**Output schema:**
+
+```json
+{
+  "charts": [
+    {"name": "ogx-ai", "reason": "Needs agent orchestration and multi-provider LLM access"}
+  ]
+}
+```
+
 ## Important Notes
 
-**DO NOT read `validation-skill-prompt.md` directly.** Pass it by file path to the Agent tool — see [../SKILL.md](../SKILL.md) Phase 0.
+**DO NOT read subagent prompt files directly.** Pass them by file path to the Agent tool — see [../SKILL.md](../SKILL.md) for spawn blocks.
 
 Unlike `rh-qs-discovery`, `rh-qs-architect` is never the pipeline's entry point, so `is_entry_point` is always `false`: if zero slugs exist under `.rhoai-qs/`, that's an error state (the user must run `rh-qs-discovery` first), not a signal to start something new.
