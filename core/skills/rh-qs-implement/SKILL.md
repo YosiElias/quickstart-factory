@@ -136,3 +136,13 @@ When vertical slice works locally → **`rh-qs-verify-build`**
 - PRD: `prds/prd.md`
 - Design: `designs/design.md`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
+
+## Pipeline checkpoint
+
+Run the checkpoint:
+
+```bash
+python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-implement --qs-name {qs-name}
+```
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"

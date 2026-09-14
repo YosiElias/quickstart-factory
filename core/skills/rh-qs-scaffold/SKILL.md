@@ -226,3 +226,13 @@ When scaffold is pushed and CI is green → **`rh-qs-implement`**
 - [it-self-service-agent CI patterns](../rh-qs-test-suite/SKILL.md) — production workflow split (post-deploy)
 - Design doc: `.rhoai-qs/<slug>/designs/design.md`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
+
+## Pipeline checkpoint
+
+Run the checkpoint:
+
+```bash
+python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-scaffold --qs-name {qs-name}
+```
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"

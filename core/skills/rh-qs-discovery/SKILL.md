@@ -318,3 +318,14 @@ If the user wants to pursue one of the proposed ideas, transition into the stand
 ## Next Skill
 
 When PRD is approved → **`rh-qs-architect`**
+
+## Pipeline checkpoint
+
+Run the checkpoint:
+
+```bash
+python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-discovery --qs-name {qs-name}
+```
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+
