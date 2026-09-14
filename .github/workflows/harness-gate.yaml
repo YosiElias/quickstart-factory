@@ -13,6 +13,7 @@ on:
       - '.cursor/**'
       - '.gemini/**'
       - '.github/workflows/harness-gate.yaml'
+      - '.github/scripts/*.sh'
   pull_request:
     branches:
       - main
@@ -24,10 +25,11 @@ on:
       - '.cursor/**'
       - '.gemini/**'
       - '.github/workflows/harness-gate.yaml'
+      - '.github/scripts/*.sh'
   workflow_dispatch:
 
 concurrency:
-  group: sync-skills-${{ github.ref }}
+  group: harness-gate-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -65,6 +67,9 @@ jobs:
 
       - name: Install yq
         uses: mikefarah/yq@v4
+
+      - name: Test validate-checkpoint script
+        run: bash .github/scripts/test-validate-checkpoint.sh
 
       - name: Validate pipeline checkpoint block
         run: bash .github/scripts/validate-checkpoint.sh main core/skills core/flow/pipeline-registry.yaml

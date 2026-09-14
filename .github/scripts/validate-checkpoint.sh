@@ -11,6 +11,26 @@
 #   0  All changed pipeline skills have the checkpoint block.
 #   1  One or more changed pipeline skills are missing or have a wrong checkpoint block.
 
+# Expected checkpoint block (last non-empty lines of SKILL.md).
+# Sourced by test-validate-checkpoint.sh — keep this before the execute-only guard.
+build_expected() {
+  local skill_name="$1"
+  cat <<EOF
+## Pipeline checkpoint
+Run the checkpoint:
+\`\`\`bash
+python3 core/flow/pipeline-checkpoint.py --skill-name ${skill_name} --qs-name {qs-name}
+\`\`\`
+Print the dashboard link to the user:
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+EOF
+}
+
+# When sourced (for build_expected), stop here.
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+  return 0
+fi
+
 set -uo pipefail
 
 BASE_REF="${1:-main}"
@@ -35,8 +55,13 @@ if [ "${#PIPELINE_SKILLS[@]}" -eq 0 ]; then
 fi
 
 # --- Find skills changed in this PR ---
+if ! diff_output="$(git diff --name-only "origin/${BASE_REF}...HEAD" -- "$SKILLS_DIR/")"; then
+  echo "::error::Could not compare against origin/${BASE_REF}"
+  exit 1
+fi
+
 mapfile -t changed_skills < <(
-  git diff --name-only "origin/${BASE_REF}...HEAD" -- "$SKILLS_DIR/" 2>/dev/null \
+  printf '%s\n' "$diff_output" \
     | sed "s|^${SKILLS_DIR}/||" \
     | cut -d'/' -f1 \
     | sort -u \
@@ -65,21 +90,6 @@ if [ "${#pipeline_changed[@]}" -eq 0 ]; then
 fi
 
 echo "Checking ${#pipeline_changed[@]} changed pipeline skill(s): ${pipeline_changed[*]}"
-
-# --- Expected checkpoint block (last 8 non-empty lines of SKILL.md) ---
-# The block must match exactly, with --skill-name set to the skill directory name.
-build_expected() {
-  local skill_name="$1"
-  cat <<EOF
-## Pipeline checkpoint
-Run the checkpoint:
-\`\`\`bash
-python3 core/flow/pipeline-checkpoint.py --skill-name ${skill_name} --qs-name {qs-name}
-\`\`\`
-Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
-EOF
-}
 
 FAILED=0
 
