@@ -16,12 +16,13 @@ PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/prds/prd.md`
 0. Resolves which quickstart this session is for (see Phase 0 in Workflow) before touching any files
 1. Reads the PRD and extracts structured features (**prd-feature-extractor** subagent)
 2. If `decision_points` exist — presents them to the user, refines `input_features` based on answers
-3. Selects **ai-architecture-charts** components (**chart-selector** subagent)
-4. Maps leftover PRD features (no matching chart) to **OpenShift AI** features
-5. Presents a **bill of materials** for user approval (role, technology, chart or RHOAI feature)
-6. Generates a **Mermaid architecture diagram** (see [references/diagram-guide.md](./references/diagram-guide.md))
-7. Documents which ai-architecture-charts will be used as Helm subchart dependencies
-8. Specifies **testing strategy** (unit/integration/e2e) based on components
+3. Applies **technology defaults** (override only when the PRD requires it)
+4. Selects **ai-architecture-charts** components (**chart-selector** subagent)
+5. Maps leftover PRD features (no matching chart) to **OpenShift AI** features
+6. Presents a **bill of materials** for user approval (`{role, technology, delivery}` per component)
+7. Generates a **Mermaid architecture diagram** (**diagram-generator** subagent)
+8. Documents which ai-architecture-charts will be used as Helm subchart dependencies
+9. Specifies **testing strategy** (unit/integration/e2e) based on components
 
 ## Workflow
 
@@ -52,12 +53,13 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 - [ ] 1. Read PRD from .rhoai-qs/<slug>/prds/prd.md
 - [ ] 2. Extract features from PRD (prd-feature-extractor subagent)
 - [ ] 3. If decision_points exist → present to user, refine input_features if needed
-- [ ] 4. Select ai-architecture-charts (chart-selector subagent)
-- [ ] 5. Map to OpenShift AI features
-- [ ] 6. Present bill of materials — get user approval
-- [ ] 7. Generate Mermaid architecture diagram
-- [ ] 8. Define testing strategy per component
-- [ ] 9. Write design document
+- [ ] 4. Apply technology defaults
+- [ ] 5. Select ai-architecture-charts (chart-selector subagent)
+- [ ] 6. Map to OpenShift AI features
+- [ ] 7. Present bill of materials — get user approval
+- [ ] 8. Generate Mermaid architecture diagram
+- [ ] 9. Define testing strategy per component
+- [ ] 10. Write design document
 ```
 
 #### Step 1: Read PRD
@@ -86,7 +88,24 @@ The subagent writes `input_features`, `deployment_questions`, and `decision_poin
 
 If `decision_points` is non-empty, present each to the user. Update `.rhoai-qs/{slug}/pipeline/prd-features.yaml` with any refined `input_features` (and related fields) before proceeding. If empty, continue.
 
-#### Step 4: Select ai-architecture-charts
+#### Step 4: Apply technology defaults
+
+**Technology defaults** — present as defaults; override only when PRD requires it.
+
+| Layer | Default |
+|-------|---------|
+| Frontend | React 19, TypeScript, Vite, TanStack Router/Query |
+| Backend | UV, Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2 async |
+| Database | PostgreSQL |
+| Vector DB | pgvector (`pgvector` chart) |
+| LLM orchestration | Llama Stack (optional — confirm) (`llama-stack` chart) |
+| Model serving | vLLM via `llm-service` chart |
+| Object storage | MinIO (when needed) (`minio` chart) |
+| Local runtime | podman-compose |
+| Monorepo | Turborepo, pnpm, uv |
+| Deploy platform | Red Hat OpenShift AI |
+
+#### Step 5: Select ai-architecture-charts
 
 Spawn the **chart-selector** subagent with the refined features:
 
@@ -105,57 +124,57 @@ charts_reference_path: core/skills/rh-qs-architect/references/ai-architecture-ch
 )
 ```
 
-#### Step 5: Map leftover features to OpenShift AI
+#### Step 6: Map leftover features to OpenShift AI
 
-Prefer the charts selected in Step 4. For each refined PRD feature:
+Prefer the charts selected in Step 5. For each refined PRD feature:
 
 1. If it already matches a selected chart, stop — that feature is covered.
 2. If no chart matches, look it up in [references/rhoai-feature-mapping.md](./references/rhoai-feature-mapping.md) and note which OpenShift AI capability applies, if any.
 
-Keep those OpenShift AI notes for the design document (Step 9, **Red Hat AI feature mapping**). For capabilities not listed in the table, or for more detail, use the documentation hub linked from that file.
+Keep those OpenShift AI notes for the design document (Step 10, **Red Hat AI feature mapping**). For capabilities not listed in the table, or for more detail, use the documentation hub linked from that file.
 
-#### Step 6: Present bill of materials
+#### Step 7: Present bill of materials
 
-Present a short bill of materials for user approval. One line per component: what it is for, what you will build it with, and the chart or RHOAI feature that delivers it.
+Present a structured bill of materials for user approval. One object per component:
 
-> Frontend: React
-> Backend: FastAPI
-> Vector store: PostgreSQL with pgvector (`pgvector` chart)
-> Orchestration: OGX (`ogx-ai` chart)
-> Model serving: vLLM (`llm-service` chart, RHOAI Model serving / KServe)
-> Scheduled ingestion: AI pipelines (RHOAI, no matching chart)
+- `role`: what it is for
+- `technology`: the stack or runtime you build it with (not the chart or RHOAI feature name)
+- `delivery`: the chart and/or RHOAI feature that delivers it (`application` when the quickstart's own code provides it)
 
-**Application package matrix**
+```json
+[
+  {"role": "Frontend", "technology": "React", "delivery": "application"},
+  {"role": "Backend", "technology": "FastAPI", "delivery": "application"},
+  {"role": "Vector store", "technology": "PostgreSQL with pgvector", "delivery": "pgvector chart"},
+  {"role": "Orchestration", "technology": "OGX", "delivery": "ogx-ai chart"},
+  {"role": "Model serving", "technology": "vLLM", "delivery": "llm-service chart, RHOAI Model serving / KServe"},
+  {"role": "Scheduled ingestion", "technology": "KFP 2.0", "delivery": "RHOAI AI pipelines"}
+]
+```
 
-| Package | Include when |
-|---------|--------------|
-| `packages/api` | Always (unless pure static demo) |
-| `packages/ui` | User-facing browser experience |
-| `packages/db` | Persistent or relational data |
-| `packages/ingestion` | RAG: documents loaded into vector store |
+Do not continue until the user approves (or requests changes). Keep the approved list as `{bom}` for Step 8.
 
-**Technology defaults** — present as defaults; override only when PRD requires it.
+#### Step 8: Generate Mermaid architecture diagram
 
-| Layer | Default |
-|-------|---------|
-| Frontend | React 19, TypeScript, Vite, TanStack Router/Query |
-| Backend | UV, Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2 async |
-| Database | PostgreSQL |
-| Vector DB | pgvector |
-| LLM orchestration | Llama Stack (optional — confirm) |
-| Model serving | vLLM via llm-service chart |
-| Object storage | MinIO (when needed) |
-| Local runtime | podman-compose |
-| Monorepo | Turborepo, pnpm, uv |
-| Deploy platform | Red Hat OpenShift AI |
+Pass the approved `{bom}` from Step 7 and the selected chart names from Step 5 to the **diagram-generator** subagent:
 
-Do not continue until the user approves (or requests changes).
+```python
+Agent(
+    description="Generate Mermaid architecture diagram",
+    prompt=f"""
+Read and follow instructions from:
+core/skills/rh-qs-architect/subagents/diagram-generator-prompt.md
 
-#### Step 7: Generate Mermaid architecture diagram
+slug: {slug}
+bom: {bom}
+charts: {chart_names}
+"""
+)
+```
 
-Generate a Mermaid architecture diagram following [references/diagram-guide.md](./references/diagram-guide.md). Include application components and selected ai-architecture-charts relationships.
+The subagent writes `.rhoai-qs/{slug}/pipeline/architecture-diagram.mmd` and returns a short status JSON. If `status` is not `success`, report `message` and stop. Use that file in Step 10.
 
-#### Step 8: Define testing strategy
+#### Step 9: Define testing strategy
 
 Define the testing strategy per component. Note which `rh-qs-test-suite` profile applies (minimal / standard / agent+evals / release train).
 
@@ -167,13 +186,13 @@ Define the testing strategy per component. Note which `rh-qs-test-suite` profile
 | E2E / LLM evals | evaluations harness | Agent quality, RAG responses | `pull_request_target` or nightly |
 | Helm | helm lint + kubeconform | Exported manifests valid | Every PR |
 
-#### Step 9: Write design document
+#### Step 10: Write design document
 
 Write `.rhoai-qs/<slug>/designs/design.md` containing:
 
 ```markdown
 # <Title> — Design
-## Component list (include/exclude matrix)
+## Component list
 ## ai-architecture-charts selections (with versions)
 ## Red Hat AI feature mapping
 ## Mermaid architecture diagram
@@ -182,7 +201,7 @@ Write `.rhoai-qs/<slug>/designs/design.md` containing:
 ## Repository structure notes
 ```
 
-Include the approved BOM, chart selections (with versions where known), RHOAI feature mapping, Mermaid diagram, technology decisions, testing strategy, and repository structure notes.
+Include the approved BOM, chart selections (with versions where known), RHOAI feature mapping, Mermaid diagram from `.rhoai-qs/{slug}/pipeline/architecture-diagram.mmd`, technology decisions, testing strategy, and repository structure notes.
 
 Get user approval of the design before done.
 
@@ -190,11 +209,11 @@ Get user approval of the design before done.
 
 - [ai-architecture-charts](./references/ai-architecture-charts.md)
 - [OpenShift AI feature mapping](./references/rhoai-feature-mapping.md)
-- [Architecture diagram guide](./references/diagram-guide.md)
 - [GitHub workflow catalog](../rh-qs-test-suite/references/workflow-catalog.md)
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 - [subagents/prd-feature-extractor-prompt.md](./subagents/prd-feature-extractor-prompt.md) — pass by file path only, do NOT read directly
 - [subagents/chart-selector-prompt.md](./subagents/chart-selector-prompt.md) — pass by file path only, do NOT read directly
+- [subagents/diagram-generator-prompt.md](./subagents/diagram-generator-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint
 
