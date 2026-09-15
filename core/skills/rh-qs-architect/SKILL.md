@@ -1,6 +1,6 @@
 ---
 name: rh-qs-architect
-description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirements to OpenShift AI 3.4 and ai-architecture-charts, presents a bill of materials, generates a Mermaid diagram, and produces a design document. Use when a PRD exists under .rhoai-qs/<slug>/prds/.
+description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirements to OpenShift AI and ai-architecture-charts, presents a bill of materials, generates a Mermaid diagram, and produces a design document. Use when a PRD exists under .rhoai-qs/<slug>/prds/.
 ---
 
 # rh-qs-architect
@@ -17,7 +17,7 @@ PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/prds/prd.md`
 1. Reads the PRD and extracts structured features (**prd-feature-extractor** subagent)
 2. If `decision_points` exist — presents them to the user, refines `input_features` based on answers
 3. Selects **ai-architecture-charts** components (**chart-selector** subagent)
-4. Maps refined features to **Red Hat OpenShift AI 3.4** features
+4. Maps leftover PRD features (no matching chart) to **OpenShift AI** features
 5. Presents a clear **bill of materials**, e.g.:
    > I will create: React frontend, FastAPI backend, PostgreSQL with pgvector, Llama Stack for orchestration, llm-service for model serving
 6. Generates a **Mermaid architecture diagram** (see [references/diagram-guide.md](./references/diagram-guide.md))
@@ -54,7 +54,7 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 - [ ] 2. Extract features from PRD (prd-feature-extractor subagent)
 - [ ] 3. If decision_points exist → present to user, refine input_features if needed
 - [ ] 4. Select ai-architecture-charts (chart-selector subagent)
-- [ ] 5. Map to OpenShift AI 3.4 features
+- [ ] 5. Map to OpenShift AI features
 - [ ] 6. Present bill of materials — get user approval
 - [ ] 7. Generate Mermaid architecture diagram
 - [ ] 8. Define testing strategy per component
@@ -106,9 +106,14 @@ charts_reference_path: core/skills/rh-qs-architect/references/ai-architecture-ch
 )
 ```
 
-#### Step 5: Map to OpenShift AI 3.4 features
+#### Step 5: Map leftover features to OpenShift AI
 
-Map the refined features and selected charts to Red Hat OpenShift AI capabilities using [references/rhoai-feature-mapping.md](./references/rhoai-feature-mapping.md). Record the mapping for the design document.
+Prefer the charts selected in Step 4. For each refined PRD feature:
+
+1. If it already matches a selected chart, stop — that feature is covered.
+2. If no chart matches, look it up in [references/rhoai-feature-mapping.md](./references/rhoai-feature-mapping.md) and note which OpenShift AI capability applies, if any.
+
+Keep those OpenShift AI notes for the design document (Step 9, **Red Hat AI feature mapping**). For capabilities not listed in the table, or for more detail, use the documentation hub linked from that file.
 
 #### Step 6: Present bill of materials
 
@@ -138,7 +143,7 @@ Present a clear bill of materials for user approval, covering application packag
 | Object storage | MinIO (when needed) |
 | Local runtime | podman-compose |
 | Monorepo | Turborepo, pnpm, uv |
-| Deploy platform | Red Hat OpenShift AI 3.4 |
+| Deploy platform | Red Hat OpenShift AI |
 
 Do not continue until the user approves (or requests changes).
 

@@ -1,11 +1,34 @@
-# Red Hat OpenShift AI 3.4 feature mapping
+# Red Hat OpenShift AI 3.5 feature mapping
 
-| RHOAI feature | Maps to |
-|---------------|---------|
-| Model Serving (KServe / ModelMesh) | llm-service chart, vLLM runtime |
-| Data Science Pipelines (Tekton) | configure-pipeline, ingestion-pipeline |
-| Workbenches (JupyterLab) | configure-pipeline chart |
-| Model Registry | model-registry chart |
-| TrustyAI (bias/explainability) | Llama Stack safety shields |
-| Distributed Workloads (Ray/Kueue) | Custom — not in charts yet |
-| GPU autoscaling | llm-service tolerations + node selectors |
+Use this table for PRD features that did not match an ai-architecture-chart. Match leftover requirements to **Use when**, then record the linked OpenShift AI 3.5 capability in the design.
+
+`(TP)` = [Technology Preview](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/release_notes/technology-preview-features_relnotes). `(DP)` = [Developer Preview](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/release_notes/developer-preview-features_relnotes). Unmarked rows are generally available; some still have TP add-ons in the linked book.
+
+For other features or more detail, see the [OpenShift AI 3.5 documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5).
+
+| RHOAI feature | Use when |
+|---------------|----------|
+| [Model serving platform (KServe)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/deploying_models/deploying_models) | Dedicated KServe server per predictive or gen-AI model (`InferenceService`; default Knative Serverless, or RawDeployment) |
+| [Distributed Inference with llm-d](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/deploy_models_using_distributed_inference_with_llm-d/deploying-models-using-distributed-inference_distributed-inference) | Scaled LLM serving that replaces `InferenceService` with `LLMInferenceService` (prefix-cache routing, optional disaggregated serving) |
+| [Models-as-a-Service](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/govern_llm_access_with_models-as-a-service/index) | Org-wide governed LLM access via subscriptions, token limits, and API keys (governance layer on llm-d or vLLM, not a serving runtime; vLLM-through-MaaS is TP) |
+| [OGX (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/overview-of-ogx_rag) | Unified gen-AI runtime for RAG and agents: inference, embeddings, vector stores, and OpenAI-compatible APIs (formerly Llama Stack) |
+| [Workbenches](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_on_projects/using-project-workbenches_projects) | Isolated project environments (JupyterLab, code-server, RStudio TP) for notebooks, data prep, and model development |
+| [Connections](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_on_projects/using-connections_projects) | Project S3, URI, or OCI credentials for workbenches, pipelines, and model serving |
+| [AI pipelines](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ai_pipelines/index) | KFP 2.0 ML workflows (DSPA), run immediately or on a schedule |
+| [Model catalog](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_the_model_catalog/index) | Discover, evaluate, register, and deploy curated gen-AI / foundation models |
+| [Model registry](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_model_registries/index) | Register, version, share, deploy, and track models |
+| [Feature Store](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_machine_learning_features/overview-of-ml-features-and-feature-store.adoc_featurestore) | Reusable Feast features for training and online inference |
+| [EvalHub](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/evaluating_ai_systems/evaluating-llms-with-evalhub_evaluate) | Evaluate models, agents, tools, prompts, datasets, or safety risk (includes Garak; standalone LM-Eval is deprecated) |
+| [NeMo Guardrails](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/enabling_ai_safety_with_guardrails/enabling-ai-safety-with-nemo-guardrails_nemo-guardrails) | LLM input/output rails (PII, content filters, custom Colang); FMS/TrustyAI orchestrator is deprecated |
+| [TrustyAI monitoring](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/monitoring_your_ai_systems/index) | Bias and data drift for OVMS tabular/predictive models (not LLMs) |
+| [Distributed workloads](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_distributed_workloads/overview-of-distributed-workloads_distributed-workloads) | Ray, Red Hat build of Kueue, or Kubeflow Trainer v2 jobs across nodes |
+| [MLflow](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_mlflow/about-mlflow_mlflow) | Experiment tracking, traces, prompts, and run artifacts (not the OpenShift AI model registry) |
+| [Hardware profiles](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_accelerators/working-with-hardware-profiles_accelerators) | CPU, memory, GPU, and accelerator allocation for workbenches, serving, and pipelines |
+| [MCP catalog (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_the_mcp_catalog/index) | Discover and deploy curated MCP servers (needs the MCP Lifecycle Operator, also TP) |
+| [MCP gateway (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_the_mcp_catalog/index) | Governed MCP entrypoint that aggregates tools and can enforce NeMo rails at the gateway (separate RHCL operator; not autoinstalled) |
+| [Gen AI playground (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/experimenting_with_models_in_the_gen_ai_playground/playground-overview_rhoai-user) | Dashboard chat to prototype models, RAG, prompts, and MCP tools before coding |
+| [Model customization](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/customize_models_for_gen_ai_and_agentic_ai_applications/index) | Prepare data, fine-tune with Training Hub, or improve quality at inference without new weights, then serve |
+| [AutoML (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_automl/automl-overview_automl) | Auto-train and rank tabular or time-series models, then generate notebooks |
+| [AutoRAG (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_autorag/index) | Evaluate RAG pipeline configs on a test set and generate notebooks for the winners |
+| [Kubeflow Spark Operator (DP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/creating_distributed_data_processing_applications_with_the_kubeflow_spark_operator/index) | `SparkApplication` jobs for distributed Spark data processing |
+| [Spark Connect (TP)](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/creating_distributed_data_processing_applications_with_the_kubeflow_spark_operator/running-spark-workloads-from-rhoai-workbenches_data-processing) | Interactive PySpark from Jupyter workbenches via a `SparkConnect` server |
