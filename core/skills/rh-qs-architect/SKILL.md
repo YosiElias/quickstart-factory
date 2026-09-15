@@ -18,8 +18,7 @@ PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/prds/prd.md`
 2. If `decision_points` exist — presents them to the user, refines `input_features` based on answers
 3. Selects **ai-architecture-charts** components (**chart-selector** subagent)
 4. Maps leftover PRD features (no matching chart) to **OpenShift AI** features
-5. Presents a clear **bill of materials**, e.g.:
-   > I will create: React frontend, FastAPI backend, PostgreSQL with pgvector, Llama Stack for orchestration, llm-service for model serving
+5. Presents a **bill of materials** for user approval (role, technology, chart or RHOAI feature)
 6. Generates a **Mermaid architecture diagram** (see [references/diagram-guide.md](./references/diagram-guide.md))
 7. Documents which ai-architecture-charts will be used as Helm subchart dependencies
 8. Specifies **testing strategy** (unit/integration/e2e) based on components
@@ -117,9 +116,14 @@ Keep those OpenShift AI notes for the design document (Step 9, **Red Hat AI feat
 
 #### Step 6: Present bill of materials
 
-Present a clear bill of materials for user approval, covering application packages, selected charts, and technology choices. Example:
+Present a short bill of materials for user approval. One line per component: what it is for, what you will build it with, and the chart or RHOAI feature that delivers it.
 
-> I will create: React frontend, FastAPI backend, PostgreSQL with pgvector, Llama Stack for orchestration, llm-service for model serving
+> Frontend: React
+> Backend: FastAPI
+> Vector store: PostgreSQL with pgvector (`pgvector` chart)
+> Orchestration: OGX (`ogx-ai` chart)
+> Model serving: vLLM (`llm-service` chart, RHOAI Model serving / KServe)
+> Scheduled ingestion: AI pipelines (RHOAI, no matching chart)
 
 **Application package matrix**
 
