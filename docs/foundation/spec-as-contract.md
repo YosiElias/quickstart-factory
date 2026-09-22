@@ -339,10 +339,15 @@ components:
         reason: "UI calls API endpoints"
 
 integration_patterns:
-  # [PLACEHOLDER - to be filled when integration step is implemented]
-  protocols: {}
-  data_flows: []
-  security_boundaries: []
+  protocols:
+    - pair: "Backend → Model serving"
+      protocol: "REST via KServe v2 inference protocol"
+  data_flows:
+    - name: "User query flow"
+      path: "Frontend → Backend API → Vector DB (similarity search) → LLM (context injection) → Response"
+  security_boundaries:
+    - point: "Frontend → Backend"
+      mechanism: "OAuth2 with RHOAI authentication"
 
 architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
 
@@ -384,7 +389,7 @@ Each skill's `spec-template.md` extends the common fields above with skill-speci
 | Skill | Spec File | Key Component Fields |
 |-------|-----------|---------------------|
 | rh-qs-discovery | `discovery-spec.yaml` | Interview plan, PRD section targets |
-| rh-qs-architect | `designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), diagram path, testing strategy |
+| rh-qs-architect | `designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), `integration_patterns`, diagram path, testing strategy |
 | rh-qs-scaffold | `scaffold-spec.yaml` | Repo name, packages, CI jobs, linting config |
 | rh-qs-implement | `implementation-spec.yaml` | Endpoints, schemas, services, DB models, UI routes |
 | rh-qs-deploy | `deploy-spec.yaml` | Chart dependencies, values overrides, compose services, Containerfile specs |

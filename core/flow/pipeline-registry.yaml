@@ -49,12 +49,12 @@ skills:
         description: "Quickstart slug"
     expected_outputs:
       - path: ".rhoai-qs/{qs-name}/designs/architecture-spec.yaml"
-        description: "Structured YAML handoff spec with technology stack, component BOM, testing strategy, and upstream dependencies"
+        description: "Structured YAML handoff spec with technology stack, component BOM, integration_patterns (protocols, data flows, security boundaries), testing strategy, and upstream dependencies"
       - path: ".rhoai-qs/{qs-name}/designs/architecture-diagram.mmd"
         description: "Mermaid architecture diagram referenced by architecture-spec.yaml"
     review_guidance: |
       - architecture-spec.yaml exists at [.rhoai-qs/{qs-name}/designs/architecture-spec.yaml](../../../.rhoai-qs/{qs-name}/designs/architecture-spec.yaml) with all required sections filled in
-      - Review content: technology_stack complete, component BOM matches PRD, chart versions pinned, testing_strategy defined, dependencies include content_hash
+      - Review content: technology_stack complete, component BOM matches PRD, integration_patterns cover non-obvious protocols/flows/security boundaries, chart versions pinned, testing_strategy defined, dependencies include content_hash
       - architecture-diagram.mmd exists at [.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd](../../../.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd) and matches components
       - Recommend getting a peer engineer review on the architecture spec before continuing
     next_skill: rh-qs-scaffold

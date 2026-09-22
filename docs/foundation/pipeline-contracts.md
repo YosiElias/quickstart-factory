@@ -87,10 +87,23 @@ components:
         reason: "API calls LLM for inference"
 
 integration_patterns:
-  # [PLACEHOLDER - to be filled when step 8 is implemented]
-  protocols: {}
-  data_flows: []
-  security_boundaries: []
+  protocols:
+    - pair: "Backend → Model serving"
+      protocol: "REST via KServe v2 inference protocol"
+    - pair: "Ingestion → Vector DB"
+      protocol: "Message queue (NATS) for async document processing"
+  data_flows:
+    - name: "User query flow"
+      path: "Frontend → Backend API → Vector DB (similarity search) → LLM (context injection) → Response"
+    - name: "Document ingestion"
+      path: "Upload → Backend → Embedding service → Vector DB storage"
+  security_boundaries:
+    - point: "Frontend → Backend"
+      mechanism: "OAuth2 with RHOAI authentication"
+    - point: "Backend → Model serving"
+      mechanism: "Service account token, network policy to model namespace"
+    - point: "Secrets"
+      mechanism: "OpenShift secrets for DB credentials and model API keys"
 
 architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
 
@@ -140,7 +153,16 @@ dependencies:
 | `components.<name>.constraints` | list | no | PRD/requirement constraints (GPU, storage, etc.) |
 | `components.<name>.kb_sources` | list of objects | no | KB files with path and match_reason |
 | `components.<name>.dependencies` | list | no | Component dependencies with reason |
-| `integration_patterns` | map | yes | Placeholder for protocols, data flows, security boundaries |
+| `integration_patterns` | map | yes | Communication protocols, data flows, and security boundaries (from integration-analyzer subagent, Step 8) |
+| `integration_patterns.protocols` | list | yes | Non-obvious communication patterns between component pairs |
+| `integration_patterns.protocols[].pair` | string | yes | Component pair or integration point (e.g., "Backend → Model serving") |
+| `integration_patterns.protocols[].protocol` | string | yes | Protocol name, version, and brief justification if non-standard |
+| `integration_patterns.data_flows` | list | yes | Major user and system flows through components |
+| `integration_patterns.data_flows[].name` | string | yes | Human-readable flow name |
+| `integration_patterns.data_flows[].path` | string | yes | Component chain with arrows and context |
+| `integration_patterns.security_boundaries` | list | yes | Security considerations at component boundaries |
+| `integration_patterns.security_boundaries[].point` | string | yes | Boundary or security checkpoint name |
+| `integration_patterns.security_boundaries[].mechanism` | string | yes | Security approach (auth, secrets, policy, isolation, etc.) |
 | `architecture_diagram_path` | string | yes | Path to Mermaid diagram file (e.g., `.rhoai-qs/<slug>/designs/architecture-diagram.mmd`) |
 | `testing_strategy` | map | yes | Testing levels and scope (no tool commands) |
 | `dependencies` | list | yes | Upstream specs with content_hash |

@@ -20,7 +20,7 @@ PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/prds/prd.md`
 4. Selects **ai-architecture-charts** components (**chart-selector** subagent)
 5. Maps leftover PRD features (no matching chart) to **OpenShift AI** features
 6. Presents a **bill of materials** for user approval (`{role, technology, delivery}` per component)
-7. Defines **integration patterns and data flow** [PLACEHOLDER - future implementation]
+7. Defines **integration patterns and data flow** (**integration-analyzer** subagent — protocols, data flows, security boundaries with KB grounding)
 8. Generates a **Mermaid architecture diagram** (**diagram-generator** subagent)
 9. Specifies **testing strategy** (levels and scope) based on components
 10. Writes **architecture-spec.yaml** with all architecture decisions and component details
@@ -158,14 +158,27 @@ Do not continue until the user approves (or requests changes). Keep the approved
 
 #### Step 8: Define integration patterns and data flow
 
-[PLACEHOLDER - to be implemented]
+Spawn the **integration-analyzer** subagent to analyze how BOM components communicate, map data flows, and define security considerations:
 
-Define:
-- **Communication protocols** between components (REST, gRPC, async messaging)
-- **Data flow paths** (user input → component chain → output)
-- **Security boundaries** (auth points, network policies, secret management)
+```python
+Agent(
+    description="Analyze integration patterns for {slug}",
+    prompt=f"""
+Read and follow instructions from:
+core/skills/rh-qs-architect/subagents/integration-analyzer-prompt.md
 
-This step will be implemented in a future iteration with main-agent reasoning.
+slug: {slug}
+bom: {bom}
+"""
+)
+```
+
+The subagent analyzes three integration fields and returns JSON:
+- `protocols` — non-obvious communication patterns (skip REST/SQL)
+- `data_flows` — user and system flows through components
+- `security_boundaries` — auth, secrets, network policy considerations
+
+Store the returned JSON as `{integration_patterns}` in context for Step 11.
 
 #### Step 9: Generate Mermaid architecture diagram
 
@@ -207,7 +220,7 @@ Include:
 - **Header:** spec_version, quickstart_name, slug, skill, created_at
 - **Technology Stack:** Full stack listing (frontend, backend, database, vector_db, model_serving, etc.)
 - **Components:** Approved BOM with nested details per component (type, role, technology, delivery, chart config, rhoai_features, constraints, kb_sources with match_reason, dependencies)
-- **Integration & Data Flow:** [PLACEHOLDER section for future implementation]
+- **Integration & Data Flow:** Pull from `{integration_patterns}` (protocols, data_flows, security_boundaries) returned by Step 8
 - **Architecture Diagram:** Reference to `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`
 - **Testing Strategy:** Levels and scope
 - **Dependencies:** Reference to prd.md, prd-features.yaml, and kb-scores.yaml with content_hash
@@ -222,6 +235,7 @@ Get user approval of the architecture spec before done.
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 - [subagents/prd-feature-extractor-prompt.md](./subagents/prd-feature-extractor-prompt.md) — pass by file path only, do NOT read directly
 - [subagents/chart-selector-prompt.md](./subagents/chart-selector-prompt.md) — pass by file path only, do NOT read directly
+- [subagents/integration-analyzer-prompt.md](./subagents/integration-analyzer-prompt.md) — pass by file path only, do NOT read directly
 - [subagents/diagram-generator-prompt.md](./subagents/diagram-generator-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint

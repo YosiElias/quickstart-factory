@@ -1,6 +1,6 @@
 # Architect Subagents
 
-This directory contains the subagents used by `rh-qs-architect` ([../SKILL.md](../SKILL.md)). The validation-skill resolves which quickstart a session applies to, the prd-feature-extractor parses the PRD into structured features, the chart-selector selects Helm subcharts by matching chart capabilities to those features, and the diagram-generator writes a Mermaid architecture diagram from the approved bill of materials.
+This directory contains the subagents used by `rh-qs-architect` ([../SKILL.md](../SKILL.md)). The validation-skill resolves which quickstart a session applies to, the prd-feature-extractor parses the PRD into structured features, the chart-selector selects Helm subcharts by matching chart capabilities to those features, the integration-analyzer maps protocols, data flows, and security boundaries from the approved BOM with KB grounding, and the diagram-generator writes a Mermaid architecture diagram from the approved bill of materials.
 
 ## Subagent Prompts
 
@@ -78,7 +78,34 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 }
 ```
 
-### 4. diagram-generator-prompt.md
+### 4. integration-analyzer-prompt.md
+
+| Field | Description |
+|-------|-------------|
+| **Name** | `integration-analyzer-prompt.md` |
+| **Purpose** | Analyze integration patterns, data flows, and security boundaries for approved BOM components |
+| **Input** | `slug`, `bom` (approved bill of materials JSON from Step 7) |
+| **Output** | JSON with `protocols`, `data_flows`, and `security_boundaries` arrays |
+| **When used** | Step 8 — after BOM approval, before diagram generation |
+| **Why subagent** | KB-backed integration analysis in isolated context — keeps the main agent focused on orchestration while surfacing non-obvious protocols, flows, and security boundaries |
+
+**Output schema:**
+
+```json
+{
+  "protocols": [
+    {"pair": "Backend → Model serving", "protocol": "REST via KServe v2 inference protocol"}
+  ],
+  "data_flows": [
+    {"name": "User query flow", "path": "Frontend → Backend API → Vector DB → LLM → Response"}
+  ],
+  "security_boundaries": [
+    {"point": "Frontend → Backend", "mechanism": "OAuth2 with RHOAI authentication"}
+  ]
+}
+```
+
+### 5. diagram-generator-prompt.md
 
 | Field | Description |
 |-------|-------------|

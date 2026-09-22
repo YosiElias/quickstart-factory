@@ -58,10 +58,15 @@ components:
 
 # ─── Integration & Data Flow ──────────────────────────────────
 integration_patterns:
-  # [PLACEHOLDER - to be filled when step 8 is implemented]
-  protocols: {}
-  data_flows: []
-  security_boundaries: []
+  protocols:
+    - pair: "<component-pair>"
+      protocol: "<protocol name, version, and brief justification>"
+  data_flows:
+    - name: "<flow name>"
+      path: "<component chain with arrows>"
+  security_boundaries:
+    - point: "<boundary name>"
+      mechanism: "<auth, secrets, policy, or isolation approach>"
 
 # ─── Architecture Diagram ─────────────────────────────────────
 architecture_diagram_path: .rhoai-qs/<slug>/designs/architecture-diagram.mmd
