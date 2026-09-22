@@ -182,7 +182,7 @@ Store the returned JSON as `{integration_patterns}` in context for Step 11.
 
 #### Step 9: Generate Mermaid architecture diagram
 
-Pass the approved `{bom}` from Step 7 and the selected chart names from Step 5 to the **diagram-generator** subagent:
+Pass the approved `{bom}` from Step 7, the selected chart names from Step 5, and integration patterns from Step 8 to the **diagram-generator** subagent:
 
 ```python
 Agent(
@@ -194,6 +194,7 @@ core/skills/rh-qs-architect/subagents/diagram-generator-prompt.md
 slug: {slug}
 bom: {bom}
 charts: {chart_names}
+integration_patterns: {integration_patterns}
 """
 )
 ```

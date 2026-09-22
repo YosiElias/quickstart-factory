@@ -14,6 +14,7 @@ You draw the architecture diagram for this quickstart from the **approved bill o
 - `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/prds/prd.md`
 - `{bom}`: approved bill of materials — a list of `{role, technology, delivery}` objects
 - `{charts}`: selected ai-architecture-charts names only (e.g. `["ogx-ai", "llm-service", "pgvector"]`)
+- `{integration_patterns}`: output from integration-analyzer subagent — `protocols`, `data_flows`, and `security_boundaries`
 
 ### Step 1: Build nodes from the BOM
 
@@ -23,7 +24,9 @@ Use `role` for what the node is, `technology` for the label when it helps, and `
 
 ### Step 2: Infer edges
 
-Draw edges from each component's `role` and from PRD sections that describe interaction. Read `.rhoai-qs/{slug}/prds/prd.md` when you need that context — component relationships, user flow, or how data moves. Start with **User flows**; use **Data model** or **AI touchpoints** if the path is still unclear. Do not reread the PRD for requirements extraction.
+Draw edges from each component's `role` and from interaction patterns. **Prefer `protocols` from `{integration_patterns}`** for non-obvious communication (gRPC, message queues, custom protocols). For standard patterns (REST, SQL, HTTP), infer from BOM roles and PRD sections.
+
+Read `.rhoai-qs/{slug}/prds/prd.md` when you need fallback context — component relationships, user flow, or data movement. Start with **User flows**; use **Data model** or **AI touchpoints** if the path is still unclear. Do not reread the PRD for requirements extraction.
 
 The PRD follows a standard 7-section template:
 
@@ -35,7 +38,10 @@ The PRD follows a standard 7-section template:
 6. Constraints and non-goals
 7. Open questions
 
-Label edges with protocol or data type when it is obvious (HTTP, WebSocket, S3).
+Label edges with:
+- Protocol from `{integration_patterns.protocols}` (gRPC, message queue, WebSocket, etc.)
+- Standard inferred types (HTTP, REST, SQL, S3) when not in protocols
+- Security marker (🔒) when the edge appears in `{integration_patterns.security_boundaries}`
 
 ### Step 3: Write the diagram
 
@@ -43,25 +49,29 @@ Write Mermaid source (no markdown fence) to `.rhoai-qs/{slug}/designs/architectu
 
 - Use `flowchart TB` or `flowchart LR`, whichever fits the graph
 - Keep every node in the same graph. Mark ready subchart nodes (names in `{charts}`) with hexagon shape `id{{label}}`; use rectangles for everything else (application code, OpenShift Route, RHOAI-only features)
-- Add a short Legend: rectangle = Not a subchart, hexagon = Ready subchart
+- Label edges with protocols from `{integration_patterns.protocols}` (non-obvious only) or infer standard types (REST, SQL)
+- Mark edges with 🔒 when they appear in `{integration_patterns.security_boundaries}`
+- Add a short Legend: rectangle = Not a subchart, hexagon = Ready subchart, 🔒 = Auth/secrets
 - Include the Route node when a UI or API is exposed
 
 Example (sample BOM — Frontend, Backend, pgvector, OGX, llm-service, AI pipelines):
 
 ```mermaid
 flowchart TB
-  User --> Route[OpenShift Route]
+  User -->|HTTP| Route[OpenShift Route]
   Route --> UI[Frontend]
-  UI -->|HTTP| API[Backend]
-  API --> DB{{PostgreSQL + pgvector}}
-  API --> ORCH{{OGX}}
-  ORCH -->|HTTP| LLM{{llm-service / vLLM}}
-  API --> PIPE[AI pipelines]
+  UI -->|REST| API[Backend]
+  API -->|gRPC 🔒| LLM{{llm-service / vLLM}}
+  API -->|pgvector SQL 🔒| DB{{PostgreSQL + pgvector}}
+  API -->|Message Queue 🔒| ORCH{{OGX}}
+  ORCH -->|HTTP 🔒| LLM
+  API --> PIPE[AI Pipelines]
 
   subgraph legend [Legend]
     direction LR
     L_other[Not a subchart]
     L_chart{{Ready subchart}}
+    L_sec["🔒 = Auth/secrets"]
   end
 ```
 
