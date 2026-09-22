@@ -85,8 +85,8 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 | **Name** | `diagram-generator-prompt.md` |
 | **Purpose** | Generate a Mermaid architecture diagram from the approved bill of materials |
 | **Input** | `slug` (PRD path derived as `.rhoai-qs/{slug}/prds/prd.md`), `bom` (list of `{role, technology, delivery}`), `charts` (selected chart names only) |
-| **Output** | Writes `.rhoai-qs/{slug}/pipeline/architecture-diagram.mmd`; returns JSON with `status`, `path`, and a short `message` |
-| **When used** | Step 8 — after BOM approval, before the design document |
+| **Output** | Writes `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`; returns JSON with `status`, `path`, and a short `message` |
+| **When used** | Step 9 — after BOM approval, before the architecture spec |
 | **Why subagent** | Isolated diagram task — nodes from the BOM, edges from roles and PRD user flows, so the main agent stays on orchestration |
 
 **Output schema:**
@@ -94,7 +94,7 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 ```json
 {
   "status": "success",
-  "path": ".rhoai-qs/mortgage-processor/pipeline/architecture-diagram.mmd",
+  "path": ".rhoai-qs/mortgage-processor/designs/architecture-diagram.mmd",
   "message": "Wrote architecture diagram."
 }
 ```

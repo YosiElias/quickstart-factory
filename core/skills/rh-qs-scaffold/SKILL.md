@@ -10,7 +10,7 @@ description: Scaffold a new AI Quickstart GitHub repository with CI/CD, linting,
 
 ## Trigger
 
-Design document approved from `rh-qs-architect` at `.rhoai-qs/<slug>/designs/design.md`
+Architecture spec approved from `rh-qs-architect` at `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
 
 ## What it does
 
@@ -224,7 +224,7 @@ When scaffold is pushed and CI is green → **`rh-qs-implement`**
 
 - [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template)
 - [it-self-service-agent CI patterns](../rh-qs-test-suite/SKILL.md) — production workflow split (post-deploy)
-- Design doc: `.rhoai-qs/<slug>/designs/design.md`
+- Architecture spec: `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint

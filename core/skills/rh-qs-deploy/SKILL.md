@@ -13,7 +13,7 @@ Local verification passed from **`rh-qs-verify-build`** (`make dev`, `make test`
 
 ## Where This Runs
 
-This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo, since that's where Helm charts and Containerfiles live. Pipeline files and the design doc sit right alongside the code in this same folder — reference them as plain relative paths (`designs/design.md`, `pipeline/...`), no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
+This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo, since that's where Helm charts and Containerfiles live. Pipeline files and the architecture spec sit right alongside the code in this same folder — reference them as plain relative paths (`designs/architecture-spec.yaml`, `pipeline/...`), no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
 
 ## Agent guardrails
 
@@ -73,7 +73,7 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 
 ### Helm subcharts
 
-Add dependencies from https://rh-ai-quickstart.github.io/ai-architecture-charts. Pin versions from design doc.
+Add dependencies from https://rh-ai-quickstart.github.io/ai-architecture-charts. Pin versions from architecture spec.
 
 Detailed guides:
 
@@ -124,7 +124,7 @@ When deploy configs render locally → **`rh-qs-test-suite`** (if design include
 - [Helm: Llama Stack guide](./references/helm-llamastack.md)
 - [Helm: MinIO guide](./references/helm-minio.md)
 - [ai-architecture-charts](https://github.com/rh-ai-quickstart/ai-architecture-charts)
-- Design doc: `designs/design.md`
+- Architecture spec: `designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint

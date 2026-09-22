@@ -1,6 +1,6 @@
 ---
 name: rh-qs-architect
-description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirements to OpenShift AI and ai-architecture-charts, presents a bill of materials, generates a Mermaid diagram, and produces a design document. Use when a PRD exists under .rhoai-qs/<slug>/prds/.
+description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirements to OpenShift AI and ai-architecture-charts, presents a bill of materials, generates a Mermaid diagram, and produces an architecture spec. Use when a PRD exists under .rhoai-qs/<slug>/prds/.
 ---
 
 # rh-qs-architect
@@ -20,9 +20,10 @@ PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/prds/prd.md`
 4. Selects **ai-architecture-charts** components (**chart-selector** subagent)
 5. Maps leftover PRD features (no matching chart) to **OpenShift AI** features
 6. Presents a **bill of materials** for user approval (`{role, technology, delivery}` per component)
-7. Generates a **Mermaid architecture diagram** (**diagram-generator** subagent)
-8. Documents which ai-architecture-charts will be used as Helm subchart dependencies
-9. Specifies **testing strategy** (unit/integration/e2e) based on components
+7. Defines **integration patterns and data flow** [PLACEHOLDER - future implementation]
+8. Generates a **Mermaid architecture diagram** (**diagram-generator** subagent)
+9. Specifies **testing strategy** (levels and scope) based on components
+10. Writes **architecture-spec.yaml** with all architecture decisions and component details
 
 ## Workflow
 
@@ -57,9 +58,10 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 - [ ] 5. Select ai-architecture-charts (chart-selector subagent)
 - [ ] 6. Map to OpenShift AI features
 - [ ] 7. Present bill of materials — get user approval
-- [ ] 8. Generate Mermaid architecture diagram
-- [ ] 9. Define testing strategy per component
-- [ ] 10. Write design document
+- [ ] 8. Define integration patterns and data flow
+- [ ] 9. Generate Mermaid architecture diagram
+- [ ] 10. Define testing strategy per component
+- [ ] 11. Write architecture spec
 ```
 
 #### Step 1: Read PRD
@@ -131,7 +133,7 @@ Prefer the charts selected in Step 5. For each refined PRD feature:
 1. If it already matches a selected chart, stop — that feature is covered.
 2. If no chart matches, look it up in [references/rhoai-feature-mapping.md](./references/rhoai-feature-mapping.md) and note which OpenShift AI capability applies, if any.
 
-Keep those OpenShift AI notes for the design document (Step 10, **Red Hat AI feature mapping**). For capabilities not listed in the table, or for more detail, use the documentation hub linked from that file.
+Keep those OpenShift AI notes for the design document (Step 11, **Red Hat AI feature mapping**). For capabilities not listed in the table, or for more detail, use the documentation hub linked from that file.
 
 #### Step 7: Present bill of materials
 
@@ -152,9 +154,20 @@ Present a structured bill of materials for user approval. One object per compone
 ]
 ```
 
-Do not continue until the user approves (or requests changes). Keep the approved list as `{bom}` for Step 8.
+Do not continue until the user approves (or requests changes). Keep the approved list as `{bom}` for Step 9.
 
-#### Step 8: Generate Mermaid architecture diagram
+#### Step 8: Define integration patterns and data flow
+
+[PLACEHOLDER - to be implemented]
+
+Define:
+- **Communication protocols** between components (REST, gRPC, async messaging)
+- **Data flow paths** (user input → component chain → output)
+- **Security boundaries** (auth points, network policies, secret management)
+
+This step will be implemented in a future iteration with main-agent reasoning.
+
+#### Step 9: Generate Mermaid architecture diagram
 
 Pass the approved `{bom}` from Step 7 and the selected chart names from Step 5 to the **diagram-generator** subagent:
 
@@ -172,38 +185,34 @@ charts: {chart_names}
 )
 ```
 
-The subagent writes `.rhoai-qs/{slug}/pipeline/architecture-diagram.mmd` and returns a short status JSON. If `status` is not `success`, report `message` and stop. Use that file in Step 10.
+The subagent writes `.rhoai-qs/{slug}/designs/architecture-diagram.mmd` and returns a short status JSON. If `status` is not `success`, report `message` and stop. Use that file in Step 11.
 
-#### Step 9: Define testing strategy
+#### Step 10: Define testing strategy
 
 Define the testing strategy per component. Note which `rh-qs-test-suite` profile applies (minimal / standard / agent+evals / release train).
 
-| Level | Tool | Scope | Runs when |
-|-------|------|-------|-----------|
-| Unit (Python) | pytest | Routes, schemas, services | Every PR (`pr-checks` / `ci.yaml`) |
-| Unit (TypeScript) | vitest | Components, hooks | Every PR |
-| Integration | pytest + Kind/compose | API + DB + in-cluster services | PR E2E workflow (`rh-qs-test-suite`) |
-| E2E / LLM evals | evaluations harness | Agent quality, RAG responses | `pull_request_target` or nightly |
-| Helm | helm lint + kubeconform | Exported manifests valid | Every PR |
+| Level | Scope | Runs when |
+|-------|-------|-----------|
+| Unit (Python) | Routes, schemas, services | Every PR (`pr-checks` / `ci.yaml`) |
+| Unit (TypeScript) | Components, hooks | Every PR |
+| Integration | API + DB + in-cluster services | PR E2E workflow (`rh-qs-test-suite`) |
+| E2E / LLM evals | Agent quality, RAG responses | `pull_request_target` or nightly |
+| Helm | Exported manifests valid | Every PR |
 
-#### Step 10: Write design document
+#### Step 11: Write architecture spec
 
-Write `.rhoai-qs/<slug>/designs/design.md` containing:
+Write `.rhoai-qs/<slug>/designs/architecture-spec.yaml` following the template in [references/architecture-spec-template.yaml](./references/architecture-spec-template.yaml).
 
-```markdown
-# <Title> — Design
-## Component list
-## ai-architecture-charts selections (with versions)
-## Red Hat AI feature mapping
-## Mermaid architecture diagram
-## Technology decisions (defaults or overrides)
-## Testing strategy per component
-## Repository structure notes
-```
+Include:
+- **Header:** spec_version, quickstart_name, slug, skill, created_at
+- **Technology Stack:** Full stack listing (frontend, backend, database, vector_db, model_serving, etc.)
+- **Components:** Approved BOM with nested details per component (type, role, technology, delivery, chart config, rhoai_features, constraints, kb_sources with match_reason, dependencies)
+- **Integration & Data Flow:** [PLACEHOLDER section for future implementation]
+- **Architecture Diagram:** Reference to `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`
+- **Testing Strategy:** Levels and scope
+- **Dependencies:** Reference to prd.md, prd-features.yaml, and kb-scores.yaml with content_hash
 
-Include the approved BOM, chart selections (with versions where known), RHOAI feature mapping, Mermaid diagram from `.rhoai-qs/{slug}/pipeline/architecture-diagram.mmd`, technology decisions, testing strategy, and repository structure notes.
-
-Get user approval of the design before done.
+Get user approval of the architecture spec before done.
 
 ## References
 

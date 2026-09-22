@@ -1,0 +1,103 @@
+# ─── Header ───────────────────────────────────────────────────
+spec_version: 1
+quickstart_name: "<Human-readable name>"
+slug: <lowercase-hyphenated-slug>
+skill: rh-qs-architect
+created_at: "<ISO 8601 timestamp>"
+
+# ─── Technology Stack ─────────────────────────────────────────
+# Short 1-2 line descriptions for each technology layer.
+# Include framework/tool name, version, and key details.
+# Examples:
+#   frontend: "React 19 with TypeScript, Vite build, TanStack Router/Query for routing and state"
+#   backend: "FastAPI with Python 3.12+, UV package manager, Pydantic v2, SQLAlchemy 2 async ORM"
+#   llm_orchestration: "LangGraph for agent workflows with memory and tool integration"
+technology_stack:
+  frontend: "<Framework, version, language, build tool, key libraries>"
+  backend: "<Framework, language, version, package manager, ORM, validation>"
+  database: "<Engine and version>"
+  vector_db: "<Engine and chart if applicable - e.g., 'pgvector via ai-architecture-charts/pgvector'>"
+  llm_orchestration: "<Framework and chart if applicable - e.g., 'Llama Stack via ai-architecture-charts/llama-stack' or 'LangGraph'>"
+  model_serving: "<Engine and chart - e.g., 'vLLM via ai-architecture-charts/llm-service'>"
+  object_storage: "<Engine and chart when needed - e.g., 'MinIO via ai-architecture-charts/minio'>"
+  local_runtime: "<Local development runtime - e.g., 'podman-compose'>"
+  monorepo: "<Tool, node package manager, python package manager - e.g., 'Turborepo with pnpm and uv'>"
+  deploy_platform: "Red Hat OpenShift AI"
+  # Add additional technology layers as needed for this quickstart
+
+# ─── Components ───────────────────────────────────────────────
+components:
+  <component-name>:
+    type: inference | database | backend | ui | worker | gateway
+    role: "<What this component does>"
+    technology: "<Stack/runtime - e.g., 'FastAPI', 'React', 'vLLM', 'PostgreSQL with pgvector'>"
+    delivery: chart | rhoai | application | chart+rhoai
+
+    # If delivery includes 'chart'
+    chart:
+      name: <org>/<chart-name>
+      version: "<semver>"
+
+    # If delivery includes 'rhoai'
+    rhoai_features:
+      - feature: "<RHOAI capability name>"
+        purpose: "<How this component uses it>"
+
+    # Optional constraints from PRD/requirements
+    constraints:
+      - "<e.g., 'Must fit in 2x A100 GPUs'>"
+      - "<e.g., 'Storage under 50Gi'>"
+
+    kb_sources:
+      - path: "<KB file path>"
+        match_reason: "<Why this KB was selected for this component>"
+
+    dependencies:
+      - component: <other-component-name>
+        reason: "<Why this dependency exists>"
+
+# ─── Integration & Data Flow ──────────────────────────────────
+integration_patterns:
+  # [PLACEHOLDER - to be filled when step 8 is implemented]
+  protocols: {}
+  data_flows: []
+  security_boundaries: []
+
+# ─── Architecture Diagram ─────────────────────────────────────
+architecture_diagram_path: .rhoai-qs/<slug>/designs/architecture-diagram.mmd
+
+# ─── Testing Strategy ─────────────────────────────────────────
+testing_strategy:
+  profile: minimal | standard | agent+evals | release_train
+
+  unit_tests:
+    python:
+      scope: "Routes, schemas, services"
+      runs_on: "Every PR (pr-checks / ci.yaml)"
+    typescript:
+      scope: "Components, hooks"
+      runs_on: "Every PR"
+
+  integration_tests:
+    scope: "API + DB + in-cluster services"
+    runs_on: "PR E2E workflow (rh-qs-test-suite)"
+
+  e2e_tests:
+    scope: "Agent quality, RAG responses"
+    runs_on: "pull_request_target or nightly"
+
+  helm_validation:
+    scope: "Exported manifests valid"
+    runs_on: "Every PR"
+
+# ─── Dependencies ─────────────────────────────────────────────
+dependencies:
+  - spec: .rhoai-qs/<slug>/prds/prd.md
+    fields_used: [problem_statement, target_persona, technology_constraints]
+    content_hash: "sha256:..."
+  - spec: .rhoai-qs/<slug>/pipeline/prd-features.yaml
+    fields_used: [input_features, deployment_questions, decision_points]
+    content_hash: "sha256:..."
+  - spec: .rhoai-qs/<slug>/pipeline/kb-scores.yaml
+    fields_used: [results]
+    content_hash: "sha256:..."

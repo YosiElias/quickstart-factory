@@ -13,7 +13,7 @@ Scaffold exists from `rh-qs-scaffold`
 
 ## Where This Runs
 
-This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo, since that's where the application code lives. The PRD, design doc, and pipeline specs/manifests sit right alongside the code in this same folder — reference them as plain relative paths (`prds/prd.md`, `designs/design.md`, `pipeline/...`), no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
+This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo, since that's where the application code lives. The PRD, architecture spec, and pipeline specs/manifests sit right alongside the code in this same folder — reference them as plain relative paths (`prds/prd.md`, `designs/architecture-spec.yaml`, `pipeline/...`), no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
 
 ## What it does
 
@@ -134,7 +134,7 @@ When vertical slice works locally → **`rh-qs-verify-build`**
 - [Monorepo layout](./references/template-layout.md)
 - [Design checklist](./references/design-checklist.md)
 - PRD: `prds/prd.md`
-- Design: `designs/design.md`
+- Architecture spec: `designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint

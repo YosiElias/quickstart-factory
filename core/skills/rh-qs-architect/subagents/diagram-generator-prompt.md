@@ -39,7 +39,7 @@ Label edges with protocol or data type when it is obvious (HTTP, WebSocket, S3).
 
 ### Step 3: Write the diagram
 
-Write Mermaid source (no markdown fence) to `.rhoai-qs/{slug}/pipeline/architecture-diagram.mmd`.
+Write Mermaid source (no markdown fence) to `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`.
 
 - Use `flowchart TB` or `flowchart LR`, whichever fits the graph
 - Keep every node in the same graph. Mark ready subchart nodes (names in `{charts}`) with hexagon shape `id{{label}}`; use rectangles for everything else (application code, OpenShift Route, RHOAI-only features)
@@ -74,7 +74,7 @@ After the file is written, return **only JSON** matching the schema below.
 ```json
 {
   "status": "success",
-  "path": ".rhoai-qs/mortgage-processor/pipeline/architecture-diagram.mmd",
+  "path": ".rhoai-qs/mortgage-processor/designs/architecture-diagram.mmd",
   "message": "Wrote architecture diagram."
 }
 ```

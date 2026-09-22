@@ -12,7 +12,7 @@ description: |
 
 ## Trigger
 
-- Design doc is being written or reviewed (`rh-qs-architect`)
+- Architecture spec is being written or reviewed (`rh-qs-architect`)
 - Implementation touches auth, secrets, RBAC, or agent tools (`rh-qs-implement`)
 - Deployment wiring secrets or ServiceAccounts (`rh-qs-deploy`)
 - Post-deploy verification includes security checks (`rh-qs-verify-deploy`)
@@ -31,7 +31,7 @@ Do not conflate them. Minimal cluster permissions do not replace proper secret h
 1. Defines **least-privilege cluster access** for agents building quickstarts
 2. Audits **application security**: secrets, RBAC, network policy, prompt/input guards
 3. Documents **OpenShift AI / Llama Stack safety** settings when agents or LLMs are in scope
-4. Records security decisions in the design doc **Security considerations** section
+4. Records security decisions in the architecture spec **Security considerations** section
 5. Adds Makefile/Helm patterns so humans and CI verify security without ad-hoc `oc` commands
 
 ## Workflow
@@ -43,7 +43,7 @@ Do not conflate them. Minimal cluster permissions do not replace proper secret h
 - [ ] 4. Wire secrets via OpenShift Secrets / External Secrets — never plain text in Git
 - [ ] 5. Scope ServiceAccount RBAC to the release namespace
 - [ ] 6. Add prompt/input guardrails when LLM or agent endpoints are user-facing
-- [ ] 7. Update design doc Security considerations + .env.example (names only)
+- [ ] 7. Update architecture spec Security considerations + .env.example (names only)
 - [ ] 8. Confirm verify-deploy includes security smoke checks
 ```
 
@@ -77,7 +77,7 @@ See [references/application-security.md](./references/application-security.md):
 
 ## Output
 
-- Design doc section: **Security considerations**
+- Architecture spec section: **Security considerations**
 - Helm: `Secret` templates or `existingSecret` patterns; scoped `Role`/`RoleBinding`
 - `.env.example` with variable names only
 - Optional `docs/security.md` for non-obvious threat model notes
@@ -91,4 +91,4 @@ Security review is **embedded** in the pipeline — not a terminal stage. After 
 - [Agent permissions and MCP guardrails](./references/agent-permissions.md)
 - [Application security checklist](./references/application-security.md)
 - [Llama Stack safety](https://llama-stack.readthedocs.io/) — when orchestration is enabled
-- Design doc: `.rhoai-qs/<slug>/designs/design.md` when invoked from the factory root (e.g. during `rh-qs-architect`), or plain `designs/design.md` when invoked from inside the scaffolded quickstart repo itself (e.g. during `rh-qs-deploy`, which already runs from `.rhoai-qs/<slug>/`)
+- Architecture spec: `.rhoai-qs/<slug>/designs/architecture-spec.yaml` when invoked from the factory root (e.g. during `rh-qs-architect`), or plain `designs/architecture-spec.yaml` when invoked from inside the scaffolded quickstart repo itself (e.g. during `rh-qs-deploy`, which already runs from `.rhoai-qs/<slug>/`)

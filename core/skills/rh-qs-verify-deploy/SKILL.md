@@ -18,7 +18,7 @@ description: |
 
 ## Where This Runs
 
-This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo. Pipeline files, design doc, and reports sit right alongside the code in this same folder — reference them as plain relative paths, no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
+This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo. Pipeline files, architecture spec, and reports sit right alongside the code in this same folder — reference them as plain relative paths, no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
 
 ## Purpose
 
@@ -66,7 +66,7 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 ### Remaining phases
 
 ```
-- [ ] 1. Read design doc + deploy Makefile targets
+- [ ] 1. Read architecture spec + deploy Makefile targets
 - [ ] 2. Run make helm-lint && make helm-template (local, no cluster)
 - [ ] 3. Confirm make deploy completed (or run via deployment sub-agent)
 - [ ] 4. Run make verify-deploy NAMESPACE=<ns>
@@ -153,5 +153,5 @@ When verification report is green → **`rh-qs-document`** (docs must match veri
 - [Agent permissions](../rh-qs-secure/references/agent-permissions.md)
 - [Application security](../rh-qs-secure/references/application-security.md)
 - [Makefile CI contract](../rh-qs-test-suite/references/makefile-ci-contract.md)
-- Design doc: `designs/design.md`
+- Architecture spec: `designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
