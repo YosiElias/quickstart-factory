@@ -138,7 +138,7 @@ PHASE 7 — EVALUATION & FINALIZATION
 | 05-02 | Create architecture-analyzer-prompt.md | Write the subagent prompt that parses a PRD into a feature vector (AI capabilities, data needs, UI/API requirements, scale). Adapt from blueprint kit's equivalent. |
 | 05-03 | Create chart-selector-prompt.md | Write the subagent prompt that matches feature vectors to ai-architecture-charts (llama-stack, llm-service, pgvector, minio, mcp-servers, ingestion-pipeline). Produces component bill of materials with rationale. Adapt from blueprint kit's equivalent. |
 | 05-04 | Create diagram-generator-prompt.md | Write the subagent prompt that generates a Mermaid architecture diagram from the component bill of materials. |
-| 05-05 | Create spec-template.md | Define the architecture spec format (`.rhoai-qs/<slug>/pipeline/architecture-spec.yaml`) — components, chart versions, deployment mode, feature-to-component mapping. |
+| 05-05 | Create architecture-spec-template.yaml | Define the architecture spec format (`.rhoai-qs/<slug>/designs/architecture-spec.yaml`) — technology stack, component BOM, diagram path, testing strategy. |
 | 05-06 | Create reasoning-guardrails.md | Define concern areas: model sizing, GPU dependency, data residency, chart compatibility, scope creep, over-engineering. |
 | 05-07 | Restructure SKILL.md as orchestrator | Rewrite SKILL.md to orchestrate the 4 subagents (analyzer, chart-selector, diagram-generator, knowledge-scorer), run KB scoring, validate chart existence (helm search, ArtifactHub), and present the bill of materials for user approval. Max 2 validation iterations. |
 | 05-08 | Validate with skill-validator | Run `skill-validator --strict` against the updated SKILL.md. |

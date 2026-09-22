@@ -110,13 +110,13 @@ Every subsequent phase constructs paths using the resolved `slug`, in whichever 
 # From the quickstart-factory root (discovery, architect, scaffold):
 .rhoai-qs/<slug>/pipeline/<skill>-spec.yaml
 .rhoai-qs/<slug>/prds/prd.md
-.rhoai-qs/<slug>/designs/design.md
+.rhoai-qs/<slug>/designs/architecture-spec.yaml
 
 # From inside .rhoai-qs/<slug>/ itself (implement, deploy, verify-deploy,
 # document, test-suite, ship):
 pipeline/<skill>-spec.yaml
 prds/prd.md
-designs/design.md
+designs/architecture-spec.yaml
 ```
 
 ## Relationship to Other Foundation Docs

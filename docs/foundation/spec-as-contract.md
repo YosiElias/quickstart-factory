@@ -31,12 +31,14 @@ Analyze → Generate Spec → User Approval → Validate Spec (parallel) → Ref
 
 ## Spec File Location
 
-All specs are written to the quickstart's namespaced pipeline directory, once the skill has resolved the slug via `validation-skill` (see [pipeline-convention.md](pipeline-convention.md#resolving-the-quickstart-slug)):
+Most specs are written to the quickstart's namespaced pipeline directory, once the skill has resolved the slug via `validation-skill` (see [pipeline-convention.md](pipeline-convention.md#resolving-the-quickstart-slug)):
 
 ```
 .rhoai-qs/<slug>/pipeline/<skill>-spec.yaml          # Initial spec
 .rhoai-qs/<slug>/pipeline/<skill>-spec-refined.yaml   # After validation feedback
 ```
+
+**Exception:** `rh-qs-architect` writes its spec to `.rhoai-qs/<slug>/designs/architecture-spec.yaml` (no `-refined` variant) because it serves as both a spec and the primary design document for the quickstart.
 
 See [pipeline-convention.md](pipeline-convention.md) for the full scoping rules.
 
@@ -80,7 +82,7 @@ validation_rules:
 # ─── Dependencies ─────────────────────────────────────────
 dependencies:
   - spec: architecture-spec.yaml
-    fields_used: [components, deployment_mode]
+    fields_used: [components, technology_stack]
     content_hash: "sha256:..."   # Hash of upstream spec when this was generated
 ```
 
@@ -258,6 +260,8 @@ If any criterion fails, the skill enters its feedback loop (see ADR-001 Pattern 
 
 This example shows a fully populated spec for the Architect skill (`rh-qs-architect`), converting a PRD into a component bill of materials.
 
+**Exception:** The architect spec lives at `.rhoai-qs/<slug>/designs/architecture-spec.yaml` (not under `pipeline/`) and uses a simplified schema — it omits `inputs`, `acceptance_criteria`, and `validation_rules`, and has no `-refined` variant. User approval happens on the spec itself. See [pipeline-contracts.md](pipeline-contracts.md#1-architecture-specyaml) and `core/skills/rh-qs-architect/references/architecture-spec-template.yaml` for the canonical schema.
+
 ```yaml
 spec_version: 1
 quickstart_name: "Spending Transaction Monitor"
@@ -265,63 +269,57 @@ slug: spending-transaction-monitor
 skill: rh-qs-architect
 created_at: "2026-07-01T12:00:00Z"
 
-inputs:
-  prior_manifests:
-    - path: .rhoai-qs/spending-transaction-monitor/prds/prd.md
-      skill: rh-qs-discovery
-  user_inputs:
-    - type: constraint
-      value: "Must run on 2x A100 GPUs or less"
+technology_stack:
+  frontend: "React 19 with TypeScript, Vite build, TanStack Router/Query for routing and state"
+  backend: "FastAPI with Python 3.12+, UV package manager, Pydantic v2, SQLAlchemy 2 async ORM"
+  database: "PostgreSQL"
+  vector_db: "pgvector via ai-architecture-charts/pgvector"
+  model_serving: "vLLM via ai-architecture-charts/llm-service"
+  local_runtime: "podman-compose"
+  monorepo: "Turborepo with pnpm and uv"
+  deploy_platform: "Red Hat OpenShift AI"
 
 components:
   llm-service:
     type: inference
-    approach:
-      strategy: "Deploy Llama 3.3 70B via vLLM on ai-architecture-charts/llm-service"
-      rationale: "PRD requires conversational AI; 70B model fits within 2x A100 VRAM budget"
-    implementation:
-      files_to_create:
-        - path: deploy/helm/values-llm.yaml
-          content_description: "vLLM serving config with model ID and GPU allocation"
-      configuration:
-        helm_chart: ai-architecture-charts/llm-service:0.3.0
-        model_id: meta-llama/Llama-3.3-70B-Instruct
-        gpu_count: 2
-        gpu_type: nvidia.com/gpu
+    role: "LLM inference for conversational queries"
+    technology: "vLLM"
+    delivery: chart
+    chart:
+      name: ai-architecture-charts/llm-service
+      version: "0.3.0"
+    constraints:
+      - "Must fit in 2x A100 GPUs"
     kb_sources:
-      - core/knowledge-base/components/vllm-serving-patterns.md
-    dependencies: []
+      - path: core/knowledge-base/components/vllm-serving-patterns.md
+        match_reason: "vLLM deployment patterns for multi-GPU serving"
+    dependencies:
+      - component: api-server
+        reason: "API calls LLM for inference"
 
   vector-db:
     type: database
-    approach:
-      strategy: "Deploy pgvector via ai-architecture-charts/pgvector for RAG retrieval"
-      rationale: "PRD requires semantic search over transaction descriptions"
-    implementation:
-      files_to_create:
-        - path: deploy/helm/values-pgvector.yaml
-          content_description: "pgvector config with storage and connection settings"
-      configuration:
-        helm_chart: ai-architecture-charts/pgvector:0.2.1
-        storage: 20Gi
+    role: "Semantic search over transaction descriptions"
+    technology: "PostgreSQL with pgvector"
+    delivery: chart
+    chart:
+      name: ai-architecture-charts/pgvector
+      version: "0.2.1"
+    constraints:
+      - "Storage under 20Gi"
     kb_sources:
-      - core/knowledge-base/components/pgvector-patterns.md
+      - path: core/knowledge-base/components/pgvector-patterns.md
+        match_reason: "pgvector deployment and connection patterns"
     dependencies: []
 
   api-server:
     type: backend
-    approach:
-      strategy: "FastAPI backend connecting LLM service and pgvector"
-      rationale: "Standard quickstart backend pattern"
-    implementation:
-      files_to_create:
-        - path: packages/api/src/main.py
-          content_description: "FastAPI application with RAG endpoints"
-      configuration:
-        framework: fastapi
-        python_version: "3.12"
+    role: "RAG API connecting LLM service and vector DB"
+    technology: "FastAPI"
+    delivery: application
     kb_sources:
-      - core/knowledge-base/components/fastapi-patterns.md
+      - path: core/knowledge-base/components/fastapi-patterns.md
+        match_reason: "Standard quickstart backend pattern"
     dependencies:
       - component: llm-service
         reason: "API calls LLM for inference"
@@ -330,66 +328,53 @@ components:
 
   frontend:
     type: ui
-    approach:
-      strategy: "React chat interface for transaction queries"
-      rationale: "PRD specifies conversational UI"
-    implementation:
-      files_to_create:
-        - path: packages/ui/src/App.tsx
-          content_description: "Chat UI component"
-      configuration:
-        framework: react
-        node_version: "22"
+    role: "Chat interface for transaction queries"
+    technology: "React"
+    delivery: application
     kb_sources:
-      - core/knowledge-base/components/react-frontend-patterns.md
+      - path: core/knowledge-base/components/react-frontend-patterns.md
+        match_reason: "PRD specifies conversational UI"
     dependencies:
       - component: api-server
         reason: "UI calls API endpoints"
 
-deployment_mode: helm
-architecture_diagram: |
-  graph TB
-    User --> Frontend
-    Frontend --> APIServer
-    APIServer --> LLMService
-    APIServer --> VectorDB
+integration_patterns:
+  # [PLACEHOLDER - to be filled when integration step is implemented]
+  protocols: {}
+  data_flows: []
+  security_boundaries: []
 
-acceptance_criteria:
-  - id: ac-1
-    description: "All Helm charts exist in ai-architecture-charts or public registries"
-    validation: "helm search repo <chart> returns results for each chart"
-    requires_user_approval: false
-  - id: ac-2
-    description: "Total GPU requirement does not exceed 2x A100"
-    validation: "Sum of gpu_count across components <= 2"
-    requires_user_approval: true
-  - id: ac-3
-    description: "Architecture supports both Helm and docker-compose deployment"
-    validation: "Review component list — all have compose-compatible alternatives"
-    requires_user_approval: true
-  - id: ac-4
-    description: "Component bill of materials matches PRD requirements"
-    validation: "Manual review: each PRD feature maps to at least one component"
-    requires_user_approval: true
+architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
 
-validation_rules:
-  - id: vr-1
-    check: "All helm_chart references resolve to real charts with valid versions"
-    severity: blocker
-  - id: vr-2
-    check: "No circular dependencies in components"
-    severity: blocker
-  - id: vr-3
-    check: "GPU allocation is specified for inference components"
-    severity: warning
-  - id: vr-4
-    check: "All model IDs are valid HuggingFace or registry references"
-    severity: blocker
+testing_strategy:
+  profile: standard
+  unit_tests:
+    python:
+      scope: "Routes, schemas, services"
+      runs_on: "Every PR (pr-checks / ci.yaml)"
+    typescript:
+      scope: "Components, hooks"
+      runs_on: "Every PR"
+  integration_tests:
+    scope: "API + DB + in-cluster services"
+    runs_on: "PR E2E workflow (rh-qs-test-suite)"
+  e2e_tests:
+    scope: "Agent quality, RAG responses"
+    runs_on: "pull_request_target or nightly"
+  helm_validation:
+    scope: "Exported manifests valid"
+    runs_on: "Every PR"
 
 dependencies:
   - spec: .rhoai-qs/spending-transaction-monitor/prds/prd.md
-    fields_used: [problem_statement, target_persona, technology_constraints, success_metrics]
+    fields_used: [problem_statement, target_persona, technology_constraints]
     content_hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/prd-features.yaml
+    fields_used: [input_features, deployment_questions, decision_points]
+    content_hash: "sha256:..."
+  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/kb-scores.yaml
+    fields_used: [results]
+    content_hash: "sha256:..."
 ```
 
 ## Per-Skill Spec Fields
@@ -399,7 +384,7 @@ Each skill's `spec-template.md` extends the common fields above with skill-speci
 | Skill | Spec File | Key Component Fields |
 |-------|-----------|---------------------|
 | rh-qs-discovery | `discovery-spec.yaml` | Interview plan, PRD section targets |
-| rh-qs-architect | `architecture-spec.yaml` | Charts, deployment mode, GPU allocation, architecture diagram |
+| rh-qs-architect | `designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), diagram path, testing strategy |
 | rh-qs-scaffold | `scaffold-spec.yaml` | Repo name, packages, CI jobs, linting config |
 | rh-qs-implement | `implementation-spec.yaml` | Endpoints, schemas, services, DB models, UI routes |
 | rh-qs-deploy | `deploy-spec.yaml` | Chart dependencies, values overrides, compose services, Containerfile specs |
@@ -410,6 +395,6 @@ Each skill's `spec-template.md` extends the common fields above with skill-speci
 
 - **[skill-directory-structure.md](skill-directory-structure.md)** — each skill's `spec-template.md` file defines the skill-specific fields
 - **[acceptance-criteria.md](acceptance-criteria.md)** — details when user approval is required and how criteria are validated
-- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/pipeline/` directory where specs and manifests are written
+- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/pipeline/` directory where most specs and manifests are written (`architecture-spec.yaml` is the exception — it lives under `designs/`)
 - **[validation-skill-template.md](validation-skill-template.md)** — how the slug is resolved before any spec is written
 - **[pipeline-contracts.md](pipeline-contracts.md)** — defines the output manifests that consuming skills expect (downstream of specs)

@@ -238,7 +238,7 @@ core/skills/implementation/rh-qs-implement/
 
 ```
 Phase 0: Resolve quickstart slug (validation-skill)
-Phase 1: Read scaffold-manifest.yaml + architecture-spec.yaml from .rhoai-qs/<slug>/pipeline/
+Phase 1: Read scaffold-manifest.yaml from .rhoai-qs/<slug>/pipeline/ and architecture-spec.yaml from .rhoai-qs/<slug>/designs/
 Phase 2: Generate implementation-spec.yaml → user approval
 Phase 3: Spawn db-schema subagent (dependency)
 Phase 4: Spawn backend-implementer + frontend-implementer in parallel

@@ -24,7 +24,7 @@ Additionally, this ADR introduces 2 new pipeline skills and 3 new utility skills
 MAIN PIPELINE (new quickstarts):
 
  1. rh-qs-discovery         → PRD
- 2. rh-qs-architect         → Design doc
+ 2. rh-qs-architect         → Architecture spec
  3. rh-qs-scaffold          → GitHub repo
  4. rh-qs-implement         → Working code  (test subagent loop)
  5. rh-qs-deploy            → Helm + compose (deploy review subagent loop)
@@ -112,7 +112,7 @@ Skills pass structured artifacts to each other via files in `.rhoai-qs/`, not co
 | Transition | File | Format |
 |-----------|----------|--------|
 | Discovery → Architect | `.rhoai-qs/<slug>/prds/prd.md` | Markdown |
-| Architect → Scaffold | `.rhoai-qs/<slug>/pipeline/architecture-spec.yaml` | YAML |
+| Architect → Scaffold | `.rhoai-qs/<slug>/designs/architecture-spec.yaml` | YAML |
 | Scaffold → Implement | `.rhoai-qs/<slug>/pipeline/scaffold-manifest.yaml` | YAML |
 | Implement → Deploy | `.rhoai-qs/<slug>/pipeline/implementation-manifest.yaml` | YAML |
 | Deploy → Security | `.rhoai-qs/<slug>/pipeline/deploy-manifest.yaml` | YAML |
@@ -176,7 +176,7 @@ A shared, tagged, scored knowledge base of reusable patterns mined from complete
 | `chart-selector-prompt.md` | Match features to ai-architecture-charts | Feature vector + KB | Component bill of materials with rationale |
 | `diagram-generator-prompt.md` | Generate Mermaid architecture diagram | Bill of materials | Mermaid diagram code |
 
-**Spec file:** `.rhoai-qs/<slug>/pipeline/architecture-spec.yaml`
+**Spec file:** `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
 
 **Knowledge base:** `knowledge-base/components/`, `knowledge-base/deployment-types/`, `knowledge-base/industries/`
 
@@ -536,7 +536,7 @@ Phase 1: state-detector scans the repo for evidence of each stage:
 
          ┌────────────────────────────────────────────────────────────────┐
          │ Stage 1 (Discovery):  .rhoai-qs/<slug>/prds/prd.md exists?    │
-         │ Stage 2 (Architect):  .rhoai-qs/<slug>/designs/design.md?     │
+         │ Stage 2 (Architect):  .rhoai-qs/<slug>/designs/architecture-spec.yaml? │
          │ Stage 3 (Scaffold):   .github/workflows/ exists?               │
          │ Stage 4 (Implement):  packages/api/src/main.py?                │
          │ Stage 5 (Deploy):     deploy/helm/? compose.yml?               │

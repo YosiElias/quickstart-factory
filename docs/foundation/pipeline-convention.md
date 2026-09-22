@@ -1,6 +1,6 @@
 # Pipeline File Convention
 
-This document defines how factory skills store and pass structured artifacts between pipeline stages, and where each quickstart's actual code lives. Everything for a given quickstart — pipeline specs, PRD, design doc, blog drafts, reports, **and its application code** — lives together in one place inside the **`quickstart-factory`** repo, namespaced by quickstart slug. This ensures a full audit trail that survives reboots and is deleted only when the user chooses.
+This document defines how factory skills store and pass structured artifacts between pipeline stages, and where each quickstart's actual code lives. Everything for a given quickstart — pipeline specs, PRD, architecture spec, blog drafts, reports, **and its application code** — lives together in one place inside the **`quickstart-factory`** repo, namespaced by quickstart slug. This ensures a full audit trail that survives reboots and is deleted only when the user chooses.
 
 ## Why Everything Lives Under `.rhoai-qs/<slug>/`
 
@@ -34,8 +34,6 @@ quickstart-factory/.rhoai-qs/
 ├── mortgage-processor/
 │   ├── pipeline/
 │   │   ├── discovery-spec.yaml
-│   │   ├── architecture-spec.yaml              # Also the handoff to scaffold
-│   │   ├── architecture-spec-refined.yaml
 │   │   ├── scaffold-spec.yaml
 │   │   ├── scaffold-manifest.yaml              # Handoff to implement
 │   │   ├── implementation-spec.yaml
@@ -48,7 +46,8 @@ quickstart-factory/.rhoai-qs/
 │   ├── prds/
 │   │   └── prd.md
 │   ├── designs/
-│   │   └── design.md
+│   │   ├── architecture-spec.yaml              # Also the handoff to scaffold
+│   │   └── architecture-diagram.mmd
 │   ├── blog-drafts/
 │   │   └── 2026-07-29.md
 │   ├── reports/
@@ -98,7 +97,7 @@ Skills fall into two groups, based on whether the quickstart's code repo exists 
 **Before scaffolding** (`rh-qs-discovery`, `rh-qs-architect`, `rh-qs-scaffold` itself, plus factory-level skills like `pipeline-grooming`, `blog-writer`): run with their working directory at the **`quickstart-factory` root**. Paths are written in full: `.rhoai-qs/<slug>/prds/prd.md`.
 
 **After scaffolding** (`rh-qs-implement`, `rh-qs-deploy`, `rh-qs-verify-deploy`, `rh-qs-document`, `rh-qs-test-suite`, `rh-qs-ship`): run with their working directory **inside** `.rhoai-qs/<slug>/` itself, since that's where the application code lives and where `make`/`helm`/etc. need to run. From there:
-- Reading/writing the quickstart's own bookkeeping files uses **plain relative paths, no prefix**: `prds/prd.md`, `designs/design.md`, `pipeline/deploy-spec.yaml`, `reports/...`
+- Reading/writing the quickstart's own bookkeeping files uses **plain relative paths, no prefix**: `prds/prd.md`, `designs/architecture-spec.yaml`, `pipeline/deploy-spec.yaml`, `reports/...`
 - Listing *other* quickstarts (for slug resolution) requires going up one level: `ls ../` lists every slug folder plus the two cross-cutting folders (`reports/`, `blog-drafts/`) as siblings.
 
 ## Resolving the Quickstart Slug
@@ -128,7 +127,6 @@ Generated during the Analyze phase, consumed by validators and implementers.
 | File | Producing Skill | Purpose |
 |------|----------------|---------|
 | `discovery-spec.yaml` | rh-qs-discovery | Interview plan |
-| `architecture-spec.yaml` | rh-qs-architect | Component bill of materials |
 | `scaffold-spec.yaml` | rh-qs-scaffold | Repo structure plan |
 | `implementation-spec.yaml` | rh-qs-implement | Endpoints, schemas, services |
 | `deploy-spec.yaml` | rh-qs-deploy | Chart deps, values, Containerfiles |
@@ -146,19 +144,19 @@ After validation, a refined variant is written:
 
 Output artifacts that the next pipeline stage consumes. These are the inter-skill contracts.
 
-| File | Producer | Consumer |
-|------|----------|----------|
-| `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold |
-| `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement |
-| `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy |
-| `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security |
-| `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy |
-| `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document |
-| `doc-manifest.yaml` | rh-qs-document | rh-qs-ship |
+| File | Producer | Consumer | Location |
+|------|----------|----------|----------|
+| `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | `designs/` |
+| `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | `pipeline/` |
+| `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | `pipeline/` |
+| `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | `pipeline/` |
+| `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | `pipeline/` |
+| `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | `pipeline/` |
+| `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | `pipeline/` |
 
 See [pipeline-contracts.md](pipeline-contracts.md) for the YAML schema of each handoff file.
 
-Note: `architecture-spec.yaml` serves double duty — it is both the architect's spec file and the handoff manifest to scaffold.
+Note: `designs/architecture-spec.yaml` serves double duty — it is both the architect's spec file and the handoff manifest to scaffold. It has no `-refined` variant; user approval happens on the spec itself.
 
 ### 3. Internal working files
 
@@ -204,11 +202,11 @@ Two more categories live under `.rhoai-qs/<slug>/`, alongside `pipeline/` and th
 | Directory | File | Producing Skill | Purpose |
 |-----------|------|------------------|---------|
 | `prds/` | `prd.md` | rh-qs-discovery | The PRD — the actual handoff artifact to rh-qs-architect |
-| `designs/` | `design.md` | rh-qs-architect | The design doc — handoff artifact to rh-qs-scaffold |
+| `designs/` | `architecture-spec.yaml`, `architecture-diagram.mmd` | rh-qs-architect | Architecture spec and Mermaid diagram — handoff artifacts to rh-qs-scaffold |
 | `blog-drafts/` | `<date>.md` | rh-qs-ship / blog-writer | Draft announcement, requires human review |
 | `reports/` | `verify-deploy-<date>.md`, etc. | rh-qs-verify-deploy | Per-quickstart reports |
 
-The slug isn't repeated in these filenames — the parent `.rhoai-qs/<slug>/` folder already disambiguates which quickstart a file belongs to. Filenames only need to name the *type* of artifact (`prd`, `design`) or add a date when multiple versions can exist over time (`blog-drafts/`, `reports/`).
+The slug isn't repeated in these filenames — the parent `.rhoai-qs/<slug>/` folder already disambiguates which quickstart a file belongs to. Filenames only need to name the *type* of artifact (`prd`, `architecture-spec`) or add a date when multiple versions can exist over time (`blog-drafts/`, `reports/`).
 
 ## Cross-Cutting Locations
 
@@ -234,13 +232,15 @@ Neither filename includes a slug, since there isn't one to include.
 
 ## Directory Layout Example
 
-A fully populated pipeline directory mid-pipeline, for a single quickstart, looks like:
+A fully populated designs directory and pipeline directory mid-pipeline, for a single quickstart, looks like:
 
 ```
+.rhoai-qs/mortgage-processor/designs/
+├── architecture-spec.yaml              # Handoff to scaffold
+└── architecture-diagram.mmd
+
 .rhoai-qs/mortgage-processor/pipeline/
 ├── discovery-spec.yaml
-├── architecture-spec.yaml              # Also the handoff to scaffold
-├── architecture-spec-refined.yaml
 ├── scaffold-spec.yaml
 ├── scaffold-manifest.yaml              # Handoff to implement
 ├── implementation-spec.yaml

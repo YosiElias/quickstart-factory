@@ -22,15 +22,15 @@ Manifests also include a `dependencies` section that records which upstream file
 
 The pipeline passes structured artifacts through these files, in order:
 
-| # | File | Producer | Consumer | Category |
-|---|------|----------|----------|----------|
-| 1 | `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | Spec |
-| 2 | `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | Manifest |
-| 3 | `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | Manifest |
-| 4 | `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | Manifest |
-| 5 | `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | Report |
-| 6 | `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | State |
-| 7 | `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | Manifest |
+| # | File | Producer | Consumer | Category | Location |
+|---|------|----------|----------|----------|----------|
+| 1 | `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | Spec | `.rhoai-qs/<slug>/designs/` |
+| 2 | `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | Manifest | `.rhoai-qs/<slug>/pipeline/` |
+| 3 | `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | Manifest | `.rhoai-qs/<slug>/pipeline/` |
+| 4 | `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | Manifest | `.rhoai-qs/<slug>/pipeline/` |
+| 5 | `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | Report | `.rhoai-qs/<slug>/pipeline/` |
+| 6 | `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | State | `.rhoai-qs/<slug>/pipeline/` |
+| 7 | `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | Manifest | `.rhoai-qs/<slug>/pipeline/` |
 
 Additionally, the PRD (`.rhoai-qs/<slug>/prds/prd.md`) produced by rh-qs-discovery is a Markdown file, not YAML, and its format is defined by the PRD template — not this document.
 
@@ -40,47 +40,88 @@ Additionally, the PRD (`.rhoai-qs/<slug>/prds/prd.md`) produced by rh-qs-discove
 
 **Producer:** rh-qs-architect
 **Consumer:** rh-qs-scaffold
-**Category:** Spec (follows full spec-as-contract format)
+**Category:** Spec
+**Location:** `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
 
-This is a full spec file — it includes `components`, `acceptance_criteria`, `validation_rules`, and `dependencies` as defined in [spec-as-contract.md](spec-as-contract.md). The complete example in that document uses this file as its reference.
+Documents the architecture decisions, component bill of materials, technology stack, and testing strategy for a quickstart.
 
-### Key fields (beyond common spec fields)
+### Key fields
 
 ```yaml
-# Common header (see spec-as-contract.md for full spec format)
 spec_version: 1
 quickstart_name: "Spending Transaction Monitor"
 slug: spending-transaction-monitor
 skill: rh-qs-architect
 created_at: "2026-07-01T12:00:00Z"
 
+technology_stack:
+  frontend: "React 19 with TypeScript, Vite build, TanStack Router/Query for routing and state"
+  backend: "FastAPI with Python 3.12+, UV package manager, Pydantic v2, SQLAlchemy 2 async ORM"
+  database: "PostgreSQL"
+  vector_db: "pgvector via ai-architecture-charts/pgvector"
+  model_serving: "vLLM via ai-architecture-charts/llm-service"
+  local_runtime: "podman-compose"
+  monorepo: "Turborepo with pnpm and uv"
+  deploy_platform: "Red Hat OpenShift AI"
+
 components:
-  <component-name>:
-    type: inference | database | backend | ui | worker | gateway
-    approach:
-      strategy: "<what this skill will do>"
-      rationale: "<why this approach>"
-    implementation:
-      files_to_create:
-        - path: "<relative path>"
-          content_description: "<what this file contains>"
-      configuration:
-        helm_chart: "<chart-org>/<chart-name>:<version>"
-        # ... skill-specific config (model_id, gpu_count, storage, framework, etc.)
+  llm-service:
+    type: inference
+    role: "LLM inference for conversational queries"
+    technology: "vLLM"
+    delivery: chart
+
+    chart:
+      name: ai-architecture-charts/llm-service
+      version: "0.3.0"
+
+    constraints:
+      - "Must fit in 2x A100 GPUs"
+
     kb_sources:
-      - "<path to knowledge-base file that informed this component's approach>"
+      - path: core/knowledge-base/components/vllm-serving-patterns.md
+        match_reason: "vLLM deployment patterns for multi-GPU serving"
+
     dependencies:
-      - component: "<other-component-name>"
-        reason: "<why this dependency exists>"
+      - component: api-server
+        reason: "API calls LLM for inference"
 
-deployment_mode: helm | compose | both
+integration_patterns:
+  # [PLACEHOLDER - to be filled when step 8 is implemented]
+  protocols: {}
+  data_flows: []
+  security_boundaries: []
 
-architecture_diagram: |
-  <mermaid diagram>
+architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
+
+testing_strategy:
+  profile: standard
+  unit_tests:
+    python:
+      scope: "Routes, schemas, services"
+      runs_on: "Every PR (pr-checks / ci.yaml)"
+    typescript:
+      scope: "Components, hooks"
+      runs_on: "Every PR"
+  integration_tests:
+    scope: "API + DB + in-cluster services"
+    runs_on: "PR E2E workflow (rh-qs-test-suite)"
+  e2e_tests:
+    scope: "Agent quality, RAG responses"
+    runs_on: "pull_request_target or nightly"
+  helm_validation:
+    scope: "Exported manifests valid"
+    runs_on: "Every PR"
 
 dependencies:
   - spec: .rhoai-qs/spending-transaction-monitor/prds/prd.md
     fields_used: [problem_statement, target_persona, technology_constraints]
+    content_hash: "sha256:..."
+  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/prd-features.yaml
+    fields_used: [input_features, deployment_questions, decision_points]
+    content_hash: "sha256:..."
+  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/kb-scores.yaml
+    fields_used: [results]
     content_hash: "sha256:..."
 ```
 
@@ -88,14 +129,21 @@ dependencies:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `technology_stack` | map | yes | Technology layers with free-text descriptions (1-2 lines each) |
 | `components` | map | yes | Component bill of materials keyed by component name |
 | `components.<name>.type` | enum | yes | Component type: `inference`, `database`, `backend`, `ui`, `worker`, `gateway` |
-| `components.<name>.approach.strategy` | string | yes | What the architect decided for this component |
-| `components.<name>.approach.rationale` | string | yes | Why this approach was chosen |
-| `components.<name>.implementation.configuration` | map | yes | Skill-specific config (chart, model, GPU, etc.) |
-| `components.<name>.kb_sources` | list of strings | no | Knowledge base files that informed this component's approach. Lets downstream skills load proven patterns directly instead of re-running the knowledge scorer. |
-| `deployment_mode` | enum | yes | `helm`, `compose`, or `both` |
-| `architecture_diagram` | string | no | Mermaid diagram of the architecture |
+| `components.<name>.role` | string | yes | What this component does |
+| `components.<name>.technology` | string | yes | Stack/runtime (e.g., 'FastAPI', 'vLLM') |
+| `components.<name>.delivery` | enum | yes | `chart`, `rhoai`, `application`, or `chart+rhoai` |
+| `components.<name>.chart` | map | if delivery=chart | Chart name and version |
+| `components.<name>.rhoai_features` | list | if delivery=rhoai | RHOAI features with purpose |
+| `components.<name>.constraints` | list | no | PRD/requirement constraints (GPU, storage, etc.) |
+| `components.<name>.kb_sources` | list of objects | no | KB files with path and match_reason |
+| `components.<name>.dependencies` | list | no | Component dependencies with reason |
+| `integration_patterns` | map | yes | Placeholder for protocols, data flows, security boundaries |
+| `architecture_diagram_path` | string | yes | Path to Mermaid diagram file (e.g., `.rhoai-qs/<slug>/designs/architecture-diagram.mmd`) |
+| `testing_strategy` | map | yes | Testing levels and scope (no tool commands) |
+| `dependencies` | list | yes | Upstream specs with content_hash |
 
 ---
 
@@ -167,7 +215,7 @@ linting:
 
 dependencies:
   - spec: architecture-spec.yaml
-    fields_used: [components, deployment_mode]
+    fields_used: [components, technology_stack]
     content_hash: "sha256:..."
 ```
 
@@ -376,7 +424,7 @@ dependencies:
     fields_used: [packages, test_coverage]
     content_hash: "sha256:..."
   - spec: architecture-spec.yaml
-    fields_used: [components, deployment_mode]
+    fields_used: [components, technology_stack]
     content_hash: "sha256:..."
 ```
 
@@ -653,7 +701,7 @@ dependencies:
     fields_used: [packages]
     content_hash: "sha256:..."
   - spec: architecture-spec.yaml
-    fields_used: [components, architecture_diagram]
+    fields_used: [components, architecture_diagram_path]
     content_hash: "sha256:..."
   - spec: security-report.yaml
     fields_used: [overall_status, summary]
@@ -690,7 +738,7 @@ Consuming skills must check `spec_version` on read and fail with a clear error i
 
 ## Relationship to Other Foundation Docs
 
-- **[spec-as-contract.md](spec-as-contract.md)** — defines the spec format that `architecture-spec.yaml` (file #1) follows fully; other files use the common header and `dependencies` section
+- **[spec-as-contract.md](spec-as-contract.md)** — defines the common spec format; `architecture-spec.yaml` (file #1) uses a simplified architect-specific schema documented in section 1 above and in `core/skills/rh-qs-architect/references/architecture-spec-template.yaml`
 - **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/pipeline/` directory where all these files live
 - **[skill-directory-structure.md](skill-directory-structure.md)** — each skill's `spec-template.md` defines skill-specific fields within these schemas
 - **[acceptance-criteria.md](acceptance-criteria.md)** — defines how `acceptance_criteria` sections in specs are validated

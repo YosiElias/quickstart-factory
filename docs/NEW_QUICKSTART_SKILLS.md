@@ -24,7 +24,7 @@ flowchart TB
     Input --> D
     D -->|"PRD<br/>.rhoai-qs/&lt;slug&gt;/prds/prd.md"| A
     A --> Sec
-    Sec -->|"Design doc + security<br/>.rhoai-qs/&lt;slug&gt;/designs/design.md"| S
+    Sec -->|"Architecture spec + security<br/>.rhoai-qs/&lt;slug&gt;/designs/architecture-spec.yaml"| S
     S -->|"GitHub repo + CI/CD"| I
     I -->|"Working app"| VB
     VB --> Dep
@@ -39,8 +39,8 @@ flowchart TB
 | Stage | Skill | Output | Location |
 |-------|-------|--------|----------|
 | 1 | rh-qs-discovery | `.rhoai-qs/<slug>/prds/prd.md` | `core/skills/rh-qs-discovery/` |
-| 2 | rh-qs-architect | `.rhoai-qs/<slug>/designs/design.md` | `core/skills/rh-qs-architect/` |
-| 2b | rh-qs-secure | Security section in design doc | `core/skills/rh-qs-secure/` |
+| 2 | rh-qs-architect | `.rhoai-qs/<slug>/designs/architecture-spec.yaml` | `core/skills/rh-qs-architect/` |
+| 2b | rh-qs-secure | Security guidance during architecture | `core/skills/rh-qs-secure/` |
 | 3 | rh-qs-scaffold | GitHub repo + CI/CD | `core/skills/rh-qs-scaffold/` |
 | 4 | rh-qs-implement | Working application code | `core/skills/rh-qs-implement/` |
 | 4b | rh-qs-verify-build | Local build verified | `core/skills/rh-qs-verify-build/` |

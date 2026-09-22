@@ -43,20 +43,20 @@ skills:
 
   - id: rh-qs-architect
     order: 2
-    description: "Architecture phase — reads PRD, maps requirements to OpenShift AI and ai-architecture-charts, produces design document with Mermaid diagram"
+    description: "Architecture phase — reads PRD, maps requirements to OpenShift AI and ai-architecture-charts, produces structured architecture spec with Mermaid diagram"
     expected_inputs:
       - name: qs-name
         description: "Quickstart slug"
     expected_outputs:
-      - path: ".rhoai-qs/{qs-name}/designs/design.md"
-        description: "Design document with component matrix, chart selections, and architecture diagram"
-      - path: ".rhoai-qs/{qs-name}/pipeline/architecture-spec.yaml"
-        description: "Structured YAML handoff spec consumed by rh-qs-scaffold"
+      - path: ".rhoai-qs/{qs-name}/designs/architecture-spec.yaml"
+        description: "Structured YAML handoff spec with technology stack, component BOM, testing strategy, and upstream dependencies"
+      - path: ".rhoai-qs/{qs-name}/designs/architecture-diagram.mmd"
+        description: "Mermaid architecture diagram referenced by architecture-spec.yaml"
     review_guidance: |
-      - Design doc exists at [.rhoai-qs/{qs-name}/designs/design.md](../../../.rhoai-qs/{qs-name}/designs/design.md) with all sections filled in
-      - Review content: component matrix matches PRD, chart versions pinned, Mermaid diagram valid
-      - architecture-spec.yaml exists in [.rhoai-qs/{qs-name}/pipeline/architecture-spec.yaml](../../../.rhoai-qs/{qs-name}/pipeline/architecture-spec.yaml)
-      - Recommend getting a peer engineer review on the design before continuing
+      - architecture-spec.yaml exists at [.rhoai-qs/{qs-name}/designs/architecture-spec.yaml](../../../.rhoai-qs/{qs-name}/designs/architecture-spec.yaml) with all required sections filled in
+      - Review content: technology_stack complete, component BOM matches PRD, chart versions pinned, testing_strategy defined, dependencies include content_hash
+      - architecture-diagram.mmd exists at [.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd](../../../.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd) and matches components
+      - Recommend getting a peer engineer review on the architecture spec before continuing
     next_skill: rh-qs-scaffold
 
   - id: rh-qs-scaffold
