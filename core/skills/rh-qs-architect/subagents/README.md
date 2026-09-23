@@ -65,7 +65,7 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 | **Purpose** | Select ai-architecture-charts by matching each chart's capabilities to extracted features and deployment questions |
 | **Input** | `input_features` (5-key object), `deployment_questions`, `slug` (for PRD fallback), `charts_reference_path` |
 | **Output** | JSON with `charts` array — each entry has `name` and `reason` |
-| **When used** | Step 4 — after features are extracted and decision points resolved |
+| **When used** | Step 5 — after features are extracted and decision points resolved |
 | **Why subagent** | Capability-based selection against the charts reference, self-contained — isolates chart selection from the main agent |
 
 **Output schema:**
@@ -86,7 +86,7 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 | **Purpose** | Analyze integration patterns, data flows, and security boundaries for approved BOM components |
 | **Input** | `slug`, `bom` (approved bill of materials JSON from Step 7) |
 | **Output** | JSON with `protocols`, `data_flows`, and `security_boundaries` arrays |
-| **When used** | Step 8 — after BOM approval, before diagram generation |
+| **When used** | Step 9 — after BOM approval and KB retrieval, before diagram generation |
 | **Why subagent** | KB-backed integration analysis in isolated context — keeps the main agent focused on orchestration while surfacing non-obvious protocols, flows, and security boundaries |
 
 **Output schema:**
@@ -113,7 +113,7 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 | **Purpose** | Generate a Mermaid architecture diagram from the approved bill of materials |
 | **Input** | `slug` (PRD path derived as `.rhoai-qs/{slug}/prds/prd.md`), `bom` (list of `{role, technology, delivery}`), `charts` (selected chart names only) |
 | **Output** | Writes `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`; returns JSON with `status`, `path`, and a short `message` |
-| **When used** | Step 9 — after BOM approval, before the architecture spec |
+| **When used** | Step 10 — after integration analysis, before the architecture spec |
 | **Why subagent** | Isolated diagram task — nodes from the BOM, edges from roles and PRD user flows, so the main agent stays on orchestration |
 
 **Output schema:**

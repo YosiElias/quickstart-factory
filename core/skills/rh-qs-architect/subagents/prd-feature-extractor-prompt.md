@@ -66,7 +66,7 @@ These are just examples — flag **any** ambiguity you find where the architect 
 
 ### Step 6: Write the output file
 
-Write the extracted features to `.rhoai-qs/{slug}/pipeline/prd-features.yaml` in YAML format matching the JSON schema below.
+Write the extracted features to `.rhoai-qs/{slug}/pipeline/prd-features.yaml` in YAML format with three top-level keys: `input_features`, `deployment_questions`, `decision_points`. See [references/prd-features-schema.md](../references/prd-features-schema.md) for field definitions.
 
 ## Output
 
@@ -90,18 +90,5 @@ After writing the YAML file, return **only JSON** matching this schema. Do not i
   ]
 }
 ```
-
-### Field Definitions
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `input_features` | object | 5-key feature classification from the PRD |
-| `input_features.components` | array of strings | Application packages needed |
-| `input_features.tech_stack` | array of strings | Frameworks, languages, runtimes |
-| `input_features.ai_pattern` | array of strings | AI/ML patterns used |
-| `input_features.platform` | array of strings | Deployment targets and infrastructure |
-| `input_features.data_layer` | array of strings | Storage and data handling requirements |
-| `deployment_questions` | array of strings | How-to questions about deployment/wiring |
-| `decision_points` | array of strings | Unresolved choices the user needs to make |
 
 **Important:** Return ONLY the JSON. Do not include explanations, summaries, or markdown formatting around the JSON.
