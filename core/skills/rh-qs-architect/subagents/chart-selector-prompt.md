@@ -15,7 +15,7 @@ This is a **capability-matching task**. For each chart, understand what it provi
 **Input Parameters:**
 - `{input_features}`: the 5-key feature object (`components`, `tech_stack`, `ai_pattern`, `platform`, `data_layer`)
 - `{deployment_questions}`: list of how-to deployment questions from the extractor
-- `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/prds/prd.md` (fallback if features don't provide enough context)
+- `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/.qs-factory/prds/prd.md` (fallback if features don't provide enough context)
 - `{charts_reference_path}`: path to `references/ai-architecture-charts.md`
 
 ### Step 1: Read the charts reference
@@ -35,7 +35,7 @@ When two charts cover the same primary role, follow the reference's guidance on 
 
 ### Step 3: Resolve ambiguous matches
 
-If capability fit is borderline, read the PRD at `.rhoai-qs/{slug}/prds/prd.md` for additional context. Only read the PRD when the features and deployment questions do not provide enough signal.
+If capability fit is borderline, read the PRD at `.rhoai-qs/{slug}/.qs-factory/prds/prd.md` for additional context. Only read the PRD when the features and deployment questions do not provide enough signal.
 
 ### Step 4: Return selected charts
 

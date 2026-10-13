@@ -9,7 +9,7 @@ description: Generate README and catalog documentation for AI Quickstarts from v
 
 ## Trigger
 
-**`rh-qs-verify-deploy`** report is green (`reports/verify-deploy-*.md`); CI workflows from `rh-qs-test-suite` are in place when the design requires them
+**`rh-qs-verify-deploy`** report is green (`.qs-factory/reports/verify-deploy-*.md`); CI workflows from `rh-qs-test-suite` are in place when the design requires them
 
 Documentation runs **after** verification — not before. Every deploy command in the README must match what verify-deploy actually ran.
 
@@ -106,7 +106,7 @@ When README is complete → **`rh-qs-ship`**
 ## References
 
 - [README structure](./references/ReadmeStructure.md)
-- Architecture spec: `designs/architecture-spec.yaml`
+- Architecture spec: `.qs-factory/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint
@@ -117,4 +117,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-document --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

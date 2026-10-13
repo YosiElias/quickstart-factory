@@ -389,7 +389,7 @@ Each skill's `spec-template.md` extends the common fields above with skill-speci
 | Skill | Spec File | Key Component Fields |
 |-------|-----------|---------------------|
 | rh-qs-discovery | `discovery-spec.yaml` | Interview plan, PRD section targets |
-| rh-qs-architect | `designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), `integration_patterns`, diagram path, testing strategy |
+| rh-qs-architect | `.qs-factory/designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), `integration_patterns`, diagram path, testing strategy |
 | rh-qs-scaffold | `scaffold-spec.yaml` | Repo name, packages, CI jobs, linting config |
 | rh-qs-implement | `implementation-spec.yaml` | Endpoints, schemas, services, DB models, UI routes |
 | rh-qs-deploy | `deploy-spec.yaml` | Chart dependencies, values overrides, compose services, Containerfile specs |

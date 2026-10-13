@@ -195,10 +195,10 @@ Read the top-N results from `.tmp/{slug}/kb-indexes/top-kb-entries.yaml`.
 Create the output directory and file:
 
 ```bash
-mkdir -p ".rhoai-qs/{slug}/pipeline"
+mkdir -p ".rhoai-qs/{slug}/.qs-factory/pipeline"
 ```
 
-Write the file `.rhoai-qs/{slug}/pipeline/kb-scores.yaml` with this structure:
+Write the file `.rhoai-qs/{slug}/.qs-factory/pipeline/kb-scores.yaml` with this structure:
 
 ```yaml
 knowledge_base_root: core/skills/qs-extract-knowledge/knowledge-base

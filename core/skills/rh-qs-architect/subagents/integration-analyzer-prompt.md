@@ -19,7 +19,7 @@ You analyze how approved BOM components communicate, map data flows, and define 
 List all KB names and descriptions to identify relevant architectural patterns:
 
 ```bash
-yq -o json . .rhoai-qs/{slug}/pipeline/kb-scores.yaml | jq '.results | to_entries | map({type: .key, items: (.value | map({name, description}))})'
+yq -o json . .rhoai-qs/{slug}/.qs-factory/pipeline/kb-scores.yaml | jq '.results | to_entries | map({type: .key, items: (.value | map({name, description}))})'
 ```
 
 Scan the output for architecture/component/deployment patterns relevant to the BOM. Note which types (archetypes, architectures, components, deployment) have patterns you might reference.
@@ -54,7 +54,7 @@ If a BOM component or integration looks complex or you spotted a KB pattern in S
 
 1. Extract the pattern's summary:
    ```bash
-   yq -o json . .rhoai-qs/{slug}/pipeline/kb-scores.yaml | jq '.results.<type>[] | select(.name == "<entry-name>") | {name, summary, path}'
+   yq -o json . .rhoai-qs/{slug}/.qs-factory/pipeline/kb-scores.yaml | jq '.results.<type>[] | select(.name == "<entry-name>") | {name, summary, path}'
    ```
    Example: `.results.architectures[] | select(.name == "agent-orchestration")`
 

@@ -65,7 +65,7 @@ Examples from it-self-service-agent—replace with design-specific targets:
 
 ## Nightly contract (canonical names)
 
-`subagents/nightly-tests-prompt.md` expects the canonical names `rh-qs-deploy`/`rh-qs-scaffold` already establish: `deploy` (install), `test`, `undeploy` (uninstall), `verify-deploy` (smoke test). Any quickstart that went through `rh-qs-deploy` should already have all three. For older quickstarts missing one, the subagent searches for an equivalent existing target (e.g. `install-full`, `helm-install-prod`, `e2e-ui`, `helm-uninstall`) rather than renaming anything — it uses whatever real name it finds and records the mapping in `pipeline/nightly-tests-manifest.yaml`.
+`subagents/nightly-tests-prompt.md` expects the canonical names `rh-qs-deploy`/`rh-qs-scaffold` already establish: `deploy` (install), `test`, `undeploy` (uninstall), `verify-deploy` (smoke test). Any quickstart that went through `rh-qs-deploy` should already have all three. For older quickstarts missing one, the subagent searches for an equivalent existing target (e.g. `install-full`, `helm-install-prod`, `e2e-ui`, `helm-uninstall`) rather than renaming anything — it uses whatever real name it finds and records the mapping in `.qs-factory/pipeline/nightly-tests-manifest.yaml`.
 
 ## Environment variables workflows pass
 

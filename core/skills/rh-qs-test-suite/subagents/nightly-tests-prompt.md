@@ -124,7 +124,7 @@ Write `.github/workflows/nightly-main.yml` and, only if Step 5 found a dev branc
 
 ### Step 10: Write the manifest
 
-Write `pipeline/nightly-tests-manifest.yaml`:
+Write `.qs-factory/pipeline/nightly-tests-manifest.yaml`:
 
 ```yaml
 slug: <slug>
@@ -174,4 +174,4 @@ Summarize what was created/updated/skipped, then always include:
 
 ## Output
 
-`pipeline/nightly-tests-manifest.yaml` (schema above) plus the report described in Step 11, returned as your final message to the orchestrator.
+`.qs-factory/pipeline/nightly-tests-manifest.yaml` (schema above) plus the report described in Step 11, returned as your final message to the orchestrator.

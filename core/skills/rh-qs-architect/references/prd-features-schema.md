@@ -1,6 +1,6 @@
 # PRD Features Schema
 
-Defines the structure for `.rhoai-qs/{slug}/pipeline/prd-features.yaml`, the intermediate file that bridges PRD extraction and architecture design.
+Defines the structure for `.rhoai-qs/{slug}/.qs-factory/pipeline/prd-features.yaml`, the intermediate file that bridges PRD extraction and architecture design.
 
 ## Example
 

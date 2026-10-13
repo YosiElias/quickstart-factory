@@ -35,7 +35,7 @@ This is the repeatable checklist for testing one skill, one time:
 ```mermaid
 flowchart TD
     Hash["Record factory commit: git rev-parse --short HEAD"] --> Run["Run the skill against the test QS slug"]
-    Run --> Check["Check outputs: pipeline-registry.yaml review_guidance + .rhoai-qs/slug/flow/dashboard.md"]
+    Run --> Check["Check outputs: pipeline-registry.yaml review_guidance + .rhoai-qs/slug/.qs-factory/flow/dashboard.md"]
     Check --> Export["Export conversation (client-specific)"]
     Export --> Tokens["Record token usage (client-specific)"]
     Tokens --> Commit["Commit: test(skill) template"]
@@ -45,7 +45,7 @@ flowchart TD
 
 1. **Record the factory commit.** In `quickstart-factory`, run `git rev-parse --short HEAD`. This is the `Factory:` value in the commit message (§4).
 2. **Run the skill** against the test quickstart's slug, in whichever client we're using (Cursor or Claude Code).
-3. **Check the outputs — reuse, don't reinvent.** Every pipeline skill already has an `expected_outputs` list and a `review_guidance` block in [core/flow/pipeline-registry.yaml](../core/flow/pipeline-registry.yaml), and skills already call [core/flow/pipeline-checkpoint.py](../core/flow/pipeline-checkpoint.py) to update `.rhoai-qs/<slug>/flow/dashboard.md` after they run. Look there first:
+3. **Check the outputs — reuse, don't reinvent.** Every pipeline skill already has an `expected_outputs` list and a `review_guidance` block in [core/flow/pipeline-registry.yaml](../core/flow/pipeline-registry.yaml), and skills already call [core/flow/pipeline-checkpoint.py](../core/flow/pipeline-checkpoint.py) to update `.rhoai-qs/<slug>/.qs-factory/flow/dashboard.md` after they run. Look there first:
    - Did the dashboard mark the skill `done` with `outputs_verified: true`?
    - Does the skill's `review_guidance` in `pipeline-registry.yaml` hold up (file exists, `make lint`/`make test` pass, no placeholders, etc.)?
    - Only write a manual note in the commit if something looks off — don't invent a second, parallel definition of "done." This mirrors the same reuse-first pattern the factory already uses for [acceptance-criteria.md](foundation/acceptance-criteria.md).

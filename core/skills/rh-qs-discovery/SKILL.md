@@ -14,7 +14,7 @@ allowed-tools: Bash, Read, Write, Edit, Agent
 
 ## Goal
 
-Produce a validated Product Requirements Document (PRD) at `.rhoai-qs/<slug>/prds/prd.md` that is ready for handoff to `rh-qs-architect`. The PRD captures the user's quickstart idea with enough detail for architectural design without pre-deciding implementation choices.
+Produce a validated Product Requirements Document (PRD) at `.rhoai-qs/<slug>/.qs-factory/prds/prd.md` that is ready for handoff to `rh-qs-architect`. The PRD captures the user's quickstart idea with enough detail for architectural design without pre-deciding implementation choices.
 
 ## Input
 
@@ -129,7 +129,7 @@ Record the chosen destination. The issue URL will be added to the PRD header whe
 
 For a brand-new idea, mint the slug now: lowercase, hyphenated, derived from the quickstart's working title (e.g., `mortgage-application-processor`). This is the slug every subsequent phase — and every downstream skill — will use to namespace files under `.rhoai-qs/<slug>/`.
 
-Read [spec-template.md](./spec-template.md). Based on the input type, initial analysis, and backlog check results, generate `.rhoai-qs/<slug>/pipeline/discovery-spec.yaml` with:
+Read [spec-template.md](./spec-template.md). Based on the input type, initial analysis, and backlog check results, generate `.rhoai-qs/<slug>/.qs-factory/pipeline/discovery-spec.yaml` with:
 - Completed sections (what we already know from the user's input)
 - Remaining interview questions (what we still need to ask)
 - Gap questions relevant to this idea
@@ -268,7 +268,7 @@ For each refinement round:
 
 ### Phase 8: Write PRD
 
-Read [output-templates.md](./output-templates.md). Write the final PRD to `.rhoai-qs/<slug>/prds/prd.md` using the template format. Include the PRD header with:
+Read [output-templates.md](./output-templates.md). Write the final PRD to `.rhoai-qs/<slug>/.qs-factory/prds/prd.md` using the template format. Include the PRD header with:
 - Issue destination and URL (if created)
 - Slug
 - Date
@@ -327,5 +327,5 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-discovery --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"
 

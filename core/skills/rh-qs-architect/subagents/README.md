@@ -34,7 +34,7 @@ This directory contains the subagents used by `rh-qs-architect` ([../SKILL.md](.
 |-------|-------------|
 | **Name** | `prd-feature-extractor-prompt.md` |
 | **Purpose** | Extract structured `input_features` from a PRD for chart selection and architecture mapping |
-| **Input** | `slug` — the quickstart slug (PRD path derived as `.rhoai-qs/{slug}/prds/prd.md`) |
+| **Input** | `slug` — the quickstart slug (PRD path derived as `.rhoai-qs/{slug}/.qs-factory/prds/prd.md`) |
 | **Output** | JSON with `input_features` (5-key schema), `deployment_questions`, and `decision_points` |
 | **When used** | Step 2 — after slug resolution, before chart selection |
 | **Why subagent** | Pure extraction/classification task, self-contained — keeps the main agent's context free for orchestration and design decisions |
@@ -55,7 +55,7 @@ This directory contains the subagents used by `rh-qs-architect` ([../SKILL.md](.
 }
 ```
 
-The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.yaml`. If the main agent refines `input_features` after resolving decision points with the user, it updates that file directly.
+The subagent also writes this data to `.rhoai-qs/{slug}/.qs-factory/pipeline/prd-features.yaml`. If the main agent refines `input_features` after resolving decision points with the user, it updates that file directly.
 
 ### 3. chart-selector-prompt.md
 
@@ -111,8 +111,8 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 |-------|-------------|
 | **Name** | `diagram-generator-prompt.md` |
 | **Purpose** | Generate a Mermaid architecture diagram from the approved bill of materials |
-| **Input** | `slug` (PRD path derived as `.rhoai-qs/{slug}/prds/prd.md`), `bom` (list of `{role, technology, delivery}`), `charts` (selected chart names only) |
-| **Output** | Writes `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`; returns JSON with `status`, `path`, and a short `message` |
+| **Input** | `slug` (PRD path derived as `.rhoai-qs/{slug}/.qs-factory/prds/prd.md`), `bom` (list of `{role, technology, delivery}`), `charts` (selected chart names only) |
+| **Output** | Writes `.rhoai-qs/{slug}/.qs-factory/designs/architecture-diagram.mmd`; returns JSON with `status`, `path`, and a short `message` |
 | **When used** | Step 10 — after integration analysis, before the architecture spec |
 | **Why subagent** | Isolated diagram task — nodes from the BOM, edges from roles and PRD user flows, so the main agent stays on orchestration |
 
@@ -121,7 +121,7 @@ The subagent also writes this data to `.rhoai-qs/{slug}/pipeline/prd-features.ya
 ```json
 {
   "status": "success",
-  "path": ".rhoai-qs/mortgage-processor/designs/architecture-diagram.mmd",
+  "path": ".rhoai-qs/mortgage-processor/.qs-factory/designs/architecture-diagram.mmd",
   "message": "Wrote architecture diagram."
 }
 ```

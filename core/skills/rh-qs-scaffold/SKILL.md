@@ -10,7 +10,7 @@ description: Scaffold a new AI Quickstart GitHub repository with CI/CD, linting,
 
 ## Trigger
 
-Architecture spec approved from `rh-qs-architect` at `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
+Architecture spec approved from `rh-qs-architect` at `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml`
 
 ## What it does
 
@@ -224,7 +224,7 @@ When scaffold is pushed and CI is green → **`rh-qs-implement`**
 
 - [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template)
 - [it-self-service-agent CI patterns](../rh-qs-test-suite/SKILL.md) — production workflow split (post-deploy)
-- Architecture spec: `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
+- Architecture spec: `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint
@@ -235,4 +235,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-scaffold --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

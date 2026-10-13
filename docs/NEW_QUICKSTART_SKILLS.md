@@ -22,9 +22,9 @@ flowchart TB
     Sh["7. rh-qs-ship<br/>Docs → PR → announce"]
 
     Input --> D
-    D -->|"PRD<br/>.rhoai-qs/&lt;slug&gt;/prds/prd.md"| A
+    D -->|"PRD<br/>.rhoai-qs/&lt;slug&gt;/.qs-factory/prds/prd.md"| A
     A --> Sec
-    Sec -->|"Architecture spec + security<br/>.rhoai-qs/&lt;slug&gt;/designs/architecture-spec.yaml"| S
+    Sec -->|"Architecture spec + security<br/>.rhoai-qs/&lt;slug&gt;/.qs-factory/designs/architecture-spec.yaml"| S
     S -->|"GitHub repo + CI/CD"| I
     I -->|"Working app"| VB
     VB --> Dep
@@ -38,15 +38,15 @@ flowchart TB
 
 | Stage | Skill | Output | Location |
 |-------|-------|--------|----------|
-| 1 | rh-qs-discovery | `.rhoai-qs/<slug>/prds/prd.md` | `core/skills/rh-qs-discovery/` |
-| 2 | rh-qs-architect | `.rhoai-qs/<slug>/designs/architecture-spec.yaml` | `core/skills/rh-qs-architect/` |
+| 1 | rh-qs-discovery | `.rhoai-qs/<slug>/.qs-factory/prds/prd.md` | `core/skills/rh-qs-discovery/` |
+| 2 | rh-qs-architect | `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml` | `core/skills/rh-qs-architect/` |
 | 2b | rh-qs-secure | Security guidance during architecture | `core/skills/rh-qs-secure/` |
 | 3 | rh-qs-scaffold | GitHub repo + CI/CD | `core/skills/rh-qs-scaffold/` |
 | 4 | rh-qs-implement | Working application code | `core/skills/rh-qs-implement/` |
 | 4b | rh-qs-verify-build | Local build verified | `core/skills/rh-qs-verify-build/` |
 | 5 | rh-qs-deploy | Helm chart + compose.yml | `core/skills/rh-qs-deploy/` |
 | 5b | rh-qs-test-suite | GitHub Actions (PR/E2E/nightly) | `core/skills/rh-qs-test-suite/` |
-| 5c | rh-qs-verify-deploy | `.rhoai-qs/<slug>/reports/verify-deploy-*.md` | `core/skills/rh-qs-verify-deploy/` |
+| 5c | rh-qs-verify-deploy | `.rhoai-qs/<slug>/.qs-factory/reports/verify-deploy-*.md` | `core/skills/rh-qs-verify-deploy/` |
 | 6 | rh-qs-document | README.md + docs/ | `core/skills/rh-qs-document/` |
 | 7 | rh-qs-ship | PR URL + blog draft | `core/skills/rh-qs-ship/` |
 

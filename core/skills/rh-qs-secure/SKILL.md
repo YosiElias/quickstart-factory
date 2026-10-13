@@ -91,4 +91,4 @@ Security review is **embedded** in the pipeline — not a terminal stage. After 
 - [Agent permissions and MCP guardrails](./references/agent-permissions.md)
 - [Application security checklist](./references/application-security.md)
 - [Llama Stack safety](https://llama-stack.readthedocs.io/) — when orchestration is enabled
-- Architecture spec: `.rhoai-qs/<slug>/designs/architecture-spec.yaml` when invoked from the factory root (e.g. during `rh-qs-architect`), or plain `designs/architecture-spec.yaml` when invoked from inside the scaffolded quickstart repo itself (e.g. during `rh-qs-deploy`, which already runs from `.rhoai-qs/<slug>/`)
+- Architecture spec: `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml` when invoked from the factory root (e.g. during `rh-qs-architect`), or plain `designs/architecture-spec.yaml` when invoked from inside the scaffolded quickstart repo itself (e.g. during `rh-qs-deploy`, which already runs from `.rhoai-qs/<slug>/`)

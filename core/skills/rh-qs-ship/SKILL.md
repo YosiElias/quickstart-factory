@@ -158,4 +158,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-ship --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

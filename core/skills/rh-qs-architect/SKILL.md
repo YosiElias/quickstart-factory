@@ -1,6 +1,6 @@
 ---
 name: rh-qs-architect
-description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirements to OpenShift AI and ai-architecture-charts, presents a bill of materials, generates a Mermaid diagram, and produces an architecture spec. Use when a PRD exists under .rhoai-qs/<slug>/prds/.
+description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirements to OpenShift AI and ai-architecture-charts, presents a bill of materials, generates a Mermaid diagram, and produces an architecture spec. Use when a PRD exists under .rhoai-qs/<slug>/.qs-factory/prds/.
 ---
 
 # rh-qs-architect
@@ -9,7 +9,7 @@ description: Architecture phase for AI Quickstarts. Reads the PRD, maps requirem
 
 ## Trigger
 
-PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/prds/prd.md`
+PRD exists from `rh-qs-discovery` at `.rhoai-qs/<slug>/.qs-factory/prds/prd.md`
 
 ## What it does
 
@@ -52,7 +52,7 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 ### Remaining phases
 
 ```
-- [ ] 1. Read PRD from .rhoai-qs/<slug>/prds/prd.md
+- [ ] 1. Read PRD from .rhoai-qs/<slug>/.qs-factory/prds/prd.md
 - [ ] 2. Extract features from PRD (prd-feature-extractor subagent)
 - [ ] 3. If decision_points exist → present to user, refine input_features if needed
 - [ ] 4. Apply technology defaults
@@ -68,7 +68,7 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 
 #### Step 1: Read PRD
 
-Read the PRD at `.rhoai-qs/<slug>/prds/prd.md`. Use it as the source of truth for later steps; do not modify it.
+Read the PRD at `.rhoai-qs/<slug>/.qs-factory/prds/prd.md`. Use it as the source of truth for later steps; do not modify it.
 
 #### Step 2: Extract PRD features
 
@@ -86,11 +86,11 @@ slug: {slug}
 )
 ```
 
-The subagent writes `input_features`, `deployment_questions`, and `decision_points` to `.rhoai-qs/{slug}/pipeline/prd-features.yaml` and returns the same data as JSON.
+The subagent writes `input_features`, `deployment_questions`, and `decision_points` to `.rhoai-qs/{slug}/.qs-factory/pipeline/prd-features.yaml` and returns the same data as JSON.
 
 #### Step 3: Resolve decision points
 
-If `decision_points` is non-empty, present each to the user. Update `.rhoai-qs/{slug}/pipeline/prd-features.yaml` with any refined `input_features` (and related fields) before proceeding. If empty, continue.
+If `decision_points` is non-empty, present each to the user. Update `.rhoai-qs/{slug}/.qs-factory/pipeline/prd-features.yaml` with any refined `input_features` (and related fields) before proceeding. If empty, continue.
 
 #### Step 4: Apply technology defaults
 
@@ -162,7 +162,7 @@ Do not continue until the user approves (or requests changes). Keep the approved
 
 **Substep 8a: Enrich tech_stack**
 
-Read `.rhoai-qs/{slug}/pipeline/prd-features.yaml`. For each technology identified in Step 5 (chart selections) and Step 6 (RHOAI mappings) that is NOT already in `input_features.tech_stack`, add it.
+Read `.rhoai-qs/{slug}/.qs-factory/pipeline/prd-features.yaml`. For each technology identified in Step 5 (chart selections) and Step 6 (RHOAI mappings) that is NOT already in `input_features.tech_stack`, add it.
 
 From Step 5 charts — add the underlying technology, for example:
 
@@ -207,7 +207,7 @@ deployment_questions: {deployment_questions}
 
 **Substep 8c: Verify**
 
-Check `.rhoai-qs/{slug}/pipeline/kb-scores.yaml` exists. If it does not, stop and report the error to the user.
+Check `.rhoai-qs/{slug}/.qs-factory/pipeline/kb-scores.yaml` exists. If it does not, stop and report the error to the user.
 
 #### Step 9: Define integration patterns and data flow
 
@@ -252,7 +252,7 @@ integration_patterns: {integration_patterns}
 )
 ```
 
-The subagent writes `.rhoai-qs/{slug}/designs/architecture-diagram.mmd` and returns a short status JSON. If `status` is not `success`, report `message` and stop. Use that file in Step 12.
+The subagent writes `.rhoai-qs/{slug}/.qs-factory/designs/architecture-diagram.mmd` and returns a short status JSON. If `status` is not `success`, report `message` and stop. Use that file in Step 12.
 
 #### Step 11: Define testing strategy
 
@@ -268,14 +268,14 @@ Define the testing strategy per component. Note which `rh-qs-test-suite` profile
 
 #### Step 12: Write architecture spec
 
-Write `.rhoai-qs/<slug>/designs/architecture-spec.yaml` following the template in [references/architecture-spec-template.yaml](./references/architecture-spec-template.yaml).
+Write `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml` following the template in [references/architecture-spec-template.yaml](./references/architecture-spec-template.yaml).
 
 Include:
 - **Header:** spec_version, quickstart_name, slug, skill, created_at
 - **Technology Stack:** Full stack listing (frontend, backend, database, vector_db, model_serving, etc.)
 - **Components:** Approved BOM with nested details per component (type, role, technology, delivery, chart config, rhoai_features, constraints, kb_sources with match_reason, dependencies)
 - **Integration & Data Flow:** Pull from `{integration_patterns}` (protocols, data_flows, security_boundaries) returned by Step 9
-- **Architecture Diagram:** Reference to `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`
+- **Architecture Diagram:** Reference to `.rhoai-qs/{slug}/.qs-factory/designs/architecture-diagram.mmd`
 - **Testing Strategy:** Levels and scope
 - **Dependencies:** Reference to prd.md, prd-features.yaml, and kb-scores.yaml with content_hash
 
@@ -301,4 +301,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-architect --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

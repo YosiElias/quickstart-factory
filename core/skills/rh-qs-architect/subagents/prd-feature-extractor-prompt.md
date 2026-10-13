@@ -11,11 +11,11 @@ You analyze a PRD and produce a structured feature profile that drives architect
 ## Instructions
 
 **Input Parameters:**
-- `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/prds/prd.md`
+- `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/.qs-factory/prds/prd.md`
 
 ### Step 1: Read the PRD
 
-Read the PRD at `.rhoai-qs/{slug}/prds/prd.md`. The PRD follows a standard 7-section template:
+Read the PRD at `.rhoai-qs/{slug}/.qs-factory/prds/prd.md`. The PRD follows a standard 7-section template:
 
 1. Use case summary
 2. User flows
@@ -66,7 +66,7 @@ These are just examples — flag **any** ambiguity you find where the architect 
 
 ### Step 6: Write the output file
 
-Write the extracted features to `.rhoai-qs/{slug}/pipeline/prd-features.yaml` in YAML format with three top-level keys: `input_features`, `deployment_questions`, `decision_points`. See [references/prd-features-schema.md](../references/prd-features-schema.md) for field definitions.
+Write the extracted features to `.rhoai-qs/{slug}/.qs-factory/pipeline/prd-features.yaml` in YAML format with three top-level keys: `input_features`, `deployment_questions`, `decision_points`. See [references/prd-features-schema.md](../references/prd-features-schema.md) for field definitions.
 
 ## Output
 

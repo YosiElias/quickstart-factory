@@ -58,7 +58,7 @@ SAMPLE_SKILLS = [
         "expected_inputs": [
             {"name": "qs-name", "description": "Quickstart slug"},
         ],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/flow/output-1.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/flow/output-1.md"}],
         "review_guidance": "Check output-1.",
     },
     {
@@ -68,7 +68,7 @@ SAMPLE_SKILLS = [
         "expected_inputs": [
             {"name": "qs-name", "description": "Quickstart slug"},
         ],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/flow/output-2.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/flow/output-2.md"}],
         "review_guidance": "Check output-2.",
     },
     {
@@ -79,7 +79,7 @@ SAMPLE_SKILLS = [
             {"name": "qs-name", "description": "Quickstart slug"},
             {"name": "file-name", "description": "File name to create"},
         ],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/flow/output-3.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/flow/output-3.md"}],
         "review_guidance": "",
     },
 ]
@@ -139,11 +139,11 @@ class TestValidateOutputs:
         assert mod.validate_outputs(skill, "demo") is False
 
     def test_qs_name_substitution(self, mod, tmp_path):
-        out_dir = tmp_path / ".rhoai-qs" / "demo" / "flow"
+        out_dir = tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow"
         out_dir.mkdir(parents=True)
         out_file = out_dir / "output-1.md"
         out_file.write_text("content")
-        pattern = str(tmp_path / ".rhoai-qs/{qs-name}/flow/output-1.md")
+        pattern = str(tmp_path / ".rhoai-qs/{qs-name}/.qs-factory/flow/output-1.md")
         skill = {"id": "x", "expected_outputs": [{"path": pattern}]}
         assert mod.validate_outputs(skill, "demo") is True
 
@@ -255,16 +255,16 @@ class TestEmittedLinksResolve:
         "order": 1,
         "description": "First step",
         "expected_inputs": [{"name": "qs-name", "description": "Quickstart slug"}],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/prds/prd.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/prds/prd.md"}],
         # A sibling of the dashboard inside the quickstart, plus a target that
         # lives outside it entirely — a fixed prefix cannot serve both.
         "review_guidance": (
-            "- PRD at [prd.md](.rhoai-qs/{qs-name}/prds/prd.md)\n"
+            "- PRD at [prd.md](.rhoai-qs/{qs-name}/.qs-factory/prds/prd.md)\n"
             "- Run log at [deploy-report.md](.tmp/{qs-name}/debug/deploy-report.md)\n"
         ),
     }
 
-    TARGETS = (".rhoai-qs/demo/prds/prd.md", ".tmp/demo/debug/deploy-report.md")
+    TARGETS = (".rhoai-qs/demo/.qs-factory/prds/prd.md", ".tmp/demo/debug/deploy-report.md")
 
     def _render(self, mod, tmp_path):
         # The dashboard dir must exist for `..` segments in a link to resolve.
@@ -346,7 +346,7 @@ class TestUpdateDashboard:
 
     def test_dashboard_directory_structure(self, mod, tmp_path):
         mod.update_dashboard("demo", "skill-1", SAMPLE_SKILLS, True)
-        assert (tmp_path / ".rhoai-qs" / "demo" / "flow" / "dashboard.md").exists()
+        assert (tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow" / "dashboard.md").exists()
         assert (tmp_path / ".tmp" / "demo" / "dashboard.lock").exists()
 
     def test_unverified_outputs_recorded(self, mod):
@@ -388,7 +388,7 @@ class TestMain:
 
     def test_known_skill_creates_dashboard(self, mod, tmp_path):
         self._write_registry(mod, tmp_path)
-        out_dir = tmp_path / ".rhoai-qs" / "demo" / "flow"
+        out_dir = tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow"
         out_dir.mkdir(parents=True)
         out_file = out_dir / "output-1.md"
         out_file.write_text("content")
@@ -401,7 +401,7 @@ class TestMain:
 
         with patch("sys.argv", ["prog", "--skill-name", "skill-1", "--qs-name", "demo"]):
             mod.main()
-        assert (tmp_path / ".rhoai-qs" / "demo" / "flow" / "dashboard.md").exists()
+        assert (tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow" / "dashboard.md").exists()
 
     def test_missing_registry_exits(self, mod, tmp_path):
         mod.REGISTRY_PATH = tmp_path / "no-such-file.yaml"

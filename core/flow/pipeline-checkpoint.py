@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 
 def dashboard_dir_for(qs_name: str) -> Path:
     """Directory holding the quickstart's dashboard. Always factory-root-anchored."""
-    return FACTORY_ROOT / f".rhoai-qs/{qs_name}/flow"
+    return FACTORY_ROOT / f".rhoai-qs/{qs_name}/.qs-factory/flow"
 
 
 def lock_dir_for(qs_name: str) -> Path:
