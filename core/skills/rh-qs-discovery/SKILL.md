@@ -169,6 +169,14 @@ for d in prds designs pipeline flow reports; do
 done
 
 cd "$DIR"
+
+# Substitute the template placeholders BEFORE the first commit, so the repo
+# never has a commit carrying them and the tree is clean afterwards.
+MAINTAINER="$(git config user.name)"
+sed -i.bak "s|^name: my-quickstart$|name: $SLUG|" chart/Chart.yaml
+sed -i.bak "s|CONTRIBUTOR_NAME|$MAINTAINER|" chart/Chart.yaml
+rm -f chart/Chart.yaml.bak
+
 git init -b main
 git add -A
 git commit -m "chore: scaffold from ai-quickstart-template"
@@ -176,18 +184,13 @@ git commit -m "chore: scaffold from ai-quickstart-template"
 
 Use `git archive | tar -x`, **not** `cp -r "$TMP"/*` — the shell glob silently drops dotfiles. The template has no top-level dotfiles today, so that bug would lie dormant until someone adds `.github/workflows/`.
 
+`chart/Chart.yaml` ships `name: my-quickstart` and `maintainers: - name: CONTRIBUTOR_NAME`. Left alone they sit in the repo across five pipeline stages and trip the factory's own "no placeholder strings remain" gates, so they are rewritten here, in the same phase — and before the commit, so `git status` is clean when the phase ends.
+
 There is deliberately **no** `blog-drafts/` subdir. Drafts are factory-side working material and live at `.blog-drafts/<slug>-<date>.md` in the factory root — see [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#factory-side-locations).
 
-**Substitute the template placeholders in the same phase.** The template ships `name: my-quickstart` and `maintainers: - name: CONTRIBUTOR_NAME` in `chart/Chart.yaml`. Rewrite them to the slug and `git config user.name` now — left alone they sit in the repo across five pipeline stages and trip the factory's own "no placeholder strings remain" gates.
-
-```bash
-MAINTAINER="$(git config user.name)"
-sed -i.bak "s|^name: my-quickstart$|name: $SLUG|" chart/Chart.yaml
-sed -i.bak "s|CONTRIBUTOR_NAME|$MAINTAINER|" chart/Chart.yaml
-rm -f chart/Chart.yaml.bak
-```
-
 The README's `> **CONTRIBUTOR TODO:` blockquotes stay as they are — `rh-qs-document` fills them in later, in place.
+
+Afterwards the repo should be exactly: one commit, a clean `git status`, `chart/`, `docs/images/`, `LICENSE`, `README.md`, and the five empty `.qs-factory/` subdirs.
 
 ### Phase 5: Structured Interview / PRD Structuring
 
