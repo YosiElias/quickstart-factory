@@ -41,6 +41,8 @@ skills:
     expected_outputs:
       - path: ".rhoai-qs/{qs-name}/.qs-factory/prds/prd.md"
         description: "Structured PRD ready for rh-qs-architect"
+      - path: ".rhoai-qs/{qs-name}/chart/Chart.yaml"
+        description: "Proof the repo was seeded from ai-quickstart-template in Phase 4a — without this the checkpoint shows discovery green even if seeding never ran"
     review_guidance: |
       - PRD exists at [.rhoai-qs/{qs-name}/.qs-factory/prds/prd.md](.rhoai-qs/{qs-name}/.qs-factory/prds/prd.md) with all sections filled in
       - Review PRD content for completeness: problem statement, target persona, success metrics, scope boundaries, and technology constraints
