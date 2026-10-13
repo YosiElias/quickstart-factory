@@ -353,7 +353,7 @@ When the user asks to identify gaps (absorbs rh-qs-quickstart-identifier), **ski
 2. Read [references/industry-trends.md](./references/industry-trends.md) (if available)
 3. Compare coverage by industry, technology, and use case
 4. Propose 3-5 new quickstart ideas with rationale
-5. Save report to `.rhoai-qs/reports/gap-analysis-<date>.md` using the template from [references/gap-analysis-template.md](./references/gap-analysis-template.md)
+5. Save report to `.reports/gap-analysis-<date>.md` using the template from [references/gap-analysis-template.md](./references/gap-analysis-template.md)
 
 If the user wants to pursue one of the proposed ideas, transition into the standard discovery flow (Phase 1 onward, as a brand-new idea) with the gap analysis context as initial input.
 
