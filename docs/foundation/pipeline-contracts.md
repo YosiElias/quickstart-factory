@@ -674,7 +674,7 @@ Lists all documentation files produced and their validation status.
 ### Schema
 
 ```yaml
-spec_version: 1
+spec_version: 2
 quickstart_name: "Spending Transaction Monitor"
 slug: spending-transaction-monitor
 skill: rh-qs-document
@@ -700,6 +700,17 @@ documentation:
         source: implementation-manifest.yaml
       - name: Deployment
         status: complete
+      - name: Tags
+        status: complete
+
+  tags:
+    title: "Spending Transaction Monitor"        # matches H1, <= 64 chars
+    description: "Flag anomalous card transactions in real time with an on-cluster LLM"  # matches short description, <= 160 chars
+    industry: "Financial Services"               # exactly one
+    product: "OpenShift AI"
+    use_case: "fraud detection, anomaly detection"
+    partner: "N/A"                               # present even when empty
+    contributor_org: "Red Hat"
 
   additional_files:
     - path: TEST-PLAN.md
@@ -713,6 +724,8 @@ validation:
   all_make_targets_exist: true
   all_urls_well_formed: true
   diagram_matches_components: true
+  no_contributor_todo_remaining: true
+  tags_complete: true
   user_approved: true
 
 dependencies:
@@ -739,12 +752,26 @@ dependencies:
 | `documentation.readme.sections[].name` | string | yes | Section name |
 | `documentation.readme.sections[].status` | enum | yes | `complete`, `draft`, or `missing` |
 | `documentation.additional_files` | list | no | Other docs produced (TEST-PLAN.md, CONTRIBUTING.md, etc.) |
+| `documentation.tags` | map | yes | The README's `## Tags` block, mirrored for machine checking |
+| `documentation.tags.title` | string | yes | Matches the README H1; ≤ 64 chars |
+| `documentation.tags.description` | string | yes | Matches the short description; ≤ 160 chars |
+| `documentation.tags.industry` | string | yes | Exactly one industry from the catalog's list |
+| `documentation.tags.product` | string | yes | Primary Red Hat product |
+| `documentation.tags.use_case` | string | yes | Short use-case descriptor |
+| `documentation.tags.partner` | string | yes | Partner names, or `N/A` — the key must be present |
+| `documentation.tags.contributor_org` | string | yes | Contributing organization |
 | `validation` | map | yes | Documentation validation checks |
 | `validation.all_make_targets_exist` | boolean | yes | Every `make` target in README exists in Makefile |
 | `validation.all_urls_well_formed` | boolean | yes | All URLs are syntactically valid |
 | `validation.diagram_matches_components` | boolean | yes | Architecture diagram matches component list |
+| `validation.no_contributor_todo_remaining` | boolean | yes | `grep -c 'CONTRIBUTOR TODO' README.md` is 0 |
+| `validation.tags_complete` | boolean | yes | Every `documentation.tags` field present and within its limit |
 | `validation.user_approved` | boolean | yes | User reviewed and approved the documentation |
 | `dependencies` | list | yes | Upstream specs/manifests with `content_hash` |
+
+### Changes in spec_version 2
+
+Added `documentation.tags` and the `validation.tags_complete` / `validation.no_contributor_todo_remaining` booleans. `rh-qs-document` now fills in the template's `README.md` in place rather than generating one, so the `## Tags` block redhat.com publication requires is present from the start — these fields make "present" machine-checkable instead of a thing someone notices at submission time.
 
 ---
 

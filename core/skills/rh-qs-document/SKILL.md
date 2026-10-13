@@ -19,12 +19,30 @@ This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own 
 
 ## What it does
 
-1. Generates **README.md** from the implementation using standard quickstart catalog structure
-2. Includes: title, description, requirements (hardware/software), deploy steps, delete/cleanup steps
+1. **Fills in the existing `README.md` in place** — never regenerates it (see below)
+2. Replaces each `> **CONTRIBUTOR TODO:` blockquote with real content: title, description, requirements (hardware/software), deploy steps, delete/cleanup steps
 3. References the **Mermaid architecture diagram** from the architect phase (saved in `docs/images/`)
-4. Adds **catalog metadata/tags** for Red Hat documentation discovery
+4. Fills the `## Tags` block with catalog metadata for Red Hat documentation discovery
 5. Documents all **environment variables** and their purpose
 6. Optionally generates a **demo script outline** for video/presentation
+
+## Fill in the README — do not regenerate it
+
+`README.md` already exists. `rh-qs-discovery` seeded the repo from [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template), so the file is the full catalog skeleton: `Overview`, `Detailed description`, `Architecture diagrams`, `Requirements`, `Deploy` (`Prerequisites` / `Installation` / `Validating the deployment` / `Delete`), `Repository structure`, `References`, `Technical details`, `Tags`.
+
+**Edit it, section by section.** Writing a fresh README over the top drops the sections and tag fields catalog publication requires, and those are exactly the fields nobody notices missing until the submission bounces.
+
+Find the work with:
+
+```bash
+grep -n 'CONTRIBUTOR TODO' README.md
+```
+
+Each hit is a blockquote describing what belongs there, usually with an example. Replace the whole blockquote with real content drawn from the verify-deploy report, architecture spec, and the code. When every hit is gone, the README is done. Keep the heading structure as-is — the catalog tooling reads it.
+
+**Substitute Makefile targets for the template's raw `oc`.** The skeleton's examples use `oc new-project`, `oc get pods`, `helm uninstall`, and `oc delete project`. Those are placeholder guidance, not the commands to ship — they contradict `rh-qs-secure`, which forbids documenting raw `oc`/`kubectl`. Write `make deploy`, `make verify-deploy`, and `make undeploy` instead, matching what verify-deploy actually ran. Do not copy the examples verbatim.
+
+Two of the template's placeholder strings also need replacing wherever they appear: `YOUR_QUICKSTART_NAME` and `my-quickstart`.
 
 ## Workflow
 
@@ -56,23 +74,38 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 - [ ] 2. Explore repository (code, Helm, Makefile, compose, docs/images/)
 - [ ] 3. Read architecture spec for architecture diagram and component list
 - [ ] 4. Gather user-facing facts (hardware, RHOAI version, permissions)
-- [ ] 5. Draft or update README.md using ReadmeStructure
+- [ ] 5. Fill in every CONTRIBUTOR TODO block in README.md, in place
 - [ ] 6. Validate every documented command exists in Makefile or Helm (no undocumented oc/kubectl)
 - [ ] 7. Cross-check README deploy steps against verify-deploy evidence
-- [ ] 8. Optional: write docs/demo-script.md
+- [ ] 8. Complete the ## Tags block — publication blocks without it
+- [ ] 9. Optional: write docs/demo-script.md
 ```
 
-### README sections
+### What each section needs
 
-Use [references/ReadmeStructure.md](./references/ReadmeStructure.md):
-
-- Title and short description (catalog character limits)
+- Title and short description — the catalog's character limits are enforced in the Tags check below
 - Workload-focused detailed description
 - Requirements: specific GPU, tested OpenShift AI version, permissions
-- Deploy and Delete steps (copy-pasteable; use `make deploy` / `make undeploy` and podman terminology — not raw `oc`)
+- Deploy and Delete steps (copy-pasteable; `make deploy` / `make undeploy` and podman terminology — not raw `oc`)
 - Architecture section with diagram from `docs/images/` or architecture spec
 - Environment variables table
-- Tags/metadata for catalog
+- Repository structure tree, updated to the real layout
+
+### `## Tags` — required for publication
+
+redhat.com catalog publication rejects a quickstart with an incomplete `## Tags` block, so check it explicitly rather than trusting the TODO sweep:
+
+| Field | Constraint |
+|-------|-----------|
+| Title | Must match the H1 heading exactly; ≤ 64 chars |
+| Description | Must match the short description exactly; ≤ 160 chars |
+| Industry | Exactly one, from the catalog's list (e.g. Healthcare, Retail, Financial Services) |
+| Product | Primary Red Hat product (e.g. OpenShift AI, OpenShift, RHEL) |
+| Use case | Short descriptor (e.g. security, automation, productivity) |
+| Partner | Partner names, or `N/A` — the field must be present either way |
+| Contributor org | The contributing organization. The template's own TODO block does not list this one; add the line. |
+
+Record the result in `doc-manifest.yaml` under `validation.tags_complete` (see [pipeline-contracts.md](../../../docs/foundation/pipeline-contracts.md#7-doc-manifestyaml)) and do not hand off to `rh-qs-ship` while it is false.
 
 ### Demo script (optional)
 
@@ -88,6 +121,7 @@ Save to `docs/demo-script.md`:
 - Line-by-line code walkthroughs
 - Generic placeholders when repo pins specific versions
 - Commands not present in Makefile or Helm
+- A regenerated README — fill in the template's, in place
 
 ## Audience
 
@@ -95,7 +129,8 @@ Readers may have **limited OpenShift AI experience**. Use plain language, explic
 
 ## Output
 
-- `README.md` (create or replace)
+- `README.md` (edited in place — every CONTRIBUTOR TODO block replaced)
+- `.qs-factory/pipeline/doc-manifest.yaml`
 - Optional `docs/demo-script.md`
 - Updated `docs/images/` if diagram exported
 
@@ -105,7 +140,7 @@ When README is complete → **`rh-qs-ship`**
 
 ## References
 
-- [README structure](./references/ReadmeStructure.md)
+- [ai-quickstart-template README](https://github.com/rh-ai-quickstart/ai-quickstart-template/blob/main/README.md) — the upstream skeleton; the repo's own `README.md` is the copy to edit
 - Architecture spec: `.qs-factory/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
