@@ -13,6 +13,7 @@ import fcntl
 import glob
 import logging
 import os
+import re
 import time
 
 _import_error = None
@@ -25,10 +26,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+# Skills run from several working directories — the factory root before scaffold,
+# and inside .rhoai-qs/<slug>/ after it. Anchor every path off the factory root so
+# the checkpoint writes to the same place regardless of where it was invoked.
+FACTORY_ROOT = SCRIPT_DIR.parent.parent
 REGISTRY_PATH = SCRIPT_DIR / "pipeline-registry.yaml"
 FRESHNESS_WINDOW = 6000  # seconds — outputs must be younger than this
 
-LOG_DIR = Path(".tmp")
+BANNER_URL = (
+    "https://raw.githubusercontent.com/rh-ai-quickstart/quickstart-factory"
+    "/main/core/assets/dashboard-banner.svg"
+)
+
+LOG_DIR = FACTORY_ROOT / ".tmp"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     filename=str(LOG_DIR / "pipeline-checkpoint.log"),
@@ -42,12 +52,21 @@ log = logging.getLogger(__name__)
 # Error reporting (stdlib-only so it works even when external imports fail)
 # ---------------------------------------------------------------------------
 
+def dashboard_dir_for(qs_name: str) -> Path:
+    """Directory holding the quickstart's dashboard. Always factory-root-anchored."""
+    return FACTORY_ROOT / f".rhoai-qs/{qs_name}/flow"
+
+
+def lock_dir_for(qs_name: str) -> Path:
+    return FACTORY_ROOT / f".tmp/{qs_name}"
+
+
 def _append_error_to_dashboard(qs_name: str, skill_name: str, error: Exception):
     """Append a red error banner to the dashboard markdown."""
     try:
-        dashboard_path = Path(f".rhoai-qs/{qs_name}/flow/dashboard.md")
+        dashboard_path = dashboard_dir_for(qs_name) / "dashboard.md"
         dashboard_path.parent.mkdir(parents=True, exist_ok=True)
-        lock_dir = Path(f".tmp/{qs_name}")
+        lock_dir = lock_dir_for(qs_name)
         lock_dir.mkdir(parents=True, exist_ok=True)
         lock_path = lock_dir / "dashboard.lock"
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
@@ -98,12 +117,41 @@ def resolve_qs_path(template, qs_name: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Link rewriting
+#
+# Registry paths are stored factory-root-relative. The dashboard lives at an
+# arbitrary depth below the factory root — and may be reached through a symlink
+# that leaves the factory tree altogether — so links are made relative to the
+# dashboard's own directory rather than carrying a hardcoded `../../../` prefix.
+# ---------------------------------------------------------------------------
+
+MD_LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)\s]+)\)")
+# URL schemes, protocol-relative URLs, anchors, and already-absolute paths
+NON_RELATIVE_RE = re.compile(r"^(?:[a-z][a-z0-9+.\-]*:|//|#|/)", re.IGNORECASE)
+
+
+def link_to(target: str, dashboard_dir: Path) -> str:
+    """Rewrite a factory-root-relative path to be relative to `dashboard_dir`."""
+    if NON_RELATIVE_RE.match(target):
+        return target
+    return os.path.relpath(FACTORY_ROOT / target, dashboard_dir)
+
+
+def rewrite_links(text: str, dashboard_dir: Path) -> str:
+    """Rewrite every relative markdown link target in `text`."""
+    return MD_LINK_RE.sub(
+        lambda m: f"[{m.group(1)}]({link_to(m.group(2), dashboard_dir)})", text
+    )
+
+
+# ---------------------------------------------------------------------------
 # Dashboard markdown renderer
 # ---------------------------------------------------------------------------
 
 def render_dashboard(qs_name: str, skills: list[dict], state: dict) -> str:
     """Render the full dashboard markdown from state + registry."""
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    dashboard_dir = dashboard_dir_for(qs_name)
     total = len(skills)
     done_count = sum(
         1 for s in skills if state.get(s["id"], {}).get("status") == "done"
@@ -138,7 +186,7 @@ def render_dashboard(qs_name: str, skills: list[dict], state: dict) -> str:
             if outputs:
                 first_out = outputs[0]
                 out_path = resolve_qs_path(first_out, qs_name)
-                out_link = f"[{os.path.basename(out_path)}](../../../{out_path})"
+                out_link = f"[{os.path.basename(out_path)}]({link_to(out_path, dashboard_dir)})"
             else:
                 out_link = "—"
             if verified is False:
@@ -165,8 +213,8 @@ def render_dashboard(qs_name: str, skills: list[dict], state: dict) -> str:
     if last_done_skill:
         guidance = last_done_skill.get("review_guidance", "").strip()
         if guidance:
-            guidance = resolve_qs_path(guidance, qs_name)
-            review_section = f"\n---\n\n## ⚠️ Review Before Continuing — {last_done_skill['id']}\n\n{guidance}\n"
+            guidance = rewrite_links(resolve_qs_path(guidance, qs_name), dashboard_dir)
+            review_section =f"\n---\n\n## ⚠️ Review Before Continuing — {last_done_skill['id']}\n\n{guidance}\n"
 
     # Next step
     next_section = ""
@@ -219,7 +267,7 @@ def render_dashboard(qs_name: str, skills: list[dict], state: dict) -> str:
     )
 
     body = f"""\
-<img src="../../../core/assets/dashboard-banner.svg" alt="Quickstart Factory — Red Hat OpenShift AI" width="100%"/>
+<img src="{BANNER_URL}" alt="Quickstart Factory — Red Hat OpenShift AI" width="100%"/>
 
 # Pipeline Dashboard — {qs_name}
 
@@ -252,7 +300,8 @@ def validate_outputs(skill: dict, qs_name: str) -> bool:
         return True
     now = time.time()
     for out in outputs:
-        pattern = resolve_qs_path(out, qs_name)
+        # Registry paths are factory-root-relative; absolute paths pass through.
+        pattern = str(FACTORY_ROOT / resolve_qs_path(out, qs_name))
         matches = glob.glob(pattern)
         if not matches:
             return False
@@ -267,9 +316,9 @@ def validate_outputs(skill: dict, qs_name: str) -> bool:
 
 def update_dashboard(qs_name: str, skill_id: str, skills: list[dict], outputs_verified: bool):
     """Update (or create) the dashboard under file lock."""
-    dashboard_dir = Path(f".rhoai-qs/{qs_name}/flow")
+    dashboard_dir = dashboard_dir_for(qs_name)
     dashboard_path = dashboard_dir / "dashboard.md"
-    lock_dir = Path(f".tmp/{qs_name}")
+    lock_dir = lock_dir_for(qs_name)
     lock_path = lock_dir / "dashboard.lock"
 
     lock_dir.mkdir(parents=True, exist_ok=True)

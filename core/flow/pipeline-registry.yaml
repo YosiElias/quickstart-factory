@@ -10,6 +10,12 @@
 # skills[].review_guidance:
 #   - Keep to 4 lines max — only the most important checks the user must note
 #   - Always end with a peer review recommendation
+#   - Write any path you want the user to open as a markdown link with a
+#     factory-root-relative target. pipeline-checkpoint.py rewrites it relative
+#     to the dashboard at render time — never hardcode a ../../../ prefix.
+#
+# All paths in this file (expected_outputs, review_guidance links) are relative
+# to the quickstart-factory repo root, regardless of the skill's working dir.
 #
 pipeline:
   name: greenfield
@@ -36,7 +42,7 @@ skills:
       - path: ".rhoai-qs/{qs-name}/prds/prd.md"
         description: "Structured PRD ready for rh-qs-architect"
     review_guidance: |
-      - PRD exists at [.rhoai-qs/{qs-name}/prds/prd.md](../../../.rhoai-qs/{qs-name}/prds/prd.md) with all sections filled in
+      - PRD exists at [.rhoai-qs/{qs-name}/prds/prd.md](.rhoai-qs/{qs-name}/prds/prd.md) with all sections filled in
       - Review PRD content for completeness: problem statement, target persona, success metrics, scope boundaries, and technology constraints
       - Recommend getting a peer engineer review on the PRD before continuing
     next_skill: rh-qs-architect
@@ -53,9 +59,9 @@ skills:
       - path: ".rhoai-qs/{qs-name}/designs/architecture-diagram.mmd"
         description: "Mermaid architecture diagram referenced by architecture-spec.yaml"
     review_guidance: |
-      - architecture-spec.yaml exists at [.rhoai-qs/{qs-name}/designs/architecture-spec.yaml](../../../.rhoai-qs/{qs-name}/designs/architecture-spec.yaml) with all required sections filled in
+      - architecture-spec.yaml exists at [.rhoai-qs/{qs-name}/designs/architecture-spec.yaml](.rhoai-qs/{qs-name}/designs/architecture-spec.yaml) with all required sections filled in
       - Review content: technology_stack complete, component BOM matches PRD, integration_patterns cover non-obvious protocols/flows/security boundaries, chart versions pinned, testing_strategy defined, dependencies include content_hash
-      - architecture-diagram.mmd exists at [.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd](../../../.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd) and matches components
+      - architecture-diagram.mmd exists at [.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd](.rhoai-qs/{qs-name}/designs/architecture-diagram.mmd) and matches components
       - Recommend getting a peer engineer review on the architecture spec before continuing
     next_skill: rh-qs-scaffold
 
@@ -69,7 +75,7 @@ skills:
       - path: ".rhoai-qs/{qs-name}/pipeline/scaffold-manifest.yaml"
         description: "Handoff manifest listing created files, packages, CI jobs, and linting config"
     review_guidance: |
-      - scaffold-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/scaffold-manifest.yaml](../../../.rhoai-qs/{qs-name}/pipeline/scaffold-manifest.yaml)
+      - scaffold-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/scaffold-manifest.yaml](.rhoai-qs/{qs-name}/pipeline/scaffold-manifest.yaml)
       - make lint passes, no placeholder strings remain in scaffolded files
       - Review content: repo accessible, Makefile has all standard targets, CI workflows valid
       - Recommend getting a peer engineer review on the scaffold before continuing
@@ -85,7 +91,7 @@ skills:
       - path: ".rhoai-qs/{qs-name}/pipeline/implementation-manifest.yaml"
         description: "Handoff manifest documenting endpoints, DB models, services, env vars, and test coverage"
     review_guidance: |
-      - implementation-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/implementation-manifest.yaml](../../../.rhoai-qs/{qs-name}/pipeline/implementation-manifest.yaml)
+      - implementation-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/implementation-manifest.yaml](.rhoai-qs/{qs-name}/pipeline/implementation-manifest.yaml)
       - make lint && make test pass with zero failures
       - Review content: all endpoints implemented, no placeholders, no hardcoded secrets
       - Recommend getting a peer engineer review on the implementation before continuing
@@ -101,7 +107,7 @@ skills:
       - path: ".rhoai-qs/{qs-name}/pipeline/deploy-manifest.yaml"
         description: "Handoff manifest recording Helm deps, compose services, Containerfiles, routes, and env vars"
     review_guidance: |
-      - deploy-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/deploy-manifest.yaml](../../../.rhoai-qs/{qs-name}/pipeline/deploy-manifest.yaml)
+      - deploy-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/deploy-manifest.yaml](.rhoai-qs/{qs-name}/pipeline/deploy-manifest.yaml)
       - make helm-lint passes and make dev brings up the local stack
       - Review content: no raw oc/kubectl usage, no committed secrets, Containerfiles use UBI9
       - Recommend getting a peer engineer review on the deploy config before continuing
@@ -130,9 +136,9 @@ skills:
       - path: ".rhoai-qs/{qs-name}/pipeline/deploy-state.yaml"
         description: "Final cluster health snapshot per resource — handoff to rh-qs-document"
     review_guidance: |
-      - deploy-state.yaml exists in [.rhoai-qs/{qs-name}/pipeline/deploy-state.yaml](../../../.rhoai-qs/{qs-name}/pipeline/deploy-state.yaml) with overall_status healthy
+      - deploy-state.yaml exists in [.rhoai-qs/{qs-name}/pipeline/deploy-state.yaml](.rhoai-qs/{qs-name}/pipeline/deploy-state.yaml) with overall_status healthy
       - Review content: unhealthy_resources empty, all E2E tests passed, no resource skipped after 3 failed attempts
-      - Read .tmp/{qs-name}/debug/deploy-report.md (local run log, not committed) for root causes and fixes — confirm those fixes went into the quickstart's source, not just onto the cluster
+      - Read [deploy-report.md](.tmp/{qs-name}/debug/deploy-report.md) (local run log, not committed) for root causes and fixes — confirm those fixes went into the quickstart's source, not just onto the cluster
       - Recommend getting a peer engineer review on the applied fixes before continuing
     next_skill: rh-qs-document
 
@@ -146,7 +152,7 @@ skills:
       - path: ".rhoai-qs/{qs-name}/pipeline/doc-manifest.yaml"
         description: "Documentation handoff manifest with README section status and validation results"
     review_guidance: |
-      - doc-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/doc-manifest.yaml](../../../.rhoai-qs/{qs-name}/pipeline/doc-manifest.yaml) and all validation booleans are true
+      - doc-manifest.yaml exists in [.rhoai-qs/{qs-name}/pipeline/doc-manifest.yaml](.rhoai-qs/{qs-name}/pipeline/doc-manifest.yaml) and all validation booleans are true
       - README deploy commands match Makefile targets, no placeholder content remains
       - Review content: catalog metadata compliant, architecture diagram matches spec
       - Recommend getting a peer engineer review on the docs before continuing
