@@ -69,7 +69,7 @@ Calling skill: rh-qs-discovery
 )
 ```
 
-Where `existing_slugs` comes from `ls .rhoai-qs/ 2>/dev/null` (excluding `reports` and `blog-drafts`), run by the main agent — never by the subagent.
+Where `existing_slugs` comes from `ls -1 .rhoai-qs/ 2>/dev/null` (every entry is a quickstart — no filtering), run by the main agent — never by the subagent.
 
 Handle the result per [validation-skill-template.md](../../../docs/foundation/validation-skill-template.md#main-agent-handling). If `resolution: new_quickstart`, treat this as a brand-new idea and proceed to Phase 1 normally.
 

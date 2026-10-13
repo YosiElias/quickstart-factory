@@ -42,7 +42,7 @@ User provides:
 
 ### Phase 0: Resolve Quickstart Context
 
-Before touching any files, resolve which quickstart this session is for. Run `ls .rhoai-qs/ 2>/dev/null` (excluding `reports` and `blog-drafts`) and spawn the **validation-skill subagent**:
+Before touching any files, resolve which quickstart this session is for. Run `ls -1 .rhoai-qs/ 2>/dev/null` (every entry is a quickstart — no filtering) and spawn the **validation-skill subagent**:
 
 ```python
 Agent(

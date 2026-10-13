@@ -2,7 +2,7 @@
 
 This document defines the YAML schema for each inter-skill handoff file. These contracts specify exactly what each file contains, which skill produces it, and which skill consumes it — enabling skills to be developed and validated independently.
 
-Every handoff file follows the common header defined in [spec-as-contract.md](spec-as-contract.md) and lives in the quickstart's `.rhoai-qs/<slug>/pipeline/` directory as defined in [pipeline-convention.md](pipeline-convention.md).
+Every handoff file follows the common header defined in [spec-as-contract.md](spec-as-contract.md) and lives in the quickstart's `.rhoai-qs/<slug>/.qs-factory/pipeline/` directory as defined in [pipeline-convention.md](pipeline-convention.md).
 
 ## Common Header
 
@@ -24,15 +24,15 @@ The pipeline passes structured artifacts through these files, in order:
 
 | # | File | Producer | Consumer | Category | Location |
 |---|------|----------|----------|----------|----------|
-| 1 | `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | Spec | `.rhoai-qs/<slug>/designs/` |
-| 2 | `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | Manifest | `.rhoai-qs/<slug>/pipeline/` |
-| 3 | `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | Manifest | `.rhoai-qs/<slug>/pipeline/` |
-| 4 | `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | Manifest | `.rhoai-qs/<slug>/pipeline/` |
-| 5 | `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | Report | `.rhoai-qs/<slug>/pipeline/` |
-| 6 | `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | State | `.rhoai-qs/<slug>/pipeline/` |
-| 7 | `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | Manifest | `.rhoai-qs/<slug>/pipeline/` |
+| 1 | `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | Spec | `.rhoai-qs/<slug>/.qs-factory/designs/` |
+| 2 | `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 3 | `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 4 | `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 5 | `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | Report | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 6 | `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | State | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 7 | `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
 
-Additionally, the PRD (`.rhoai-qs/<slug>/prds/prd.md`) produced by rh-qs-discovery is a Markdown file, not YAML, and its format is defined by the PRD template — not this document.
+Additionally, the PRD (`.rhoai-qs/<slug>/.qs-factory/prds/prd.md`) produced by rh-qs-discovery is a Markdown file, not YAML, and its format is defined by the PRD template — not this document.
 
 ---
 
@@ -41,7 +41,7 @@ Additionally, the PRD (`.rhoai-qs/<slug>/prds/prd.md`) produced by rh-qs-discove
 **Producer:** rh-qs-architect
 **Consumer:** rh-qs-scaffold
 **Category:** Spec
-**Location:** `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
+**Location:** `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml`
 
 Documents the architecture decisions, component bill of materials, technology stack, and testing strategy for a quickstart.
 
@@ -105,7 +105,7 @@ integration_patterns:
     - point: "Secrets"
       mechanism: "OpenShift secrets for DB credentials and model API keys"
 
-architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
+architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/.qs-factory/designs/architecture-diagram.mmd
 
 testing_strategy:
   profile: standard
@@ -127,13 +127,13 @@ testing_strategy:
     runs_on: "Every PR"
 
 dependencies:
-  - spec: .rhoai-qs/spending-transaction-monitor/prds/prd.md
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/prds/prd.md
     fields_used: [problem_statement, target_persona, technology_constraints]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/prd-features.yaml
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/prd-features.yaml
     fields_used: [input_features, deployment_questions, decision_points]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/kb-scores.yaml
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/kb-scores.yaml
     fields_used: [results]
     content_hash: "sha256:..."
 ```
@@ -163,7 +163,7 @@ dependencies:
 | `integration_patterns.security_boundaries` | list | yes | Security considerations at component boundaries |
 | `integration_patterns.security_boundaries[].point` | string | yes | Boundary or security checkpoint name |
 | `integration_patterns.security_boundaries[].mechanism` | string | yes | Security approach (auth, secrets, policy, isolation, etc.) |
-| `architecture_diagram_path` | string | yes | Path to Mermaid diagram file (e.g., `.rhoai-qs/<slug>/designs/architecture-diagram.mmd`) |
+| `architecture_diagram_path` | string | yes | Path to Mermaid diagram file (e.g., `.rhoai-qs/<slug>/.qs-factory/designs/architecture-diagram.mmd`) |
 | `testing_strategy` | map | yes | Testing levels and scope (no tool commands) |
 | `dependencies` | list | yes | Upstream specs with content_hash |
 
@@ -488,16 +488,16 @@ overall_status: PASS | PASS_WITH_WARNINGS | BLOCKED
 scanners:
   code:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-code.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-code.yaml
   containers:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-containers.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-containers.yaml
   helm:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-helm.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-helm.yaml
   dependencies:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-deps.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-deps.yaml
 
 findings:
   - id: sec-1
@@ -761,7 +761,7 @@ Consuming skills must check `spec_version` on read and fail with a clear error i
 ## Relationship to Other Foundation Docs
 
 - **[spec-as-contract.md](spec-as-contract.md)** — defines the common spec format; `architecture-spec.yaml` (file #1) uses a simplified architect-specific schema documented in section 1 above and in `core/skills/rh-qs-architect/references/architecture-spec-template.yaml`
-- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/pipeline/` directory where all these files live
+- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/.qs-factory/pipeline/` directory where all these files live
 - **[skill-directory-structure.md](skill-directory-structure.md)** — each skill's `spec-template.md` defines skill-specific fields within these schemas
 - **[acceptance-criteria.md](acceptance-criteria.md)** — defines how `acceptance_criteria` sections in specs are validated
 - **[validation-skill-template.md](validation-skill-template.md)** — how `<slug>` is resolved before any of these files are read or written

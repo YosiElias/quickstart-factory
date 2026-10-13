@@ -25,7 +25,7 @@ When the user says **"hello"** or **"hi"**:
 - By assignee: [summary from --summary output]
 
 ## In-Progress Quickstarts
-[list slugs found under `ls .rhoai-qs/ 2>/dev/null`, excluding `reports` and `blog-drafts`, or "None yet" if empty]
+[list slugs found under `ls -1 .rhoai-qs/ 2>/dev/null` — every entry is a quickstart — or "None yet" if empty]
 
 ## What would you like to do?
 

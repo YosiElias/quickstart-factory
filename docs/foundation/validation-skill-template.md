@@ -27,13 +27,24 @@ Self-contained, following the standard subagent structure from [skill-directory-
 | Input | Description |
 |-------|-------------|
 | `user_message` | The user's raw request for this session (e.g., "deploy mortgage-processor", "continue the fraud idea", "run rh-qs-deploy") |
-| `existing_slugs` | List of quickstart slug folders, **excluding** the two cross-cutting folders `reports/` and `blog-drafts/` (see [pipeline-convention.md](pipeline-convention.md#cross-cutting-locations)) |
+| `existing_slugs` | List of the directories under `.rhoai-qs/`. Every one of them is a quickstart — there is nothing to filter out (see [pipeline-convention.md](pipeline-convention.md#the-two-invariants)) |
 | `is_entry_point` | `true` only for `rh-qs-discovery`; changes how a zero-match result is handled |
 | `calling_skill` | Name of the skill invoking this subagent (for logging/messaging only) |
 
 The main agent runs the listing command itself — the subagent never has filesystem access, it only reasons over the list it's given. The exact command depends on where the calling skill runs (see [pipeline-convention.md](pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths)):
-- Skills running at the `quickstart-factory` root (discovery, architect, scaffold): `ls .rhoai-qs/ 2>/dev/null`, then filter out `reports` and `blog-drafts`.
-- Skills running inside `.rhoai-qs/<slug>/` itself (implement, deploy, verify-deploy, document, test-suite, ship): `ls ../ 2>/dev/null`, then filter out `reports` and `blog-drafts`.
+
+```bash
+# Skills running at the quickstart-factory root (discovery, architect, scaffold):
+ls -1 .rhoai-qs/ 2>/dev/null
+
+# Skills running inside .rhoai-qs/<slug>/ itself
+# (implement, deploy, verify-deploy, document, test-suite, ship):
+ls -1 ../ 2>/dev/null
+```
+
+The output **is** the slug list, verbatim — no filtering. Every direct child of `.rhoai-qs/` is a quickstart, so there is nothing to exclude.
+
+Use plain `ls`, not `find`: `find -printf` is GNU-only and breaks on macOS, and `ls` lists a symlinked quickstart like any other entry, which `find -type d` would not.
 
 ## Resolution Logic
 
@@ -108,15 +119,15 @@ Every subsequent phase constructs paths using the resolved `slug`, in whichever 
 
 ```
 # From the quickstart-factory root (discovery, architect, scaffold):
-.rhoai-qs/<slug>/pipeline/<skill>-spec.yaml
-.rhoai-qs/<slug>/prds/prd.md
-.rhoai-qs/<slug>/designs/architecture-spec.yaml
+.rhoai-qs/<slug>/.qs-factory/pipeline/<skill>-spec.yaml
+.rhoai-qs/<slug>/.qs-factory/prds/prd.md
+.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml
 
 # From inside .rhoai-qs/<slug>/ itself (implement, deploy, verify-deploy,
 # document, test-suite, ship):
-pipeline/<skill>-spec.yaml
-prds/prd.md
-designs/architecture-spec.yaml
+.qs-factory/pipeline/<skill>-spec.yaml
+.qs-factory/prds/prd.md
+.qs-factory/designs/architecture-spec.yaml
 ```
 
 ## Relationship to Other Foundation Docs

@@ -198,7 +198,7 @@ core/skills/implementation/rh-qs-implement/
 │   # error handling, async consistency, security basics
 │
 ├── spec-template.md
-│   # Defines .rhoai-qs/<slug>/pipeline/implementation-spec.yaml:
+│   # Defines .rhoai-qs/<slug>/.qs-factory/pipeline/implementation-spec.yaml:
 │   #   endpoints, schemas, services, DB models, UI routes
 │
 ├── output-templates.md
@@ -238,13 +238,13 @@ core/skills/implementation/rh-qs-implement/
 
 ```
 Phase 0: Resolve quickstart slug (validation-skill)
-Phase 1: Read scaffold-manifest.yaml from .rhoai-qs/<slug>/pipeline/ and architecture-spec.yaml from .rhoai-qs/<slug>/designs/
+Phase 1: Read scaffold-manifest.yaml from .rhoai-qs/<slug>/.qs-factory/pipeline/ and architecture-spec.yaml from .rhoai-qs/<slug>/.qs-factory/designs/
 Phase 2: Generate implementation-spec.yaml → user approval
 Phase 3: Spawn db-schema subagent (dependency)
 Phase 4: Spawn backend-implementer + frontend-implementer in parallel
 Phase 5: Spawn test-writer → generates tests
 Phase 6: Run `make test` → route failures → fix loop (max 3)
-Phase 7: Write implementation-manifest.yaml to .rhoai-qs/<slug>/pipeline/
+Phase 7: Write implementation-manifest.yaml to .rhoai-qs/<slug>/.qs-factory/pipeline/
 ```
 
 ## Minimal Example: rh-qs-discovery
@@ -288,7 +288,7 @@ Current skills are flat `SKILL.md` files with optional `references/` and `script
 
 1. Keep `SKILL.md` but rewrite it as an orchestrator
 2. Add `reasoning-guardrails.md` with skill-specific concern areas
-3. Add `spec-template.md` defining the skill's spec YAML, using `.rhoai-qs/<slug>/pipeline/` paths per [pipeline-convention.md](pipeline-convention.md)
+3. Add `spec-template.md` defining the skill's spec YAML, using `.rhoai-qs/<slug>/.qs-factory/pipeline/` paths per [pipeline-convention.md](pipeline-convention.md)
 4. Add `output-templates.md` defining output formats
 5. Create `subagents/` with `README.md`, `validation-skill-prompt.md` (Phase 0 slug resolution, see [validation-skill-template.md](validation-skill-template.md)), and one `<role>-prompt.md` per delegated task
 6. Move heavy logic from `SKILL.md` into subagent prompts

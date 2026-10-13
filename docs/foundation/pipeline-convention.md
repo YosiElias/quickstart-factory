@@ -1,104 +1,115 @@
 # Pipeline File Convention
 
-This document defines how factory skills store and pass structured artifacts between pipeline stages, and where each quickstart's actual code lives. Everything for a given quickstart — pipeline specs, PRD, architecture spec, blog drafts, reports, **and its application code** — lives together in one place inside the **`quickstart-factory`** repo, namespaced by quickstart slug. This ensures a full audit trail that survives reboots and is deleted only when the user chooses.
+This document defines how factory skills store and pass structured artifacts between pipeline stages, and where each quickstart's actual code lives. Everything for a given quickstart — pipeline specs, PRD, architecture spec, reports, **and its application code** — lives together in one place inside the **`quickstart-factory`** repo, namespaced by quickstart slug. This ensures a full audit trail that survives reboots and is deleted only when the user chooses.
 
 ## Why Everything Lives Under `.rhoai-qs/<slug>/`
 
-Every skill's bookkeeping — specs, manifests, PRDs, designs, blog drafts, reports — and the quickstart's scaffolded application code (created by `rh-qs-scaffold`) live together under one folder: `quickstart-factory/.rhoai-qs/<slug>/`. One canonical location per quickstart means every skill can always find everything it needs without hopping between repos or guessing where things are on disk.
+Every skill's bookkeeping — specs, manifests, PRDs, designs, reports — and the quickstart's own application code live together under one folder: `quickstart-factory/.rhoai-qs/<slug>/`. One canonical location per quickstart means every skill can always find everything it needs without hopping between repos or guessing where things are on disk.
 
-Because `.rhoai-qs/` now holds data for **every** quickstart ever worked on, every skill must first determine *which* quickstart the current session applies to. See [Resolving the Quickstart Slug](#resolving-the-quickstart-slug).
+Because `.rhoai-qs/` holds data for **every** quickstart ever worked on, every skill must first determine *which* quickstart the current session applies to. See [Resolving the Quickstart Slug](#resolving-the-quickstart-slug).
+
+## The Two Invariants
+
+Everything else in this document follows from these two rules:
+
+1. **Every direct child of `.rhoai-qs/` is a quickstart.** Nothing else lives there — no cross-cutting reports, no shared drafts, no scratch folders. Slug resolution is therefore a plain directory listing, with no allowlist, denylist, or filter step.
+2. **All factory bookkeeping lives in exactly one folder per quickstart: `.qs-factory/`.** It has no exceptions — nothing inside it survives `rh-qs-ship`, so a single rule can track it, ignore it, or delete it.
 
 ## Directory Structure
 
-All quickstart-scoped files — bookkeeping and code alike — live under:
+`quickstart-factory/.rhoai-qs/<slug>/` **is the quickstart's git repo root.** It is one of two things:
 
-```
-quickstart-factory/.rhoai-qs/<slug>/
-```
+- a **real directory**, seeded by `rh-qs-discovery` from the org template (the normal case), or
+- a **symlink** to a repo living elsewhere on disk, for a quickstart you already had checked out before adopting this convention.
+
+Both shapes behave identically for every skill: `ls`, `cd`, and relative paths all work through a symlink, and the checkpoint's dashboard links are computed relative to the dashboard itself, so they stay correct either way.
 
 **Example:** `quickstart-factory/.rhoai-qs/mortgage-processor/`
-
-Two things that are **not** about any single quickstart live directly under `.rhoai-qs/` itself, as siblings of the slug folders — see [Cross-Cutting Locations](#cross-cutting-locations):
-
-```
-quickstart-factory/.rhoai-qs/reports/
-quickstart-factory/.rhoai-qs/blog-drafts/
-```
 
 The `.rhoai-qs/` directory is gitignored by the factory repo, so none of this ever ends up in the factory's own commits. (The quickstart's own code, however, is committed to its own separate repo — see [Nested Quickstart Repos](#nested-quickstart-repos).)
 
 ### Full Layout
 
 ```
-quickstart-factory/.rhoai-qs/
-├── mortgage-processor/
-│   ├── pipeline/
-│   │   ├── discovery-spec.yaml
-│   │   ├── scaffold-spec.yaml
-│   │   ├── scaffold-manifest.yaml              # Handoff to implement
-│   │   ├── implementation-spec.yaml
-│   │   ├── implementation-manifest.yaml        # Handoff to deploy
-│   │   ├── deploy-spec.yaml
-│   │   ├── deploy-manifest.yaml                # Handoff to security
-│   │   ├── security-report.yaml                # Handoff to debug-and-deploy
-│   │   ├── deploy-state.yaml                    # Handoff to document
-│   │   └── doc-manifest.yaml                    # Handoff to ship
-│   ├── prds/
-│   │   └── prd.md
-│   ├── designs/
-│   │   ├── architecture-spec.yaml              # Also the handoff to scaffold
-│   │   └── architecture-diagram.mmd
-│   ├── blog-drafts/
-│   │   └── 2026-07-29.md
-│   ├── reports/
-│   │   └── verify-deploy-2026-07-29.md
-│   │
-│   ├── packages/api/                            # ─┐
-│   ├── packages/ui/                              #  │  the quickstart's own
-│   ├── deploy/helm/                              #  │  application code —
-│   ├── .github/workflows/                        #  │  a separate git repo,
-│   ├── .git/                                     #  │  set up here by
-│   ├── Makefile                                  #  │  rh-qs-scaffold
-│   └── README.md                                 # ─┘
+quickstart-factory/
+├── .blog-drafts/                           ← gitignored; factory-side, slug-prefixed
+│   └── mortgage-processor-2026-03-11.md
+├── .reports/                               ← gitignored; cross-cutting reports
+│   └── grooming-report-2026-03-11.md
 │
-├── spending-transaction-monitor/
-│   └── ... (same shape — pipeline + prd + design + code, all together)
-│
-├── reports/                                       ← cross-cutting, not tied to one quickstart
-│   ├── gap-analysis-2026-07-29.md
-│   └── grooming-report-2026-07-29.md
-│
-└── blog-drafts/                                   ← fallback for quickstarts predating this convention
-    └── vllm-cpu-2025-03-11.md
+└── .rhoai-qs/                              ← gitignored; QUICKSTARTS ONLY, nothing else
+    └── mortgage-processor/                 ← the quickstart's own git repo root
+        ├── .git/                           ←   (or a symlink to a repo elsewhere)
+        │
+        ├── .qs-factory/                    ◄══ ALL factory bookkeeping, one folder
+        │   ├── prds/
+        │   │   └── prd.md
+        │   ├── designs/
+        │   │   ├── architecture-spec.yaml          # Also the handoff to scaffold
+        │   │   └── architecture-diagram.mmd
+        │   ├── pipeline/
+        │   │   ├── discovery-spec.yaml
+        │   │   ├── scaffold-spec.yaml
+        │   │   ├── scaffold-manifest.yaml          # Handoff to implement
+        │   │   ├── implementation-spec.yaml
+        │   │   ├── implementation-manifest.yaml    # Handoff to deploy
+        │   │   ├── deploy-spec.yaml
+        │   │   ├── deploy-manifest.yaml            # Handoff to security
+        │   │   ├── security-report.yaml            # Handoff to debug-and-deploy
+        │   │   ├── deploy-state.yaml               # Handoff to document
+        │   │   └── doc-manifest.yaml               # Handoff to ship
+        │   ├── flow/
+        │   │   └── dashboard.md                    # pipeline-checkpoint.py
+        │   └── reports/
+        │       └── verify-deploy-2026-07-29.md
+        │
+        ├── chart/                           ─┐
+        │   ├── Chart.yaml                    │  seeded from
+        │   ├── values.yaml                   │  rh-ai-quickstart/
+        │   └── templates/                    │  ai-quickstart-template
+        ├── docs/images/                      │  by rh-qs-discovery
+        ├── LICENSE                           │
+        └── README.md                        ─┘  (catalog skeleton, incl. ## Tags)
+
+            ── added later by scaffold / implement / deploy ──
+            packages/{api,ui,db}/ · .github/workflows/ · tests/
+            Makefile · compose.yml · turbo.json · .env.example
 ```
 
-There is no separate sibling folder for the code anymore — `.rhoai-qs/<slug>/` **is** the quickstart's repo root, with the factory's bookkeeping folders (`pipeline/`, `prds/`, `designs/`, `blog-drafts/`, `reports/`) sitting alongside the application code (`packages/`, `deploy/`, etc.) inside it.
+Note what is **not** there: no `blog-drafts/` inside the quickstart (drafts are factory-side working material — see [Factory-Side Locations](#factory-side-locations)), and no sibling folders under `.rhoai-qs/` itself.
 
 ## Nested Quickstart Repos
 
-`rh-qs-scaffold` creates each quickstart as its own GitHub repository (`rh-ai-quickstart/<slug>`) and turns `quickstart-factory/.rhoai-qs/<slug>/` into that repo's working directory. This folder has its own `.git/`, its own remote, its own commit history and CI, independent of the factory repo.
+`rh-qs-discovery` seeds `quickstart-factory/.rhoai-qs/<slug>/` from the org template as a **local** git repo as soon as the slug is minted. The **user** pushes it to `rh-ai-quickstart/<slug>` after approving the PRD. From then on this folder has its own `.git/`, its own remote, its own commit history and CI, independent of the factory repo.
 
-**Important:** this folder already contains `pipeline/`, `prds/`, `designs/` from earlier phases by the time scaffold runs, so it is never empty — `git clone` (and `gh repo create ... --clone`) would refuse to clone into it. `rh-qs-scaffold` instead creates the GitHub repo separately, then runs `git init` + `git remote add` directly inside the existing folder (see `rh-qs-scaffold/SKILL.md` for the exact steps, including the template-repo variant).
+`rh-qs-scaffold` does not create the repo — it verifies the remote is set and adds the application scaffolding on top of the template.
 
-### The bookkeeping folders are tracked, not gitignored
+### `.qs-factory/` is tracked, not gitignored
 
-`pipeline/`, `prds/`, `designs/`, `blog-drafts/`, `reports/` live inside this same repo and are **committed and pushed like everything else** throughout development — they are deliberately **not** added to the quickstart's own `.gitignore`. This is intentional: it lets the team collaborate on the PRD, design doc, and pipeline state through normal pull requests (reviewing a design doc together, discussing an open question in the PRD, etc.), not just on whichever engineer's machine happened to run the factory pipeline.
+`.qs-factory/` lives inside the quickstart's own repo and is **committed and pushed like everything else** throughout development — it is deliberately **not** added to the quickstart's `.gitignore`. This is intentional: it lets the team collaborate on the PRD, design doc, and pipeline state through normal pull requests (reviewing a design doc together, discussing an open question in the PRD, etc.), not just on whichever engineer's machine happened to run the factory pipeline.
 
-`pipeline/`, `prds/`, `designs/`, and `reports/` get removed as a **final cleanup step in `rh-qs-ship`**, right before the quickstart is considered done — so the finished, published repo doesn't carry this internal bookkeeping, but the team had full visibility into it while the work was in progress. `blog-drafts/` is deliberately excluded from that same cleanup pass, since the draft is generated by `rh-qs-ship` itself and still needs human review before publication — it's left for the user to remove once the post actually goes out. See `rh-qs-ship/SKILL.md` for the exact steps.
+It is removed **wholesale** as a final cleanup step in `rh-qs-ship`, right before the quickstart is considered done:
+
+```bash
+git rm -r --ignore-unmatch .qs-factory
+```
+
+There are no exceptions to that command — nothing inside `.qs-factory/` belongs in a published quickstart. So the finished repo carries none of this internal bookkeeping, but the team had full visibility into it while the work was in progress. See `rh-qs-ship/SKILL.md` for the exact steps.
 
 This is a **separate concern** from the factory's own `.gitignore`, which simply ignores `.rhoai-qs/` as one blanket rule (see the factory's `.gitignore`) — git never looks inside an ignored directory, so it never notices there's another repo nested inside it, and the two repos' git histories don't interact.
 
-See `rh-qs-scaffold/SKILL.md` for the exact repo-creation steps.
-
 ## Where Skills Run (and Why It Matters for Paths)
 
-Skills fall into two groups, based on whether the quickstart's code repo exists yet:
+Skills fall into two groups, based on whether they run inside the quickstart's repo:
 
-**Before scaffolding** (`rh-qs-discovery`, `rh-qs-architect`, `rh-qs-scaffold` itself, plus factory-level skills like `pipeline-grooming`, `blog-writer`): run with their working directory at the **`quickstart-factory` root**. Paths are written in full: `.rhoai-qs/<slug>/prds/prd.md`.
+**At the `quickstart-factory` root** (`rh-qs-discovery`, `rh-qs-architect`, `rh-qs-scaffold`, plus factory-level skills like `pipeline-grooming`, `blog-writer`): paths are written in full, `.rhoai-qs/<slug>/.qs-factory/prds/prd.md`.
 
-**After scaffolding** (`rh-qs-implement`, `rh-qs-deploy`, `rh-qs-verify-deploy`, `rh-qs-document`, `rh-qs-test-suite`, `rh-qs-ship`): run with their working directory **inside** `.rhoai-qs/<slug>/` itself, since that's where the application code lives and where `make`/`helm`/etc. need to run. From there:
-- Reading/writing the quickstart's own bookkeeping files uses **plain relative paths, no prefix**: `prds/prd.md`, `designs/architecture-spec.yaml`, `pipeline/deploy-spec.yaml`, `reports/...`
-- Listing *other* quickstarts (for slug resolution) requires going up one level: `ls ../` lists every slug folder plus the two cross-cutting folders (`reports/`, `blog-drafts/`) as siblings.
+**Inside `.rhoai-qs/<slug>/`** (`rh-qs-implement`, `rh-qs-deploy`, `rh-qs-verify-deploy`, `rh-qs-document`, `rh-qs-test-suite`, `rh-qs-ship`): that's where the application code lives and where `make`/`helm`/etc. need to run. From there:
+
+- Reading/writing bookkeeping files uses the `.qs-factory/` prefix: `.qs-factory/prds/prd.md`, `.qs-factory/designs/architecture-spec.yaml`, `.qs-factory/pipeline/deploy-spec.yaml`, `.qs-factory/reports/...`
+- Listing other quickstarts (for slug resolution) means going up one level: `ls -1 ../`.
+
+`pipeline-checkpoint.py` is the exception that needs no care here — it anchors every path off the factory root itself, so it writes to the same place from either working directory.
 
 ## Resolving the Quickstart Slug
 
@@ -109,7 +120,7 @@ See [validation-skill-template.md](validation-skill-template.md) for the full re
 In short:
 
 1. If the user named the quickstart in their message → use it.
-2. Otherwise, list existing slugs under `.rhoai-qs/` (excluding the two cross-cutting folders, `reports/` and `blog-drafts/`):
+2. Otherwise, list existing slugs — every direct child of `.rhoai-qs/` is one, so this is a plain `ls` with no filtering:
    - Exactly one → confirm with the user, then proceed.
    - Multiple → ask the user which one.
    - None → only valid if this is `rh-qs-discovery` starting a brand-new idea; otherwise, stop and report the error.
@@ -118,7 +129,7 @@ In short:
 
 ## File Categories
 
-Four categories of pipeline files exist within `.rhoai-qs/<slug>/pipeline/`:
+Four categories of pipeline files exist within `.rhoai-qs/<slug>/.qs-factory/pipeline/`:
 
 ### 1. Spec files
 
@@ -142,7 +153,7 @@ After validation, a refined variant is written:
 
 ### 2. Handoff manifests
 
-Output artifacts that the next pipeline stage consumes. These are the inter-skill contracts.
+Output artifacts that the next pipeline stage consumes. These are the inter-skill contracts. All locations are relative to `.qs-factory/`.
 
 | File | Producer | Consumer | Location |
 |------|----------|----------|----------|
@@ -156,7 +167,7 @@ Output artifacts that the next pipeline stage consumes. These are the inter-skil
 
 See [pipeline-contracts.md](pipeline-contracts.md) for the YAML schema of each handoff file.
 
-Note: `designs/architecture-spec.yaml` serves double duty — it is both the architect's spec file and the handoff manifest to scaffold. It has no `-refined` variant; user approval happens on the spec itself.
+Note: `.qs-factory/designs/architecture-spec.yaml` serves double duty — it is both the architect's spec file and the handoff manifest to scaffold. It has no `-refined` variant; user approval happens on the spec itself.
 
 ### 3. Internal working files
 
@@ -195,75 +206,34 @@ Per-resource debug artifacts that accumulate during the debug loop.
 
 Debug and fix files append `attempt_N` keys — they never overwrite previous attempts. This lets the debugger review what was already tried before proposing a new fix.
 
-## Non-Pipeline Categories (also namespaced by slug)
+## Non-Pipeline Categories (also under `.qs-factory/`)
 
-Two more categories live under `.rhoai-qs/<slug>/`, alongside `pipeline/` and the application code, but are human-readable deliverables rather than skill-to-skill contracts:
+Three more categories sit alongside `pipeline/` inside `.qs-factory/`, but are human-readable deliverables or generated views rather than skill-to-skill contracts:
 
 | Directory | File | Producing Skill | Purpose |
 |-----------|------|------------------|---------|
 | `prds/` | `prd.md` | rh-qs-discovery | The PRD — the actual handoff artifact to rh-qs-architect |
 | `designs/` | `architecture-spec.yaml`, `architecture-diagram.mmd` | rh-qs-architect | Architecture spec and Mermaid diagram — handoff artifacts to rh-qs-scaffold |
-| `blog-drafts/` | `<date>.md` | rh-qs-ship / blog-writer | Draft announcement, requires human review |
+| `flow/` | `dashboard.md` | pipeline-checkpoint.py | Live pipeline progress view |
 | `reports/` | `verify-deploy-<date>.md`, etc. | rh-qs-verify-deploy | Per-quickstart reports |
 
-The slug isn't repeated in these filenames — the parent `.rhoai-qs/<slug>/` folder already disambiguates which quickstart a file belongs to. Filenames only need to name the *type* of artifact (`prd`, `architecture-spec`) or add a date when multiple versions can exist over time (`blog-drafts/`, `reports/`).
+The slug isn't repeated in these filenames — the parent `.rhoai-qs/<slug>/` folder already disambiguates which quickstart a file belongs to. Filenames only need to name the *type* of artifact (`prd`, `architecture-spec`) or add a date when multiple versions can exist over time (`reports/`).
 
-## Cross-Cutting Locations
+## Factory-Side Locations
 
-Two folders sit directly under `.rhoai-qs/`, as siblings of the slug folders — not inside any of them, since they're not about one specific quickstart:
-
-```
-.rhoai-qs/
-├── mortgage-processor/       ← a slug folder
-├── spending-transaction-monitor/  ← another slug folder
-├── reports/                  ← cross-cutting reports
-└── blog-drafts/              ← fallback blog drafts
-```
-
-**`.rhoai-qs/reports/`** — reports that survey the whole backlog, not one quickstart:
-- `gap-analysis-<date>.md` from `rh-qs-discovery`'s gap analysis mode — this runs *before* any slug exists (it's proposing new quickstart ideas), so there's no slug folder to put it in.
-- `grooming-report-<date>.md` from `pipeline-grooming` — scores and prioritizes every backlog issue at once.
-
-Neither filename includes a slug, since there isn't one to include.
-
-**`.rhoai-qs/blog-drafts/`** — a fallback for `blog-writer` when asked to draft a post for a quickstart that predates this whole convention (no `.rhoai-qs/<slug>/` folder exists for it, because it was built before the factory adopted this pipeline). This case genuinely **is** about one specific quickstart — the file just can't live in a slug folder that was never created. Its filename **does** include the slug (`vllm-cpu-2025-03-11.md`) to disambiguate itself, since this folder mixes fallback drafts from multiple old quickstarts together.
-
-> **Open question, not yet resolved:** it isn't certain how often either of these two paths will actually see use in practice — gap analysis and grooming reports may end up being requested rarely, and most quickstarts going forward should have their own slug folder from the start (making the `blog-drafts/` fallback increasingly rare too). Revisit whether this dedicated structure is still earning its complexity once real usage data exists.
-
-## Directory Layout Example
-
-A fully populated designs directory and pipeline directory mid-pipeline, for a single quickstart, looks like:
+Two gitignored folders sit at the **factory root**, not under `.rhoai-qs/` — keeping them out preserves the "every direct child of `.rhoai-qs/` is a quickstart" invariant, and keeping them out of the quickstart repo means ship's cleanup needs no exceptions.
 
 ```
-.rhoai-qs/mortgage-processor/designs/
-├── architecture-spec.yaml              # Handoff to scaffold
-└── architecture-diagram.mmd
-
-.rhoai-qs/mortgage-processor/pipeline/
-├── discovery-spec.yaml
-├── scaffold-spec.yaml
-├── scaffold-manifest.yaml              # Handoff to implement
-├── implementation-spec.yaml
-├── implementation-spec-refined.yaml
-├── test-spec.yaml                      # Internal: test inventory
-├── test-results.yaml                   # Internal: test outcomes
-├── implementation-manifest.yaml        # Handoff to deploy
-├── deploy-spec.yaml
-├── deploy-validation.yaml              # Internal: reviewer results
-├── deploy-manifest.yaml                # Handoff to security
-├── qs-security-code.yaml               # Internal: scanner output
-├── qs-security-containers.yaml
-├── qs-security-helm.yaml
-├── qs-security-deps.yaml
-├── security-report.yaml                # Handoff to debug-and-deploy
-├── qs-deploy-analysis.yaml             # Internal: deploy analysis
-├── deploy-state.yaml                   # Handoff to document
-├── qs-debug-redis.yaml                 # Internal: per-resource debug
-├── qs-fix-redis.yaml
-├── qs-e2e-results.yaml                 # Internal: E2E results
-├── doc-manifest.yaml                   # Handoff to ship
-└── qs-kb-extraction-report.yaml        # Internal: KB extraction
+quickstart-factory/
+├── .blog-drafts/      ← <slug>-YYYY-MM-DD.md
+└── .reports/          ← cross-cutting reports, not tied to one quickstart
 ```
+
+**`.blog-drafts/<slug>-YYYY-MM-DD.md`** — draft announcements from `rh-qs-ship` and `blog-writer`. These are review-before-publication working material with no business in a published quickstart repo. The filename is always slug-prefixed, so one naming rule covers every quickstart whether or not it has a slug folder.
+
+**`.reports/<name>-YYYY-MM-DD.md`** — reports that survey the whole backlog rather than one quickstart: `gap-analysis-<date>.md` from `rh-qs-discovery`'s gap-analysis mode (which runs *before* any slug exists), `grooming-report-<date>.md` from `pipeline-grooming`, and coverage analyses from `quickstart-identifier`. Created on demand.
+
+Per-quickstart reports are a different thing entirely and stay in `.qs-factory/reports/`.
 
 ## Cleanup Policy
 
@@ -273,21 +243,21 @@ Skills do NOT clean up pipeline files during execution. Files accumulate through
 
 ### User-controlled cleanup
 
-Pipeline files persist until the user explicitly deletes them. To reset a single quickstart's pipeline state without touching its code:
+Pipeline files persist until the user explicitly deletes them. To reset a single quickstart's factory bookkeeping without touching its code:
 
 ```bash
-rm -rf .rhoai-qs/mortgage-processor/pipeline/
+rm -rf .rhoai-qs/mortgage-processor/.qs-factory/
 ```
 
-To remove everything for that quickstart, **including its cloned code repo**:
+To remove everything for that quickstart, **including its code repo**:
 
 ```bash
 rm -rf .rhoai-qs/mortgage-processor/
 ```
 
-This is safe — it only removes that one quickstart's folder, not other quickstarts' data or the cross-cutting `reports/`/`blog-drafts/` folders. The user decides when cleanup happens — after shipping, after review, or never. Note the code itself still exists on GitHub (`rh-ai-quickstart/<slug>`) even after deleting the local clone.
+This is safe — it only removes that one quickstart's folder, not other quickstarts' data. The user decides when cleanup happens — after shipping, after review, or never. Note the code itself still exists on GitHub (`rh-ai-quickstart/<slug>`) even after deleting the local copy.
 
-This is a different, complementary concern from the **ship-time cleanup** in `rh-qs-ship` (see [Nested Quickstart Repos](#nested-quickstart-repos)): that one removes the bookkeeping folders from the quickstart's own git history as a standard, non-optional step before shipping, so the published repo doesn't carry them. This section is about the *local* `.rhoai-qs/<slug>/` folder in the factory — always user-controlled, never automatic.
+This is a different, complementary concern from the **ship-time cleanup** in `rh-qs-ship` (see [`.qs-factory/` is tracked, not gitignored](#qs-factory-is-tracked-not-gitignored)): that one removes `.qs-factory/` from the quickstart's own git history as a standard, non-optional step before shipping, so the published repo doesn't carry it. This section is about the *local* `.rhoai-qs/<slug>/` folder in the factory — always user-controlled, never automatic.
 
 ## Concurrency
 
@@ -297,23 +267,23 @@ Different quickstarts share the same `quickstart-factory` repo, but each has its
 
 ### Same quickstart
 
-Running the same quickstart concurrently (e.g., two agents both running `rh-qs-deploy` for `mortgage-processor` at the same time) is NOT safe. Both would write to the same `.rhoai-qs/mortgage-processor/pipeline/deploy-spec.yaml`, causing race conditions.
+Running the same quickstart concurrently (e.g., two agents both running `rh-qs-deploy` for `mortgage-processor` at the same time) is NOT safe. Both would write to the same `.rhoai-qs/mortgage-processor/.qs-factory/pipeline/deploy-spec.yaml`, causing race conditions.
 
 This is a known constraint. The factory is designed for one pipeline execution per quickstart at a time.
 
 ## Resumability
 
-Since pipeline files are persistent, resumability works naturally. When a skill starts, after resolving its slug via `validation-skill`, it checks whether `.rhoai-qs/<slug>/pipeline/` already contains artifacts from a previous run:
+Since pipeline files are persistent, resumability works naturally. When a skill starts, after resolving its slug via `validation-skill`, it checks whether `.qs-factory/pipeline/` already contains artifacts from a previous run:
 
 ```
 1. Resolve the slug (validation-skill)
-2. Check if .rhoai-qs/<slug>/pipeline/ exists
+2. Check if .rhoai-qs/<slug>/.qs-factory/pipeline/ exists
 3. If it exists, check for artifacts from this skill and upstream skills
 4. If upstream handoff manifests exist:
    → Check content_hash against the current upstream file (see below)
    → If hashes match: offer to resume from current stage
    → If hashes differ: warn that upstream has changed, offer to re-run
-   → Or start fresh (rm -rf .rhoai-qs/<slug>/pipeline/)
+   → Or start fresh (rm -rf .rhoai-qs/<slug>/.qs-factory/pipeline/)
 5. If this skill's own spec exists:
    → Offer to reuse the existing spec
    → Or regenerate

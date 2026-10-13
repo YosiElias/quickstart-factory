@@ -5,6 +5,13 @@ Date: 2026-06-28
 Authors: Matan Talvi, Yossi Elias
 ```
 
+> **Partially superseded — file layout only.** Every `.rhoai-qs/<slug>/pipeline/`,
+> `prds/`, `designs/`, and `reports/` path in this document has since moved under
+> `.rhoai-qs/<slug>/.qs-factory/`, and the Helm chart from `deploy/helm/<slug>/` to
+> `chart/`. This record is kept as written — it documents the tasks as planned, not
+> the current layout. For the layout in force, see
+> [foundation/pipeline-convention.md](foundation/pipeline-convention.md).
+
 
 ## Dependency Graph
 

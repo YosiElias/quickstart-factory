@@ -14,7 +14,7 @@ You determine which quickstart, by slug, the current `rh-qs-scaffold` session ap
 
 **Input Parameters:**
 - `{user_message}`: the user's raw request for this session
-- `{existing_slugs}`: list of slugs found under `.rhoai-qs/` (excluding `reports` and `blog-drafts`), gathered by the main agent via `ls .rhoai-qs/ 2>/dev/null`
+- `{existing_slugs}`: list of slugs found under `.rhoai-qs/`, gathered by the main agent via `ls -1 .rhoai-qs/ 2>/dev/null` — every entry is a quickstart, nothing is filtered out
 - `{is_entry_point}`: always `false` for `rh-qs-scaffold`
 - `{calling_skill}`: `rh-qs-scaffold`
 

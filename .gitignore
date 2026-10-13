@@ -32,18 +32,26 @@ __pycache__/
 # Generated output (legacy convention, largely superseded by .rhoai-qs/ below)
 data/
 
-# Everything for every quickstart lives here: pipeline state, specs, PRDs,
-# designs, blog drafts, reports, AND each quickstart's own code repo (each
-# quickstart is its own separate git repo/remote, e.g. rh-ai-quickstart/<slug>,
-# set up directly inside .rhoai-qs/<slug>/ by rh-qs-scaffold via git init, not
-# git clone, since the folder already has pipeline/prds/designs/ in it before
-# scaffold runs). One single rule covers all of it — no per-slug maintenance
-# needed here. Note: the quickstart's own repo intentionally does NOT gitignore
-# pipeline/, prds/, designs/, reports/ — they stay tracked and pushed during
-# development for team collaboration (reviewing the PRD/design together, etc.),
-# and only get removed as a final cleanup step in rh-qs-ship, right before the
-# quickstart ships — see docs/foundation/pipeline-convention.md.
+# Quickstarts only — every direct child of .rhoai-qs/ is one quickstart's own
+# git repo root (or a symlink to one elsewhere on disk). rh-qs-discovery seeds
+# it from rh-ai-quickstart/ai-quickstart-template as soon as the slug is minted;
+# the user pushes it to rh-ai-quickstart/<slug> after approving the PRD. All
+# factory bookkeeping for that quickstart — PRD, design, pipeline specs,
+# dashboard, reports — lives in exactly one folder inside it, .qs-factory/.
+# One single rule covers all of it; no per-slug maintenance needed here.
+#
+# Note: the quickstart's own repo intentionally does NOT gitignore .qs-factory/
+# — it stays tracked and pushed during development for team collaboration
+# (reviewing the PRD/design together, etc.), and is removed wholesale as a final
+# cleanup step in rh-qs-ship, right before the quickstart ships.
+# See docs/foundation/pipeline-convention.md.
 .rhoai-qs/
+
+# Factory-side working material, deliberately outside .rhoai-qs/ so that the
+# "every child of .rhoai-qs/ is a quickstart" invariant holds, and so that
+# nothing here can leak into a published quickstart repo.
+.blog-drafts/
+.reports/
 
 # Temporary files
 .tmp/

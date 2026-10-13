@@ -14,7 +14,7 @@ You determine which quickstart, by slug, the current `rh-qs-implement` session a
 
 **Input Parameters:**
 - `{user_message}`: the user's raw request for this session
-- `{existing_slugs}`: list of slugs found under `.rhoai-qs/` (excluding `reports` and `blog-drafts`), gathered by the main agent via `ls ../ 2>/dev/null` (this skill runs inside `.rhoai-qs/<slug>/`, so `../` is `.rhoai-qs/` itself)
+- `{existing_slugs}`: list of slugs found under `.rhoai-qs/`, gathered by the main agent via `ls -1 ../ 2>/dev/null` (this skill runs inside `.rhoai-qs/<slug>/`, so `../` is `.rhoai-qs/` itself) — every entry is a quickstart, nothing is filtered out
 - `{is_entry_point}`: always `false` for `rh-qs-implement`
 - `{calling_skill}`: `rh-qs-implement`
 
