@@ -82,7 +82,7 @@ Add to the quickstart repo during **`rh-qs-deploy`**:
 
 ```makefile
 RELEASE ?= <slug>
-CHART_DIR ?= deploy/helm/$(RELEASE)
+CHART_DIR ?= chart
 NAMESPACE ?= <slug>-demo
 
 deploy:          ## helm upgrade --install (only cluster entry point)
@@ -91,6 +91,11 @@ verify-deploy:   ## Post-install smoke test — REQUIRED before rh-qs-document
 helm-lint:
 helm-template:
 ```
+
+`CHART_DIR` is the single source of truth for the chart path — every target and
+every doc that needs it reads `$(CHART_DIR)`, never a literal path. The chart sits
+at `chart/` because that is where `ai-quickstart-template` puts it and what the
+catalog tooling expects.
 
 `verify-deploy` should:
 

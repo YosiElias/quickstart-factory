@@ -38,7 +38,7 @@ For live cluster deployment, **spawn a sub-agent** (Task) with a narrow mandate:
 ```
 Task: Deploy <slug> to namespace <ns>
 Allowed: make deploy, make verify-deploy, make helm-lint, make helm-template
-Forbidden: oc, kubectl, editing resources outside deploy/helm/
+Forbidden: oc, kubectl, editing resources outside chart/
 Output: verify-deploy log + any values overrides needed for shared services
 ```
 

@@ -11,7 +11,7 @@ Add [MinIO](https://min.io/) object storage to a quickstart using the shared [mi
 
 ## When to use
 
-- The quickstart already has (or is getting) a Helm chart under `deploy/helm/<slug>/` or `helm/`
+- The quickstart already has (or is getting) a Helm chart under `chart/`
 - The design needs S3-compatible storage (documents, pipeline artifacts, model binaries, sample datasets)
 - OpenShift Data Science Pipelines or ingestion notebooks need an object store backend
 
@@ -66,7 +66,7 @@ MinIO is a dependency of `configure-pipeline`, gated by `pipelineStorage.deployM
 Refresh vendored charts:
 
 ```bash
-cd deploy/helm/<slug>   # or helm/
+cd chart
 helm dependency update
 ```
 
@@ -219,8 +219,8 @@ minio:
 ### 7. Verify
 
 ```bash
-helm template <release> deploy/helm/<slug> -f deploy/helm/<slug>/values.yaml | grep -E 'minio|minio-api'
-helm lint deploy/helm/<slug>
+helm template <release> chart -f chart/values.yaml | grep -E 'minio|minio-api'
+helm lint chart
 ```
 
 After install on OpenShift, run **`make verify-deploy NAMESPACE=<ns>`**. Embed MinIO health checks inside that Makefile target — agents do not run `oc`/`kubectl` directly.

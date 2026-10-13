@@ -381,16 +381,16 @@ skill: rh-qs-deploy
 created_at: "2026-07-01T16:00:00Z"
 
 helm:
-  chart_path: deploy/helm
+  chart_path: chart
   dependencies:
     - name: llm-service
       chart: ai-architecture-charts/llm-service
       version: "0.3.0"
-      values_file: deploy/helm/values-llm.yaml
+      values_file: chart/values-llm.yaml
     - name: pgvector
       chart: ai-architecture-charts/pgvector
       version: "0.2.1"
-      values_file: deploy/helm/values-pgvector.yaml
+      values_file: chart/values-pgvector.yaml
   validation:
     helm_lint: pass
     helm_template: pass
@@ -606,7 +606,7 @@ debug_history:
     root_cause_category: config
     fix_applied: "Added env var from Kubernetes Secret"
     fix_files:
-      - deploy/helm/values-api.yaml
+      - chart/values-api.yaml
     resolved: true
   - resource: llm-service
     attempts: 0

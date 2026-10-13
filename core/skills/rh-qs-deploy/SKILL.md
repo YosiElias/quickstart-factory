@@ -107,7 +107,7 @@ Do **not** document or use raw `oc`/`kubectl` for install. Verification and docs
 
 ```bash
 make helm-lint
-helm template deploy/helm/<slug>/ -f deploy/helm/<slug>/values.yaml
+helm template chart/ -f chart/values.yaml
 make dev && curl -f http://localhost:<port>/health
 ```
 

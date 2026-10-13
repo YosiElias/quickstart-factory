@@ -11,7 +11,7 @@ Add [Llama Stack](https://github.com/meta-llama/llama-stack) to a quickstart usi
 
 ## When to use
 
-- The quickstart already has (or is getting) a Helm chart under `deploy/helm/<slug>/` or `helm/`
+- The quickstart already has (or is getting) a Helm chart under `chart/`
 - The functional design calls for Llama Stack (agents, RAG, tools) on OpenShift / OpenShift AI
 - You need to enable a specific Hugging Face model, a remote OpenAI-compatible endpoint, or bundled pgvector
 
@@ -63,7 +63,7 @@ Include only what the design needs:
 Then refresh vendored charts:
 
 ```bash
-cd deploy/helm/<slug>   # or helm/
+cd chart
 helm dependency update
 ```
 
@@ -210,8 +210,8 @@ Add only if the design requires them:
 ### 6. Verify
 
 ```bash
-helm template <release> deploy/helm/<slug> -f deploy/helm/<slug>/values.yaml | grep -E 'llamastack|llm-service|pgvector'
-helm lint deploy/helm/<slug>
+helm template <release> chart -f chart/values.yaml | grep -E 'llamastack|llm-service|pgvector'
+helm lint chart
 ```
 
 After install on OpenShift, run **`make verify-deploy NAMESPACE=<ns>`** (defined in the quickstart Makefile during `rh-qs-deploy`). Do not use raw `oc`/`kubectl` in agent workflows.
