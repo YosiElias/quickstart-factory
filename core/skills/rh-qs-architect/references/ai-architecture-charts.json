@@ -1,0 +1,108 @@
+{
+  "llama-stack": {
+    "provides": [
+      "Multi-provider model support (local, remote, VertexAI)",
+      "Safety shields with Llama Guard and other safety models",
+      "AI agent capabilities with persistent memory",
+      "Automatic model discovery and URL generation"
+    ],
+    "use_when": "Comprehensive AI orchestration platform needed"
+  },
+  "ogx-ai": {
+    "provides": [
+      "OpenAI-compatible agentic API server",
+      "Multi-provider model support (local, remote, VertexAI)",
+      "Content moderation via OpenAI-compatible /v1/moderations endpoint",
+      "AI agent capabilities with persistent memory",
+      "Automatic model discovery and URL generation",
+      "Supersedes llama-stack for new deployments"
+    ],
+    "use_when": "Agentic orchestration with OpenAI compatibility needed"
+  },
+  "llm-service": {
+    "provides": [
+      "vLLM-based model serving with OpenAI-compatible API",
+      "Support for any vLLM-compatible models and sizes",
+      "GPU/CPU deployment flexibility",
+      "Tool calling and function execution support",
+      "OpenShift AI/KServe integration"
+    ],
+    "use_when": "On-cluster GPU model serving required"
+  },
+  "pgvector": {
+    "provides": [
+      "Vector similarity search (cosine, L2, inner product)",
+      "Multiple index types (IVFFlat, HNSW)",
+      "Support for various embedding dimensions",
+      "ACID compliance with PostgreSQL reliability"
+    ],
+    "use_when": "Vector database for RAG/semantic retrieval needed"
+  },
+  "minio": {
+    "provides": [
+      "S3-compatible API",
+      "Web-based management console",
+      "Bucket policies and lifecycle management",
+      "Sample file upload functionality"
+    ],
+    "use_when": "Object storage for documents/models/data needed"
+  },
+  "oracle-db": {
+    "provides": [
+      "Native vector operations and similarity search",
+      "JSON duality and graph analytics",
+      "Enterprise database reliability",
+      "AI-optimized storage and indexing",
+      "TPC-DS automated data population via Kubernetes Job",
+      "Configurable scale factors and schema management",
+      "Automated security configuration for AI MCP server integration"
+    ],
+    "use_when": "Enterprise database with AI vector features needed"
+  },
+  "ingestion-pipeline": {
+    "provides": [
+      "Multi-source data ingestion (S3/MinIO, GitHub, URLs)",
+      "Document chunking and embedding generation",
+      "REST API for pipeline management",
+      "Integration with vector databases"
+    ],
+    "use_when": "Automated document ingestion and embedding pipeline needed"
+  },
+  "configure-pipeline": {
+    "provides": [
+      "Pre-configured Jupyter environment",
+      "RAG pipeline configuration tools",
+      "MinIO integration for data access",
+      "Template and configuration management"
+    ],
+    "use_when": "Interactive RAG configuration and pipeline setup needed"
+  },
+  "mcp-servers": {
+    "provides": [
+      "Weather information services",
+      "Server-Sent Events (SSE) endpoints",
+      "Custom tool development framework",
+      "Integration with LlamaStack and OGX agents"
+    ],
+    "use_when": "External tools and capabilities for AI agents needed"
+  },
+  "oracle-sqlcl": {
+    "provides": [
+      "Execute SQL/PLSQL against Oracle databases via Model Context Protocol",
+      "Integrates with Toolhive Operator (CRDs and operator managed as chart dependencies)",
+      "Oracle connection managed via Kubernetes secrets and configurable service"
+    ],
+    "use_when": "Oracle database tooling for AI agents needed"
+  },
+  "keycloak": {
+    "provides": [
+      "Official Keycloak container images",
+      "OAuth2, OpenID Connect, and SAML protocols",
+      "Built-in PostgreSQL database (via pgvector subchart) or external database support",
+      "OpenShift Routes and Kubernetes Ingress support",
+      "Production-ready configuration with health checks and metrics",
+      "Flexible authentication and authorization policies"
+    ],
+    "use_when": "Identity and access management for AI applications needed"
+  }
+}

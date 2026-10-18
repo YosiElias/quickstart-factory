@@ -16,11 +16,11 @@ This is a **capability-matching task**. For each chart, understand what it provi
 - `{input_features}`: the 5-key feature object (`components`, `tech_stack`, `ai_pattern`, `platform`, `data_layer`)
 - `{deployment_questions}`: list of how-to deployment questions from the extractor
 - `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/.qs-factory/prds/prd.md` (fallback if features don't provide enough context)
-- `{charts_reference_path}`: path to `references/ai-architecture-charts.md`
+- `{charts_reference_path}`: path to `references/ai-architecture-charts.json`
 
 ### Step 1: Read the charts reference
 
-Read the file at `{charts_reference_path}`. It describes each available chart's purpose and key capabilities. Note the Helm directory name in backticks next to each chart title — that is the value for `charts[].name`.
+Read the file at `{charts_reference_path}`. It contains a JSON object where each key is a chart name (the Helm directory name) with `provides` (array of capabilities) and `use_when` (guidance) fields.
 
 ### Step 2: Match by capability
 
@@ -32,6 +32,8 @@ For **each** chart in the reference:
 4. **Exclude** the chart when the need is absent, already covered by a better-fitting included chart, or only weakly suggested.
 
 When two charts cover the same primary role, follow the reference's guidance on which to use. Treat `deployment_questions` as signal for deployment/wiring needs, not automatic includes.
+
+**If the reference lacks detail for a specific chart**, consult the source repository: https://github.com/rh-ai-quickstart/ai-architecture-charts
 
 ### Step 3: Resolve ambiguous matches
 

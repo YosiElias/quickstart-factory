@@ -111,22 +111,49 @@ If `decision_points` is non-empty, present each to the user. Update `.rhoai-qs/{
 
 #### Step 5: Select ai-architecture-charts
 
-Spawn the **chart-selector** subagent with the refined features:
+**Try OpenAI Decision API first:**
+
+Run the chart selector script:
 
 ```python
-Agent(
-    description="Select ai-architecture-charts for this quickstart",
-    prompt=f"""
-Read and follow instructions from:
-core/skills/rh-qs-architect/subagents/chart-selector-prompt.md
-
-input_features: {input_features}
-deployment_questions: {deployment_questions}
-slug: {slug}
-charts_reference_path: core/skills/rh-qs-architect/references/ai-architecture-charts.md
-"""
+result = Bash(
+    description="Select charts using OpenAI Decision API",
+    command=f"python3 core/skills/rh-qs-architect/scripts/openai_decision_chart_selector.py --slug {slug}"
 )
 ```
+
+If the script succeeds (exit code 0):
+1. Parse the JSON output to get `selected` and `uncertain` chart arrays
+2. If `uncertain` is non-empty, present each uncertain chart to the user:
+   ```
+   ⚠️  Uncertain chart selections - please review:
+   - {chart_name}: {probability} ({reason})
+   
+   Should this chart be included? [y/n]
+   ```
+3. Merge user-approved uncertain charts into the selected list
+4. Store the combined selection as `{selected_charts}` and continue to Step 6
+
+**Fallback to LLM subagent if script fails:**
+
+If the script exits non-zero (OPENAI_API_KEY missing, API error, refusal, or other error):
+1. Log the failure reason from stderr
+2. Spawn the **chart-selector** subagent:
+   ```python
+   Agent(
+       description="Select ai-architecture-charts for this quickstart",
+       prompt=f"""
+   Read and follow instructions from:
+   core/skills/rh-qs-architect/subagents/chart-selector-prompt.md
+   
+   input_features: {input_features}
+   deployment_questions: {deployment_questions}
+   slug: {slug}
+   charts_reference_path: core/skills/rh-qs-architect/references/ai-architecture-charts.json
+   """
+   )
+   ```
+3. Store the subagent's returned charts as `{selected_charts}` and continue to Step 6
 
 #### Step 6: Map leftover features to OpenShift AI
 
