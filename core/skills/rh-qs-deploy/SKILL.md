@@ -13,7 +13,7 @@ Local verification passed from **`rh-qs-verify-build`** (`make dev`, `make test`
 
 ## Where This Runs
 
-This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo, since that's where Helm charts and Containerfiles live. Pipeline files and the architecture spec sit right alongside the code in this same folder — reference them as plain relative paths (`designs/architecture-spec.yaml`, `pipeline/...`), no `../` needed. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
+This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own repo, since that's where Helm charts and Containerfiles live. All factory bookkeeping sits in `.qs-factory/` inside this same folder — reference it with that prefix and no `../` (`.qs-factory/designs/architecture-spec.yaml`, `.qs-factory/pipeline/...`). See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#where-skills-run-and-why-it-matters-for-paths).
 
 ## Agent guardrails
 
@@ -37,7 +37,7 @@ This skill works inside `.rhoai-qs/<slug>/` — the scaffolded quickstart's own 
 
 ### Phase 0: Resolve Quickstart Context
 
-Before doing anything, resolve which quickstart this session is for. Run `ls ../ 2>/dev/null` (excluding `reports` and `blog-drafts`) and spawn the **validation-skill subagent**:
+Before doing anything, resolve which quickstart this session is for. Run `ls -1 ../ 2>/dev/null` (every entry is a quickstart — no filtering) and spawn the **validation-skill subagent**:
 
 ```python
 Agent(
@@ -107,7 +107,7 @@ Do **not** document or use raw `oc`/`kubectl` for install. Verification and docs
 
 ```bash
 make helm-lint
-helm template deploy/helm/<slug>/ -f deploy/helm/<slug>/values.yaml
+helm template chart/ -f chart/values.yaml
 make dev && curl -f http://localhost:<port>/health
 ```
 
@@ -124,7 +124,7 @@ When deploy configs render locally → **`rh-qs-test-suite`** (if design include
 - [Helm: Llama Stack guide](./references/helm-llamastack.md)
 - [Helm: MinIO guide](./references/helm-minio.md)
 - [ai-architecture-charts](https://github.com/rh-ai-quickstart/ai-architecture-charts)
-- Architecture spec: `designs/architecture-spec.yaml`
+- Architecture spec: `.qs-factory/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint
@@ -135,4 +135,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-deploy --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

@@ -251,7 +251,7 @@ Commit **Chart.lock** and the packaged chart under `charts/` (e.g. `aws-compatib
 
 ### Phase 0: Resolve quickstart
 
-Resolve which quickstart this session is for before any edits. If the user provides a git URL, clone it under `.rhoai-qs/` (slug = repo name). Otherwise, list sibling slugs under `.rhoai-qs/` (exclude `reports` and `blog-drafts`) and confirm when more than one exists. See [validation-skill-template.md](../../../docs/foundation/validation-skill-template.md).
+Resolve which quickstart this session is for before any edits. If the user provides a git URL, clone it under `.rhoai-qs/` (slug = repo name). Otherwise, list sibling slugs under `.rhoai-qs/` (every entry is a quickstart) and confirm when more than one exists. See [validation-skill-template.md](../../../docs/foundation/validation-skill-template.md).
 
 ### Phase 1: Inventory MinIO surface area
 

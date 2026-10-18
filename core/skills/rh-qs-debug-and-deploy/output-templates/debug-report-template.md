@@ -30,7 +30,7 @@ health_attempt_1:
     description: "Add emptyDir volume mount at /app/data so container gets writable directory under restricted-v2 SCC"
     fix_category: config | source-code
     files_to_change:
-      - path: deploy/helm/templates/app-server.yaml
+      - path: chart/templates/app-server.yaml
         what_to_change: "Add volumes section with emptyDir{} and volumeMounts for /app/data"
     redeploy_needed: true
 
@@ -56,7 +56,7 @@ health_attempt_2:
     description: "Change POSTGRES_HOST from 'postgresql' to 'postgresql-svc'"
     fix_category: config
     files_to_change:
-      - path: deploy/helm/templates/app-server.yaml
+      - path: chart/templates/app-server.yaml
         what_to_change: "Update env POSTGRES_HOST value"
     redeploy_needed: true
 

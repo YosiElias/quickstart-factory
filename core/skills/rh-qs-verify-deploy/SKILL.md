@@ -37,14 +37,14 @@ Closes the **biggest pipeline gap**: validating that the quickstart actually wor
 3. Runs optional **`helm test`** hooks if the chart defines them
 4. Validates **security smoke checks** from **`rh-qs-secure`** (no plaintext secrets in running config)
 5. Exercises the **primary user journey** at minimum (API call or UI smoke — as defined in PRD)
-6. Writes **`reports/verify-deploy-<date>.md`** with pass/fail evidence
+6. Writes **`.qs-factory/reports/verify-deploy-<date>.md`** with pass/fail evidence
 7. Only when verification passes → hand off to **`rh-qs-document`**
 
 ## Workflow
 
 ### Phase 0: Resolve Quickstart Context
 
-Before doing anything, resolve which quickstart this session is for. Run `ls ../ 2>/dev/null` (excluding `reports` and `blog-drafts`) and spawn the **validation-skill subagent**:
+Before doing anything, resolve which quickstart this session is for. Run `ls -1 ../ 2>/dev/null` (every entry is a quickstart — no filtering) and spawn the **validation-skill subagent**:
 
 ```python
 Agent(
@@ -82,7 +82,7 @@ Add to the quickstart repo during **`rh-qs-deploy`**:
 
 ```makefile
 RELEASE ?= <slug>
-CHART_DIR ?= deploy/helm/$(RELEASE)
+CHART_DIR ?= chart
 NAMESPACE ?= <slug>-demo
 
 deploy:          ## helm upgrade --install (only cluster entry point)
@@ -91,6 +91,11 @@ verify-deploy:   ## Post-install smoke test — REQUIRED before rh-qs-document
 helm-lint:
 helm-template:
 ```
+
+`CHART_DIR` is the single source of truth for the chart path — every target and
+every doc that needs it reads `$(CHART_DIR)`, never a literal path. The chart sits
+at `chart/` because that is where `ai-quickstart-template` puts it and what the
+catalog tooling expects.
 
 `verify-deploy` should:
 
@@ -101,7 +106,7 @@ helm-template:
 
 ## Verification report template
 
-Save to **`reports/verify-deploy-YYYY-MM-DD.md`**:
+Save to **`.qs-factory/reports/verify-deploy-YYYY-MM-DD.md`**:
 
 ```markdown
 # Verify deploy — <Title>
@@ -153,5 +158,5 @@ When verification report is green → **`rh-qs-document`** (docs must match veri
 - [Agent permissions](../rh-qs-secure/references/agent-permissions.md)
 - [Application security](../rh-qs-secure/references/application-security.md)
 - [Makefile CI contract](../rh-qs-test-suite/references/makefile-ci-contract.md)
-- Architecture spec: `designs/architecture-spec.yaml`
+- Architecture spec: `.qs-factory/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly

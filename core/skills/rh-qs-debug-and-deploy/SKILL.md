@@ -42,7 +42,7 @@ User provides:
 
 ### Phase 0: Resolve Quickstart Context
 
-Before touching any files, resolve which quickstart this session is for. Run `ls .rhoai-qs/ 2>/dev/null` (excluding `reports` and `blog-drafts`) and spawn the **validation-skill subagent**:
+Before touching any files, resolve which quickstart this session is for. Run `ls -1 .rhoai-qs/ 2>/dev/null` (every entry is a quickstart — no filtering) and spawn the **validation-skill subagent**:
 
 ```python
 Agent(
@@ -94,7 +94,7 @@ if [ -d ".tmp/{slug}/debug" ]; then
   mv ".tmp/{slug}/debug" ".tmp/{slug}/debug.old.$(date +%Y%m%d-%H%M%S)"
 fi
 mkdir -p ".tmp/{slug}/debug"
-mkdir -p ".rhoai-qs/{slug}/pipeline"
+mkdir -p ".rhoai-qs/{slug}/.qs-factory/pipeline"
 ```
 
 Rotation only ever touches `{state_dir}` — the persistent files under `{project_path}/pipeline/` (`deploy-state.yaml`, `test-plan.md`) survive every run.
@@ -385,4 +385,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-debug-and-deploy --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

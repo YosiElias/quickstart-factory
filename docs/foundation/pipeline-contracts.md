@@ -2,7 +2,7 @@
 
 This document defines the YAML schema for each inter-skill handoff file. These contracts specify exactly what each file contains, which skill produces it, and which skill consumes it — enabling skills to be developed and validated independently.
 
-Every handoff file follows the common header defined in [spec-as-contract.md](spec-as-contract.md) and lives in the quickstart's `.rhoai-qs/<slug>/pipeline/` directory as defined in [pipeline-convention.md](pipeline-convention.md).
+Every handoff file follows the common header defined in [spec-as-contract.md](spec-as-contract.md) and lives in the quickstart's `.rhoai-qs/<slug>/.qs-factory/pipeline/` directory as defined in [pipeline-convention.md](pipeline-convention.md).
 
 ## Common Header
 
@@ -24,15 +24,15 @@ The pipeline passes structured artifacts through these files, in order:
 
 | # | File | Producer | Consumer | Category | Location |
 |---|------|----------|----------|----------|----------|
-| 1 | `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | Spec | `.rhoai-qs/<slug>/designs/` |
-| 2 | `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | Manifest | `.rhoai-qs/<slug>/pipeline/` |
-| 3 | `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | Manifest | `.rhoai-qs/<slug>/pipeline/` |
-| 4 | `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | Manifest | `.rhoai-qs/<slug>/pipeline/` |
-| 5 | `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | Report | `.rhoai-qs/<slug>/pipeline/` |
-| 6 | `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | State | `.rhoai-qs/<slug>/pipeline/` |
-| 7 | `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | Manifest | `.rhoai-qs/<slug>/pipeline/` |
+| 1 | `architecture-spec.yaml` | rh-qs-architect | rh-qs-scaffold | Spec | `.rhoai-qs/<slug>/.qs-factory/designs/` |
+| 2 | `scaffold-manifest.yaml` | rh-qs-scaffold | rh-qs-implement | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 3 | `implementation-manifest.yaml` | rh-qs-implement | rh-qs-deploy | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 4 | `deploy-manifest.yaml` | rh-qs-deploy | rh-qs-security | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 5 | `security-report.yaml` | rh-qs-security | rh-qs-debug-and-deploy | Report | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 6 | `deploy-state.yaml` | rh-qs-debug-and-deploy | rh-qs-document | State | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
+| 7 | `doc-manifest.yaml` | rh-qs-document | rh-qs-ship | Manifest | `.rhoai-qs/<slug>/.qs-factory/pipeline/` |
 
-Additionally, the PRD (`.rhoai-qs/<slug>/prds/prd.md`) produced by rh-qs-discovery is a Markdown file, not YAML, and its format is defined by the PRD template — not this document.
+Additionally, the PRD (`.rhoai-qs/<slug>/.qs-factory/prds/prd.md`) produced by rh-qs-discovery is a Markdown file, not YAML, and its format is defined by the PRD template — not this document.
 
 ---
 
@@ -41,7 +41,7 @@ Additionally, the PRD (`.rhoai-qs/<slug>/prds/prd.md`) produced by rh-qs-discove
 **Producer:** rh-qs-architect
 **Consumer:** rh-qs-scaffold
 **Category:** Spec
-**Location:** `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
+**Location:** `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml`
 
 Documents the architecture decisions, component bill of materials, technology stack, and testing strategy for a quickstart.
 
@@ -105,7 +105,7 @@ integration_patterns:
     - point: "Secrets"
       mechanism: "OpenShift secrets for DB credentials and model API keys"
 
-architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
+architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/.qs-factory/designs/architecture-diagram.mmd
 
 testing_strategy:
   profile: standard
@@ -127,13 +127,13 @@ testing_strategy:
     runs_on: "Every PR"
 
 dependencies:
-  - spec: .rhoai-qs/spending-transaction-monitor/prds/prd.md
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/prds/prd.md
     fields_used: [problem_statement, target_persona, technology_constraints]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/prd-features.yaml
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/prd-features.yaml
     fields_used: [input_features, deployment_questions, decision_points]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/kb-scores.yaml
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/kb-scores.yaml
     fields_used: [results]
     content_hash: "sha256:..."
 ```
@@ -163,7 +163,7 @@ dependencies:
 | `integration_patterns.security_boundaries` | list | yes | Security considerations at component boundaries |
 | `integration_patterns.security_boundaries[].point` | string | yes | Boundary or security checkpoint name |
 | `integration_patterns.security_boundaries[].mechanism` | string | yes | Security approach (auth, secrets, policy, isolation, etc.) |
-| `architecture_diagram_path` | string | yes | Path to Mermaid diagram file (e.g., `.rhoai-qs/<slug>/designs/architecture-diagram.mmd`) |
+| `architecture_diagram_path` | string | yes | Path to Mermaid diagram file (e.g., `.rhoai-qs/<slug>/.qs-factory/designs/architecture-diagram.mmd`) |
 | `testing_strategy` | map | yes | Testing levels and scope (no tool commands) |
 | `dependencies` | list | yes | Upstream specs with content_hash |
 
@@ -381,16 +381,16 @@ skill: rh-qs-deploy
 created_at: "2026-07-01T16:00:00Z"
 
 helm:
-  chart_path: deploy/helm
+  chart_path: chart
   dependencies:
     - name: llm-service
       chart: ai-architecture-charts/llm-service
       version: "0.3.0"
-      values_file: deploy/helm/values-llm.yaml
+      values_file: chart/values-llm.yaml
     - name: pgvector
       chart: ai-architecture-charts/pgvector
       version: "0.2.1"
-      values_file: deploy/helm/values-pgvector.yaml
+      values_file: chart/values-pgvector.yaml
   validation:
     helm_lint: pass
     helm_template: pass
@@ -488,16 +488,16 @@ overall_status: PASS | PASS_WITH_WARNINGS | BLOCKED
 scanners:
   code:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-code.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-code.yaml
   containers:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-containers.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-containers.yaml
   helm:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-helm.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-helm.yaml
   dependencies:
     status: PASS | FAIL
-    source_file: .rhoai-qs/spending-transaction-monitor/pipeline/qs-security-deps.yaml
+    source_file: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/qs-security-deps.yaml
 
 findings:
   - id: sec-1
@@ -606,7 +606,7 @@ debug_history:
     root_cause_category: config
     fix_applied: "Added env var from Kubernetes Secret"
     fix_files:
-      - deploy/helm/values-api.yaml
+      - chart/values-api.yaml
     resolved: true
   - resource: llm-service
     attempts: 0
@@ -674,7 +674,7 @@ Lists all documentation files produced and their validation status.
 ### Schema
 
 ```yaml
-spec_version: 1
+spec_version: 2
 quickstart_name: "Spending Transaction Monitor"
 slug: spending-transaction-monitor
 skill: rh-qs-document
@@ -700,6 +700,17 @@ documentation:
         source: implementation-manifest.yaml
       - name: Deployment
         status: complete
+      - name: Tags
+        status: complete
+
+  tags:
+    title: "Spending Transaction Monitor"        # matches H1, <= 64 chars
+    description: "Flag anomalous card transactions in real time with an on-cluster LLM"  # matches short description, <= 160 chars
+    industry: "Financial Services"               # exactly one
+    product: "OpenShift AI"
+    use_case: "fraud detection, anomaly detection"
+    partner: "N/A"                               # present even when empty
+    contributor_org: "Red Hat"
 
   additional_files:
     - path: TEST-PLAN.md
@@ -713,6 +724,8 @@ validation:
   all_make_targets_exist: true
   all_urls_well_formed: true
   diagram_matches_components: true
+  no_contributor_todo_remaining: true
+  tags_complete: true
   user_approved: true
 
 dependencies:
@@ -739,12 +752,26 @@ dependencies:
 | `documentation.readme.sections[].name` | string | yes | Section name |
 | `documentation.readme.sections[].status` | enum | yes | `complete`, `draft`, or `missing` |
 | `documentation.additional_files` | list | no | Other docs produced (TEST-PLAN.md, CONTRIBUTING.md, etc.) |
+| `documentation.tags` | map | yes | The README's `## Tags` block, mirrored for machine checking |
+| `documentation.tags.title` | string | yes | Matches the README H1; ≤ 64 chars |
+| `documentation.tags.description` | string | yes | Matches the short description; ≤ 160 chars |
+| `documentation.tags.industry` | string | yes | Exactly one industry from the catalog's list |
+| `documentation.tags.product` | string | yes | Primary Red Hat product |
+| `documentation.tags.use_case` | string | yes | Short use-case descriptor |
+| `documentation.tags.partner` | string | yes | Partner names, or `N/A` — the key must be present |
+| `documentation.tags.contributor_org` | string | yes | Contributing organization |
 | `validation` | map | yes | Documentation validation checks |
 | `validation.all_make_targets_exist` | boolean | yes | Every `make` target in README exists in Makefile |
 | `validation.all_urls_well_formed` | boolean | yes | All URLs are syntactically valid |
 | `validation.diagram_matches_components` | boolean | yes | Architecture diagram matches component list |
+| `validation.no_contributor_todo_remaining` | boolean | yes | `grep -c 'CONTRIBUTOR TODO' README.md` is 0 |
+| `validation.tags_complete` | boolean | yes | Every `documentation.tags` field present and within its limit |
 | `validation.user_approved` | boolean | yes | User reviewed and approved the documentation |
 | `dependencies` | list | yes | Upstream specs/manifests with `content_hash` |
+
+### Changes in spec_version 2
+
+Added `documentation.tags` and the `validation.tags_complete` / `validation.no_contributor_todo_remaining` booleans. `rh-qs-document` now fills in the template's `README.md` in place rather than generating one, so the `## Tags` block redhat.com publication requires is present from the start — these fields make "present" machine-checkable instead of a thing someone notices at submission time.
 
 ---
 
@@ -761,7 +788,7 @@ Consuming skills must check `spec_version` on read and fail with a clear error i
 ## Relationship to Other Foundation Docs
 
 - **[spec-as-contract.md](spec-as-contract.md)** — defines the common spec format; `architecture-spec.yaml` (file #1) uses a simplified architect-specific schema documented in section 1 above and in `core/skills/rh-qs-architect/references/architecture-spec-template.yaml`
-- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/pipeline/` directory where all these files live
+- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/.qs-factory/pipeline/` directory where all these files live
 - **[skill-directory-structure.md](skill-directory-structure.md)** — each skill's `spec-template.md` defines skill-specific fields within these schemas
 - **[acceptance-criteria.md](acceptance-criteria.md)** — defines how `acceptance_criteria` sections in specs are validated
 - **[validation-skill-template.md](validation-skill-template.md)** — how `<slug>` is resolved before any of these files are read or written

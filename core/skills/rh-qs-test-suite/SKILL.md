@@ -14,7 +14,7 @@ description: |
 ## Trigger
 
 - Helm chart and Makefile deploy targets exist from **`rh-qs-deploy`** if not create it.
-- Architecture spec **`designs/architecture-spec.yaml`** defines testing strategy (unit / integration / E2E / evals) — this skill runs inside `.rhoai-qs/<slug>/` itself (the scaffolded quickstart repo), so the architecture spec sits right alongside the code, no `../` needed
+- Architecture spec **`.qs-factory/designs/architecture-spec.yaml`** defines testing strategy (unit / integration / E2E / evals) — this skill runs inside `.rhoai-qs/<slug>/` itself (the scaffolded quickstart repo), so the architecture spec is in `.qs-factory/` right there, no `../` needed
 - Optional: replace or extend minimal workflows from **`rh-qs-scaffold`**
 
 ## Nightly-only fast path
@@ -158,7 +158,7 @@ For repos using **dev → main**: require `Validate PR comes from dev branch` on
 | **Agent + evals** | Standard + `pr-evaluation-check.yml` + eval artifact upload |
 | **Release train** | Full + `pr-branch-check.yml` + `build-and-push.yaml` + `create-dev-to-main-pr.yaml` + nightlies |
 
-Match profile to the **Testing strategy** section in `designs/architecture-spec.yaml`.
+Match profile to the **Testing strategy** section in `.qs-factory/designs/architecture-spec.yaml`.
 
 ## Verification
 

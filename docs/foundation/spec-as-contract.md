@@ -15,7 +15,7 @@ Analyze → Generate Spec → User Approval → Validate Spec (parallel) → Ref
 | Phase | Actor | Description |
 |-------|-------|-------------|
 | **Analyze** | Main agent | Read inputs (PRD, prior manifests, KB files), reason about the problem |
-| **Generate Spec** | Main agent | Write the spec YAML to `.rhoai-qs/<slug>/pipeline/<skill>-spec.yaml` |
+| **Generate Spec** | Main agent | Write the spec YAML to `.rhoai-qs/<slug>/.qs-factory/pipeline/<skill>-spec.yaml` |
 | **User Approval** | User | Review the spec, approve or request changes (see [acceptance-criteria.md](acceptance-criteria.md)) |
 | **Validate Spec** | Validator subagent(s) | Check spec correctness in parallel (e.g., chart versions exist, schemas are valid) |
 | **Refine** | Main agent | Incorporate validation feedback, write `<skill>-spec-refined.yaml` |
@@ -26,7 +26,7 @@ Analyze → Generate Spec → User Approval → Validate Spec (parallel) → Ref
 
 - **Separates reasoning from file edits** — the agent reasons about *what* to do in the spec phase, then a focused subagent applies changes without re-reasoning.
 - **Catches errors before implementation** — parallel validators check the spec for consistency, missing fields, and invalid references before any code is written.
-- **Creates an audit trail** — the spec YAML in `.rhoai-qs/<slug>/pipeline/` documents every decision made during analysis.
+- **Creates an audit trail** — the spec YAML in `.rhoai-qs/<slug>/.qs-factory/pipeline/` documents every decision made during analysis.
 - **Enables user control** — the user reviews and approves the plan before implementation begins.
 
 ## Spec File Location
@@ -34,11 +34,11 @@ Analyze → Generate Spec → User Approval → Validate Spec (parallel) → Ref
 Most specs are written to the quickstart's namespaced pipeline directory, once the skill has resolved the slug via `validation-skill` (see [pipeline-convention.md](pipeline-convention.md#resolving-the-quickstart-slug)):
 
 ```
-.rhoai-qs/<slug>/pipeline/<skill>-spec.yaml          # Initial spec
-.rhoai-qs/<slug>/pipeline/<skill>-spec-refined.yaml   # After validation feedback
+.rhoai-qs/<slug>/.qs-factory/pipeline/<skill>-spec.yaml          # Initial spec
+.rhoai-qs/<slug>/.qs-factory/pipeline/<skill>-spec-refined.yaml   # After validation feedback
 ```
 
-**Exception:** `rh-qs-architect` writes its spec to `.rhoai-qs/<slug>/designs/architecture-spec.yaml` (no `-refined` variant) because it serves as both a spec and the primary design document for the quickstart.
+**Exception:** `rh-qs-architect` writes its spec to `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml` (no `-refined` variant) because it serves as both a spec and the primary design document for the quickstart.
 
 See [pipeline-convention.md](pipeline-convention.md) for the full scoping rules.
 
@@ -57,7 +57,7 @@ created_at: "2026-07-01T12:00:00Z"
 # ─── Inputs ──────────────────────────────────────────────
 inputs:
   prior_manifests:              # Pipeline files from previous skills
-    - path: .rhoai-qs/spending-transaction-monitor/pipeline/scaffold-manifest.yaml
+    - path: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/scaffold-manifest.yaml
       skill: rh-qs-scaffold
   user_inputs: []               # Any direct user-provided data
 
@@ -169,7 +169,7 @@ After the spec is generated, one or more validator subagents check it in paralle
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  Main agent writes .rhoai-qs/<slug>/pipeline/<skill>-spec.yaml│
+│  Main agent writes .rhoai-qs/<slug>/.qs-factory/pipeline/<skill>-spec.yaml│
 │                                                          │
 │  Spawn validator subagents in parallel:                  │
 │  ┌─────────────────┐  ┌─────────────────┐               │
@@ -217,7 +217,7 @@ When validators find blockers, the main agent:
 
 1. Reads validation results
 2. Fixes the spec (not code — nothing has been implemented yet)
-3. Writes `.rhoai-qs/<slug>/pipeline/<skill>-spec-refined.yaml`
+3. Writes `.rhoai-qs/<slug>/.qs-factory/pipeline/<skill>-spec-refined.yaml`
 4. Re-runs validators on the refined spec
 5. Max 2 refinement iterations per skill (configurable in `spec-template.md`)
 
@@ -260,7 +260,7 @@ If any criterion fails, the skill enters its feedback loop (see ADR-001 Pattern 
 
 This example shows a fully populated spec for the Architect skill (`rh-qs-architect`), converting a PRD into a component bill of materials.
 
-**Exception:** The architect spec lives at `.rhoai-qs/<slug>/designs/architecture-spec.yaml` (not under `pipeline/`) and uses a simplified schema — it omits `inputs`, `acceptance_criteria`, and `validation_rules`, and has no `-refined` variant. User approval happens on the spec itself. See [pipeline-contracts.md](pipeline-contracts.md#1-architecture-specyaml) and `core/skills/rh-qs-architect/references/architecture-spec-template.yaml` for the canonical schema.
+**Exception:** The architect spec lives at `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml` (not under `pipeline/`) and uses a simplified schema — it omits `inputs`, `acceptance_criteria`, and `validation_rules`, and has no `-refined` variant. User approval happens on the spec itself. See [pipeline-contracts.md](pipeline-contracts.md#1-architecture-specyaml) and `core/skills/rh-qs-architect/references/architecture-spec-template.yaml` for the canonical schema.
 
 ```yaml
 spec_version: 1
@@ -349,7 +349,7 @@ integration_patterns:
     - point: "Frontend → Backend"
       mechanism: "OAuth2 with RHOAI authentication"
 
-architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/designs/architecture-diagram.mmd
+architecture_diagram_path: .rhoai-qs/spending-transaction-monitor/.qs-factory/designs/architecture-diagram.mmd
 
 testing_strategy:
   profile: standard
@@ -371,13 +371,13 @@ testing_strategy:
     runs_on: "Every PR"
 
 dependencies:
-  - spec: .rhoai-qs/spending-transaction-monitor/prds/prd.md
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/prds/prd.md
     fields_used: [problem_statement, target_persona, technology_constraints]
     content_hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/prd-features.yaml
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/prd-features.yaml
     fields_used: [input_features, deployment_questions, decision_points]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/spending-transaction-monitor/pipeline/kb-scores.yaml
+  - spec: .rhoai-qs/spending-transaction-monitor/.qs-factory/pipeline/kb-scores.yaml
     fields_used: [results]
     content_hash: "sha256:..."
 ```
@@ -389,7 +389,7 @@ Each skill's `spec-template.md` extends the common fields above with skill-speci
 | Skill | Spec File | Key Component Fields |
 |-------|-----------|---------------------|
 | rh-qs-discovery | `discovery-spec.yaml` | Interview plan, PRD section targets |
-| rh-qs-architect | `designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), `integration_patterns`, diagram path, testing strategy |
+| rh-qs-architect | `.qs-factory/designs/architecture-spec.yaml` | Technology stack, component BOM (`role`, `technology`, `delivery`), `integration_patterns`, diagram path, testing strategy |
 | rh-qs-scaffold | `scaffold-spec.yaml` | Repo name, packages, CI jobs, linting config |
 | rh-qs-implement | `implementation-spec.yaml` | Endpoints, schemas, services, DB models, UI routes |
 | rh-qs-deploy | `deploy-spec.yaml` | Chart dependencies, values overrides, compose services, Containerfile specs |
@@ -400,6 +400,6 @@ Each skill's `spec-template.md` extends the common fields above with skill-speci
 
 - **[skill-directory-structure.md](skill-directory-structure.md)** — each skill's `spec-template.md` file defines the skill-specific fields
 - **[acceptance-criteria.md](acceptance-criteria.md)** — details when user approval is required and how criteria are validated
-- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/pipeline/` directory where most specs and manifests are written (`architecture-spec.yaml` is the exception — it lives under `designs/`)
+- **[pipeline-convention.md](pipeline-convention.md)** — defines the `.rhoai-qs/<slug>/.qs-factory/pipeline/` directory where most specs and manifests are written (`architecture-spec.yaml` is the exception — it lives under `designs/`)
 - **[validation-skill-template.md](validation-skill-template.md)** — how the slug is resolved before any spec is written
 - **[pipeline-contracts.md](pipeline-contracts.md)** — defines the output manifests that consuming skills expect (downstream of specs)

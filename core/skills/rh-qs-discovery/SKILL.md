@@ -14,7 +14,7 @@ allowed-tools: Bash, Read, Write, Edit, Agent
 
 ## Goal
 
-Produce a validated Product Requirements Document (PRD) at `.rhoai-qs/<slug>/prds/prd.md` that is ready for handoff to `rh-qs-architect`. The PRD captures the user's quickstart idea with enough detail for architectural design without pre-deciding implementation choices.
+Produce a validated Product Requirements Document (PRD) at `.rhoai-qs/<slug>/.qs-factory/prds/prd.md` that is ready for handoff to `rh-qs-architect`. The PRD captures the user's quickstart idea with enough detail for architectural design without pre-deciding implementation choices.
 
 ## Input
 
@@ -69,7 +69,7 @@ Calling skill: rh-qs-discovery
 )
 ```
 
-Where `existing_slugs` comes from `ls .rhoai-qs/ 2>/dev/null` (excluding `reports` and `blog-drafts`), run by the main agent — never by the subagent.
+Where `existing_slugs` comes from `ls -1 .rhoai-qs/ 2>/dev/null` (every entry is a quickstart — no filtering), run by the main agent — never by the subagent.
 
 Handle the result per [validation-skill-template.md](../../../docs/foundation/validation-skill-template.md#main-agent-handling). If `resolution: new_quickstart`, treat this as a brand-new idea and proceed to Phase 1 normally.
 
@@ -129,13 +129,68 @@ Record the chosen destination. The issue URL will be added to the PRD header whe
 
 For a brand-new idea, mint the slug now: lowercase, hyphenated, derived from the quickstart's working title (e.g., `mortgage-application-processor`). This is the slug every subsequent phase — and every downstream skill — will use to namespace files under `.rhoai-qs/<slug>/`.
 
-Read [spec-template.md](./spec-template.md). Based on the input type, initial analysis, and backlog check results, generate `.rhoai-qs/<slug>/pipeline/discovery-spec.yaml` with:
+**Seed the repo before writing anything else** — see Phase 4a. `discovery-spec.yaml` is the first bookkeeping file written, so the repo has to exist first.
+
+Read [spec-template.md](./spec-template.md). Based on the input type, initial analysis, and backlog check results, generate `.rhoai-qs/<slug>/.qs-factory/pipeline/discovery-spec.yaml` with:
 - Completed sections (what we already know from the user's input)
 - Remaining interview questions (what we still need to ask)
 - Gap questions relevant to this idea
 - Backlog check results and user decision
 
 Present the spec to the user for approval before proceeding to the interview.
+
+### Phase 4a: Seed the Quickstart Repo
+
+Runs **between minting the slug and writing `discovery-spec.yaml`**. Creates the quickstart's repo **locally only** — nothing is pushed here (see Phase 8).
+
+Every quickstart starts life as a copy of the org template, [`rh-ai-quickstart/ai-quickstart-template`](https://github.com/rh-ai-quickstart/ai-quickstart-template), so it carries the standard Helm chart layout (`chart/`) and the catalog README skeleton — including the `## Tags` block redhat.com publication requires — from day one rather than drifting from the org standard and reconstructing those fields later.
+
+```bash
+SLUG="<minted-slug>"
+DIR=".rhoai-qs/$SLUG"
+
+# Idempotent / resumable — discovery may be re-run on the same idea.
+if [ -d "$DIR/.git" ]; then echo "repo already seeded — skipping"; exit 0; fi
+if [ -d "$DIR" ] && [ -n "$(ls -A "$DIR" 2>/dev/null)" ]; then
+  echo "ERROR: $DIR is non-empty but has no .git — stop and ask the user"; exit 1
+fi
+
+TMP=$(mktemp -d)
+git clone --depth 1 --single-branch --branch main \
+  https://github.com/rh-ai-quickstart/ai-quickstart-template.git "$TMP"
+mkdir -p "$DIR"
+git -C "$TMP" archive --format=tar HEAD | tar -x -C "$DIR"   # includes dotfiles
+rm -rf "$TMP"
+
+# .gitkeep is required — git does not track empty directories, so without these
+# the five subdirs are absent from the commit and vanish on the first clone.
+for d in prds designs pipeline flow reports; do
+  mkdir -p "$DIR/.qs-factory/$d" && touch "$DIR/.qs-factory/$d/.gitkeep"
+done
+
+cd "$DIR"
+
+# Substitute the template placeholders BEFORE the first commit, so the repo
+# never has a commit carrying them and the tree is clean afterwards.
+MAINTAINER="$(git config user.name)"
+sed -i.bak "s|^name: my-quickstart$|name: $SLUG|" chart/Chart.yaml
+sed -i.bak "s|CONTRIBUTOR_NAME|$MAINTAINER|" chart/Chart.yaml
+rm -f chart/Chart.yaml.bak
+
+git init -b main
+git add -A
+git commit -m "chore: scaffold from ai-quickstart-template"
+```
+
+Use `git archive | tar -x`, **not** `cp -r "$TMP"/*` — the shell glob silently drops dotfiles. The template has no top-level dotfiles today, so that bug would lie dormant until someone adds `.github/workflows/`.
+
+`chart/Chart.yaml` ships `name: my-quickstart` and `maintainers: - name: CONTRIBUTOR_NAME`. Left alone they sit in the repo across five pipeline stages and trip the factory's own "no placeholder strings remain" gates, so they are rewritten here, in the same phase — and before the commit, so `git status` is clean when the phase ends.
+
+There is deliberately **no** `blog-drafts/` subdir. Drafts are factory-side working material and live at `.blog-drafts/<slug>-<date>.md` in the factory root — see [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#factory-side-locations).
+
+The README's `> **CONTRIBUTOR TODO:` blockquotes stay as they are — `rh-qs-document` fills them in later, in place.
+
+Afterwards the repo should be exactly: one commit, a clean `git status`, `chart/`, `docs/images/`, `LICENSE`, `README.md`, and the five empty `.qs-factory/` subdirs.
 
 ### Phase 5: Structured Interview / PRD Structuring
 
@@ -268,7 +323,7 @@ For each refinement round:
 
 ### Phase 8: Write PRD
 
-Read [output-templates.md](./output-templates.md). Write the final PRD to `.rhoai-qs/<slug>/prds/prd.md` using the template format. Include the PRD header with:
+Read [output-templates.md](./output-templates.md). Write the final PRD to `.rhoai-qs/<slug>/.qs-factory/prds/prd.md` using the template format. Include the PRD header with:
 - Issue destination and URL (if created)
 - Slug
 - Date
@@ -276,6 +331,18 @@ Read [output-templates.md](./output-templates.md). Write the final PRD to `.rhoa
 Slug convention: lowercase, hyphenated (e.g., `mortgage-application-processor`).
 
 Confirm with the user before handing off to `rh-qs-architect`.
+
+**Once the user approves the PRD, print these push instructions — do not run them.** Creating the GitHub repo is the user's call, not the agent's:
+
+```bash
+cd .rhoai-qs/<slug>
+gh repo create rh-ai-quickstart/<slug> --public --source=. --remote=origin --push \
+  --description "<one-liner from the PRD>"
+```
+
+Never use `gh repo create --clone`: it takes no destination argument (it always creates `./<name>` in the cwd), and on failure `cloneWithRetry` treats exit 128 as retryable — it retries three times over ~9 s, then fails **after the repo already exists on GitHub**, so a re-run hits "name already taken".
+
+`rh-qs-scaffold` will not proceed until this remote is set.
 
 ## Gap Analysis Mode
 
@@ -289,7 +356,7 @@ When the user asks to identify gaps (absorbs rh-qs-quickstart-identifier), **ski
 2. Read [references/industry-trends.md](./references/industry-trends.md) (if available)
 3. Compare coverage by industry, technology, and use case
 4. Propose 3-5 new quickstart ideas with rationale
-5. Save report to `.rhoai-qs/reports/gap-analysis-<date>.md` using the template from [references/gap-analysis-template.md](./references/gap-analysis-template.md)
+5. Save report to `.reports/gap-analysis-<date>.md` using the template from [references/gap-analysis-template.md](./references/gap-analysis-template.md)
 
 If the user wants to pursue one of the proposed ideas, transition into the standard discovery flow (Phase 1 onward, as a brand-new idea) with the gap analysis context as initial input.
 
@@ -327,5 +394,5 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-discovery --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"
 

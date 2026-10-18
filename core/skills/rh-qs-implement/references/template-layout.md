@@ -25,7 +25,7 @@ Canonical structure from the validated `ai-quickstart-template` monorepo (see co
 │   │   └── alembic/versions/
 │   ├── ingestion/           # Optional: RAG ingest jobs/scripts
 │   └── configs/             # Shared eslint, prettier, ruff
-├── deploy/helm/<slug>/      # App chart (api, ui, db, routes, migration job)
+├── chart/                   # App chart (api, ui, db, routes, migration job)
 ├── compose.yml              # Local Postgres (podman-compose)
 ├── Makefile                 # setup, dev, test, deploy, db-*
 ├── turbo.json

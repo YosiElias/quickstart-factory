@@ -10,11 +10,11 @@ description: Scaffold a new AI Quickstart GitHub repository with CI/CD, linting,
 
 ## Trigger
 
-Architecture spec approved from `rh-qs-architect` at `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
+Architecture spec approved from `rh-qs-architect` at `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml`
 
 ## What it does
 
-1. Creates a local GitHub repository under git users name. 
+1. Verifies the quickstart repo already exists and is pushed to `rh-ai-quickstart/<slug>`
 2. Configures branch protection: require CI passing, require 1 review, no direct push to main
 3. Creates directory structure based on the design
 4. Sets up GitHub Actions: minimal CI (lint + unit tests on PR); full Kind/E2E/evals → **`rh-qs-test-suite`** after deploy
@@ -29,7 +29,7 @@ Architecture spec approved from `rh-qs-architect` at `.rhoai-qs/<slug>/designs/a
 
 ### Phase 0: Resolve Quickstart Context
 
-Before doing anything, resolve which quickstart this session is for. Run `ls .rhoai-qs/ 2>/dev/null` (excluding `reports` and `blog-drafts`) and spawn the **validation-skill subagent**:
+Before doing anything, resolve which quickstart this session is for. Run `ls -1 .rhoai-qs/ 2>/dev/null` (every entry is a quickstart — no filtering) and spawn the **validation-skill subagent**:
 
 ```python
 Agent(
@@ -51,7 +51,7 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 ### Remaining phases
 
 ```
-- [ ] 1. Create GitHub repo
+- [ ] 1. Verify the repo precondition
 - [ ] 2. Configure branch protection
 - [ ] 3. Scaffold directory structure
 - [ ] 4. Add GitHub Actions workflows
@@ -61,39 +61,27 @@ Handle the result per [validation-skill-template.md](../../../docs/foundation/va
 - [ ] 8. Push initial commit and verify CI
 ```
 
-### Create repository
+### Repo precondition
 
-**Important:** `.rhoai-qs/<slug>/` already exists and already contains `pipeline/`, `prds/`, `designs/` from earlier phases — it is **not empty**. `git clone` (and `gh repo create ... --clone`) refuses to clone into a non-empty directory, so **do not use `--clone`**. Instead, create the GitHub repo separately, then `git init` the existing folder and connect it to the new remote:
-
-```bash
-# 1. Ensure we're at the quickstart-factory root
-cd "$(git rev-parse --show-toplevel)"
-
-# 2. Create the GitHub repo WITHOUT cloning (no --clone flag)
-gh repo create rh-ai-quickstart/<slug> --public --description "<from PRD>"
-
-# 3. Move into the existing folder (already has pipeline/, prds/, designs/)
-#    and turn it into a git repo pointed at the new remote
-cd .rhoai-qs/<slug>/
-git init
-git remote add origin "https://github.com/rh-ai-quickstart/<slug>.git"
-git branch -M main
-```
-
-If starting from [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template), create the repo with `--template rh-ai-quickstart/ai-quickstart-template` (still no `--clone`), then pull the template's content into the existing folder without disturbing `pipeline/`, `prds/`, `designs/`:
+Scaffold does **not** create the repo. `rh-qs-discovery` already seeded `.rhoai-qs/<slug>/` from [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template) and committed it locally, and the user already pushed it to `rh-ai-quickstart/<slug>`. Verify both before touching anything:
 
 ```bash
-gh repo create rh-ai-quickstart/<slug> --public --template rh-ai-quickstart/ai-quickstart-template --description "<from PRD>"
-cd .rhoai-qs/<slug>/
-git init
-git remote add origin "https://github.com/rh-ai-quickstart/<slug>.git"
-git fetch origin
-git checkout -t origin/main -f
+DIR=".rhoai-qs/<slug>"
+[ -d "$DIR/.git" ] || { echo "ERROR: $DIR is not a git repo"; exit 1; }
+git -C "$DIR" remote get-url origin || { echo "ERROR: no origin remote"; exit 1; }
 ```
 
-`git checkout -f` only touches files that exist in the template's tree — since the template has no `pipeline/`, `prds/`, or `designs/` folders, the existing bookkeeping content is left untouched. Remove packages not in the design matrix afterward.
+If either check fails, **stop** and tell the user to push the repo first with the command `rh-qs-discovery` printed at the end of its run:
 
-**Do NOT gitignore `pipeline/`, `prds/`, `designs/`, `blog-drafts/`, `reports/` in this repo.** These folders stay tracked and get pushed to the quickstart's own GitHub remote throughout development — this is intentional, so the team can collaborate on the PRD, design doc, and pipeline state via normal pull requests (e.g., reviewing a design doc together), not just on one engineer's local machine. They only get removed as a final cleanup step in `rh-qs-ship`, right before the quickstart is considered done. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#nested-quickstart-repos) for the full rationale.
+```bash
+cd .rhoai-qs/<slug>
+gh repo create rh-ai-quickstart/<slug> --public --source=. --remote=origin --push \
+  --description "<one-liner from the PRD>"
+```
+
+Do not work around a missing remote by creating the repo yourself — branch protection and CI both target `rh-ai-quickstart/<slug>`, and who creates it under that org is the user's call.
+
+**Do NOT gitignore `.qs-factory/` in this repo.** It stays tracked and gets pushed to the quickstart's own GitHub remote throughout development — this is intentional, so the team can collaborate on the PRD, design doc, and pipeline state via normal pull requests (e.g., reviewing a design doc together), not just on one engineer's local machine. It is removed wholesale as a final cleanup step in `rh-qs-ship`, right before the quickstart is considered done. See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md#nested-quickstart-repos) for the full rationale.
 
 ### Branch protection
 
@@ -105,15 +93,16 @@ git checkout -t origin/main -f
 
 ## Repository structure
 
-This lives at `.rhoai-qs/<slug>/`. The top five entries (`pipeline/`, `prds/`, `designs/`, `blog-drafts/`, `reports/`) are factory bookkeeping from earlier phases — tracked and pushed like everything else during development so the team can collaborate on the PRD, design, etc., then removed as a final cleanup step in `rh-qs-ship` (see Create repository above):
+This lives at `.rhoai-qs/<slug>/`. Entries marked **(template)** already exist — discovery seeded them from `ai-quickstart-template` and scaffold must not recreate or overwrite them. `.qs-factory/` is factory bookkeeping from earlier phases, tracked and pushed like everything else during development so the team can collaborate on the PRD, design, etc., then removed wholesale as a final cleanup step in `rh-qs-ship` (see Repo precondition above). Everything else is what scaffold adds:
 
 ```
 .rhoai-qs/<slug>/               # = this repo's root
-├── pipeline/                    # ─┐
-├── prds/                        #  │  factory bookkeeping — tracked during
-├── designs/                     #  │  development, removed by rh-qs-ship
-├── blog-drafts/                 #  │  right before the quickstart is done
-├── reports/                     # ─┘
+├── .qs-factory/                 # ─┐  factory bookkeeping — tracked during
+│   ├── prds/                    #  │  development, removed by rh-qs-ship
+│   ├── designs/                 #  │  right before the quickstart is done
+│   ├── pipeline/                #  │
+│   ├── flow/                    #  │
+│   └── reports/                 # ─┘
 │
 ├── .github/
 │   ├── workflows/
@@ -144,25 +133,28 @@ This lives at `.rhoai-qs/<slug>/`. The top five entries (`pipeline/`, `prds/`, `
 │       ├── src/
 │       ├── tests/
 │       └── pyproject.toml
-├── deploy/
-│   └── helm/<slug>/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       └── templates/
+├── chart/                       # (template) Helm chart — fill in, do not move
+│   ├── Chart.yaml               #   name + maintainer already substituted
+│   ├── values.yaml
+│   └── templates/
 ├── tests/
 │   ├── integration/
 │   └── e2e/
 │       └── playwright.config.ts
 ├── docs/
-│   └── images/                  # Architecture diagrams
+│   └── images/                  # (template) architecture diagrams
 ├── compose.yml
 ├── Makefile
 ├── turbo.json
 ├── .env.example
 ├── .pre-commit-config.yaml
 ├── .gitignore
-└── README.md
+├── LICENSE                      # (template)
+└── README.md                    # (template) catalog skeleton — rh-qs-document
+                                 #   fills its CONTRIBUTOR TODO blocks in place
 ```
+
+The chart lives at `chart/` — the org template's layout, and what the catalog tooling expects. Do not introduce a `deploy/helm/<slug>/` path.
 
 ## GitHub Actions CI (ci.yaml)
 
@@ -175,7 +167,7 @@ This lives at `.rhoai-qs/<slug>/`. The top five entries (`pipeline/`, `prds/`, `
 | type-check | pyright/mypy + `tsc` |
 | unit-tests-api | `pytest packages/api/` |
 | unit-tests-ui | `vitest packages/ui/` |
-| helm-lint | `helm lint deploy/helm/<slug>/` |
+| helm-lint | `helm lint chart/` |
 
 All jobs must pass before PR can merge.
 
@@ -213,7 +205,7 @@ A GitHub repository with CI/CD configured, project structure created, and lintin
 
 ```bash
 make lint
-helm lint deploy/helm/<slug>/
+helm lint chart/
 ```
 
 ## Next skill
@@ -224,7 +216,7 @@ When scaffold is pushed and CI is green → **`rh-qs-implement`**
 
 - [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template)
 - [it-self-service-agent CI patterns](../rh-qs-test-suite/SKILL.md) — production workflow split (post-deploy)
-- Architecture spec: `.rhoai-qs/<slug>/designs/architecture-spec.yaml`
+- Architecture spec: `.rhoai-qs/<slug>/.qs-factory/designs/architecture-spec.yaml`
 - [subagents/validation-skill-prompt.md](./subagents/validation-skill-prompt.md) — pass by file path only, do NOT read directly
 
 ## Pipeline checkpoint
@@ -235,4 +227,4 @@ Run the checkpoint:
 python3 core/flow/pipeline-checkpoint.py --skill-name rh-qs-scaffold --qs-name {qs-name}
 ```
 Print the dashboard link to the user:
-"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/flow/dashboard.md)"
+"Pipeline dashboard updated — track progress at [dashboard.md](.rhoai-qs/{qs-name}/.qs-factory/flow/dashboard.md)"

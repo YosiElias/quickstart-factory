@@ -23,9 +23,9 @@ health_attempt_1:
     fix_applied: "Added emptyDir volume mount at /app/data, set securityContext runAsNonRoot"
     fix_category: config
     files_modified:
-      - path: deploy/helm/templates/app-server.yaml
+      - path: chart/templates/app-server.yaml
         change: "Added volumes section with emptyDir{}, volumeMounts for /app/data"
-    redeploy_command: "helm upgrade my-quickstart ./deploy/helm -n myns --set openshiftMode=true"
+    redeploy_command: "helm upgrade my-quickstart ./chart -n myns --set openshiftMode=true"
     result: failed
     post_fix_status: "Still CrashLoopBackOff - different error: connection refused to postgresql:5432"
     user_approval_required: false
@@ -43,9 +43,9 @@ health_attempt_2:
     fix_applied: "Updated POSTGRES_HOST env var in deployment template from 'postgresql' to 'postgresql-svc'"
     fix_category: config
     files_modified:
-      - path: deploy/helm/templates/app-server.yaml
+      - path: chart/templates/app-server.yaml
         change: "Changed env POSTGRES_HOST value from 'postgresql' to 'postgresql-svc'"
-    redeploy_command: "helm upgrade my-quickstart ./deploy/helm -n myns --set openshiftMode=true"
+    redeploy_command: "helm upgrade my-quickstart ./chart -n myns --set openshiftMode=true"
     result: success
     post_fix_status: "Running, 1/1 ready"
     user_approval_required: false

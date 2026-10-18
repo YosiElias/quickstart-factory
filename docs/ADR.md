@@ -6,6 +6,13 @@ Date: 2026-06-24
 Authors: Matan Talvi, Yossi Elias
 ```
 
+> **Partially superseded — file layout only.** Every `.rhoai-qs/<slug>/pipeline/`,
+> `prds/`, `designs/`, `reports/`, and `deploy/helm/<slug>/` path in this document
+> has since moved: factory bookkeeping now lives under `.rhoai-qs/<slug>/.qs-factory/`
+> and the Helm chart at `chart/`. This record is kept as written — it documents the
+> decision as taken, not the current layout. For the layout in force, see
+> [foundation/pipeline-convention.md](foundation/pipeline-convention.md).
+
 ## Context
 
 The Quickstart Factory currently operates a 7-stage pipeline with 10 skills (7 pipeline + 3 utility). Each skill is a flat `SKILL.md` that the agent reads and follows directly — no subagent orchestration, no feedback loops, no validation beyond `make lint && make test`, no hooks, and no knowledge base.
@@ -104,6 +111,11 @@ Every skill that produces artifacts validates its output and iterates on failure
 ```
 
 ### Pattern 4: Persistent-File Handoff
+
+> **Superseded by [foundation/pipeline-convention.md](foundation/pipeline-convention.md).**
+> The handoff mechanism stands; the paths below do not. All bookkeeping has since
+> been consolidated under `.rhoai-qs/<slug>/.qs-factory/` — so e.g. the Discovery →
+> Architect handoff is now `.rhoai-qs/<slug>/.qs-factory/prds/prd.md`.
 
 Skills pass structured artifacts to each other via files in `.rhoai-qs/`, not conversation context — this matters because each skill typically runs in its own separate chat session.
 

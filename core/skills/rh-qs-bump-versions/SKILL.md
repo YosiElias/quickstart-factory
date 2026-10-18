@@ -43,7 +43,7 @@ description: |
 |----------|---------------|
 | Python packages | `packages/*/pyproject.toml`, root `uv.lock` |
 | Node packages | `packages/*/package.json`, `pnpm-lock.yaml` |
-| Helm app chart | `deploy/helm/<slug>/Chart.yaml` (`version`, `appVersion`) |
+| Helm app chart | `chart/Chart.yaml` (`version`, `appVersion`) |
 | Helm subcharts | `dependencies[]` in `Chart.yaml` — pin from [ai-architecture-charts](https://github.com/rh-ai-quickstart/ai-architecture-charts) |
 | Container bases | `Containerfile` `FROM` lines |
 | CI tool pins | `.github/workflows/*.yml` `env:` (`UV_VERSION`, Helm installer version) |
@@ -66,7 +66,7 @@ uv lock --upgrade-package <name>
 pnpm update <name> --filter <package>
 
 # Helm subchart
-helm dependency update deploy/helm/<slug>/
+helm dependency update chart/
 
 # Verify
 make lint test helm-lint helm-template

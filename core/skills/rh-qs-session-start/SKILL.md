@@ -25,7 +25,7 @@ When the user says **"hello"** or **"hi"**:
 - By assignee: [summary from --summary output]
 
 ## In-Progress Quickstarts
-[list slugs found under `ls .rhoai-qs/ 2>/dev/null`, excluding `reports` and `blog-drafts`, or "None yet" if empty]
+[list slugs found under `ls -1 .rhoai-qs/ 2>/dev/null` — every entry is a quickstart — or "None yet" if empty]
 
 ## What would you like to do?
 
@@ -115,7 +115,7 @@ Conversational. Read `core/skills/pipeline-grooming/SKILL.md` and `references/gr
 Conversational. Read `core/skills/blog-writer/SKILL.md`, `assets/blog-template.md`, and `references/messaging-guidelines.md`, then:
 - Fetch the issue with `gh-backlog-reader --issue <N>` to get comments and linked repos
 - If a linked implementation repo exists, browse its README to understand architecture and usage
-- Generate a draft in `.rhoai-qs/{slug}/blog-drafts/{date}.md` (or the top-level `.rhoai-qs/blog-drafts/{slug}-{date}.md` if no slug folder exists for this quickstart yet — the slug is needed there since that folder mixes drafts for every quickstart lacking its own slug folder)
+- Generate a draft in `.blog-drafts/{slug}-{date}.md` at the factory root
 
 ### quickstart-identifier
 Conversational. Read `core/skills/quickstart-identifier/SKILL.md` and `references/industry-trends.md`, then:
@@ -139,22 +139,25 @@ Conversational. Read `core/skills/quickstart-identifier/SKILL.md` and `reference
 
 ## Output Directory
 
-All generated artifacts (blog drafts, grooming reports, coverage analyses, PRDs, designs, code, etc.) go under `.rhoai-qs/`, namespaced by quickstart slug:
+Anything tied to one quickstart — PRD, design, pipeline state, code — goes under `.rhoai-qs/<slug>/`. Anything that isn't stays at the factory root:
 
 ```
+.blog-drafts/               ← <slug>-YYYY-MM-DD.md, every blog draft
+.reports/                   ← Cross-cutting reports (grooming, gap analysis)
 .rhoai-qs/
-  <slug>/
-    pipeline/            ← Specs and manifests for that quickstart
-    prds/                ← PRD from rh-qs-discovery
-    designs/              ← Design doc from rh-qs-architect
-    blog-drafts/          ← Blog post drafts for that quickstart
-    reports/              ← Per-quickstart reports (verify-deploy, etc.)
-    packages/, deploy/    ← The quickstart's own application code (separate git repo)
-  reports/                ← Cross-cutting reports not tied to one quickstart (grooming, gap analysis)
-  blog-drafts/             ← Fallback for quickstarts predating this convention
+  <slug>/                   ← the quickstart's own git repo
+    .qs-factory/            ← all factory bookkeeping, removed by rh-qs-ship
+      prds/                 ← PRD from rh-qs-discovery
+      designs/              ← Design doc from rh-qs-architect
+      pipeline/             ← Handoff specs and manifests
+      flow/                 ← Pipeline dashboard
+      reports/              ← Per-quickstart reports (verify-deploy, etc.)
+    chart/, packages/, ...  ← The quickstart's own application code
 ```
 
-This directory is gitignored by the factory repo — nothing under `.rhoai-qs/` gets pushed to `quickstart-factory`'s own history. (The quickstart's own code still gets committed and pushed — just to its own separate GitHub repo.) See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md) for the full convention.
+**Every direct child of `.rhoai-qs/` is a quickstart** — that is what makes slug resolution a plain `ls -1 .rhoai-qs/` with no filtering, so nothing else may be put there.
+
+All three directories are gitignored by the factory repo — nothing in them gets pushed to `quickstart-factory`'s own history. (The quickstart's own code still gets committed and pushed — just to its own separate GitHub repo.) See [pipeline-convention.md](../../../docs/foundation/pipeline-convention.md) for the full convention.
 
 ## Governance
 

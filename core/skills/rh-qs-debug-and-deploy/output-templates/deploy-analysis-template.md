@@ -18,7 +18,7 @@ deployment_options:
     rationale: "Documented as the primary path in README section 'Quickstart'"
     deploy_commands:
       - description: "Install with in-cluster model serving"
-        command: "helm install my-quickstart ./deploy/helm -n <namespace> -f values-openshift.yaml"
+        command: "helm install my-quickstart ./chart -n <namespace> -f values-openshift.yaml"
   - id: external-endpoint
     label: "External inference endpoint"
     description: "Skips llm-service; the app points at an existing OpenAI-compatible endpoint"
@@ -27,7 +27,7 @@ deployment_options:
     rationale: "README section 'Bring your own model'"
     deploy_commands:
       - description: "Install with external endpoint"
-        command: "helm install my-quickstart ./deploy/helm -n <namespace> -f values-external-llm.yaml"
+        command: "helm install my-quickstart ./chart -n <namespace> -f values-external-llm.yaml"
 
 # Which deployment_options entry was chosen. Written by the main agent in Phase 1d.
 # null when deployment_options is absent (single deployment path).
@@ -40,7 +40,7 @@ selected_option_id: local-model
 # Every phase after 1d reads deploy commands from here and nowhere else.
 deploy_commands:  
   - description: "Install Helm chart with OpenShift mode"
-    command: "helm install my-quickstart ./deploy/helm -n <namespace> --set openshiftMode=true -f values-openshift.yaml"
+    command: "helm install my-quickstart ./chart -n <namespace> --set openshiftMode=true -f values-openshift.yaml"
   - description: "Apply post-install config"
     command: "oc apply -f ./deploy/post-install/ -n <namespace>"
 
@@ -49,7 +49,7 @@ deploy_instructions_source: "README.md section 'RHOAI Deployment'"
 
 # Helm-specific (if deployment_method is helm)
 helm:
-  chart_path: ./deploy/helm
+  chart_path: ./chart
   release_name: my-quickstart
   values_files: [values.yaml, values-openshift.yaml]
 

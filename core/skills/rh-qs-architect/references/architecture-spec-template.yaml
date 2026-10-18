@@ -69,7 +69,7 @@ integration_patterns:
       mechanism: "<auth, secrets, policy, or isolation approach>"
 
 # ─── Architecture Diagram ─────────────────────────────────────
-architecture_diagram_path: .rhoai-qs/<slug>/designs/architecture-diagram.mmd
+architecture_diagram_path: .rhoai-qs/<slug>/.qs-factory/designs/architecture-diagram.mmd
 
 # ─── Testing Strategy ─────────────────────────────────────────
 testing_strategy:
@@ -97,12 +97,12 @@ testing_strategy:
 
 # ─── Dependencies ─────────────────────────────────────────────
 dependencies:
-  - spec: .rhoai-qs/<slug>/prds/prd.md
+  - spec: .rhoai-qs/<slug>/.qs-factory/prds/prd.md
     fields_used: [problem_statement, target_persona, technology_constraints]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/<slug>/pipeline/prd-features.yaml
+  - spec: .rhoai-qs/<slug>/.qs-factory/pipeline/prd-features.yaml
     fields_used: [input_features, deployment_questions, decision_points]
     content_hash: "sha256:..."
-  - spec: .rhoai-qs/<slug>/pipeline/kb-scores.yaml
+  - spec: .rhoai-qs/<slug>/.qs-factory/pipeline/kb-scores.yaml
     fields_used: [results]
     content_hash: "sha256:..."

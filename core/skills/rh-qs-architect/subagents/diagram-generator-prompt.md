@@ -11,7 +11,7 @@ You draw the architecture diagram for this quickstart from the **approved bill o
 ## Instructions
 
 **Input Parameters:**
-- `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/prds/prd.md`
+- `{slug}`: the quickstart slug — the PRD lives at `.rhoai-qs/{slug}/.qs-factory/prds/prd.md`
 - `{bom}`: approved bill of materials — a list of `{role, technology, delivery}` objects
 - `{charts}`: selected ai-architecture-charts names only (e.g. `["ogx-ai", "llm-service", "pgvector"]`)
 - `{integration_patterns}`: output from integration-analyzer subagent — `protocols`, `data_flows`, and `security_boundaries`
@@ -26,7 +26,7 @@ Use `role` for what the node is, `technology` for the label when it helps, and `
 
 Draw edges from each component's `role` and from interaction patterns. **Prefer `protocols` from `{integration_patterns}`** for non-obvious communication (gRPC, message queues, custom protocols). For standard patterns (REST, SQL, HTTP), infer from BOM roles and PRD sections.
 
-Read `.rhoai-qs/{slug}/prds/prd.md` when you need fallback context — component relationships, user flow, or data movement. Start with **User flows**; use **Data model** or **AI touchpoints** if the path is still unclear. Do not reread the PRD for requirements extraction.
+Read `.rhoai-qs/{slug}/.qs-factory/prds/prd.md` when you need fallback context — component relationships, user flow, or data movement. Start with **User flows**; use **Data model** or **AI touchpoints** if the path is still unclear. Do not reread the PRD for requirements extraction.
 
 The PRD follows a standard 7-section template:
 
@@ -45,7 +45,7 @@ Label edges with:
 
 ### Step 3: Write the diagram
 
-Write Mermaid source (no markdown fence) to `.rhoai-qs/{slug}/designs/architecture-diagram.mmd`.
+Write Mermaid source (no markdown fence) to `.rhoai-qs/{slug}/.qs-factory/designs/architecture-diagram.mmd`.
 
 - Use `flowchart TB` or `flowchart LR`, whichever fits the graph
 - Keep every node in the same graph. Mark ready subchart nodes (names in `{charts}`) with hexagon shape `id{{label}}`; use rectangles for everything else (application code, OpenShift Route, RHOAI-only features)
@@ -84,7 +84,7 @@ After the file is written, return **only JSON** matching the schema below.
 ```json
 {
   "status": "success",
-  "path": ".rhoai-qs/mortgage-processor/designs/architecture-diagram.mmd",
+  "path": ".rhoai-qs/mortgage-processor/.qs-factory/designs/architecture-diagram.mmd",
   "message": "Wrote architecture diagram."
 }
 ```

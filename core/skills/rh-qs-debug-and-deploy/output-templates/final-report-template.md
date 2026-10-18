@@ -54,8 +54,8 @@ The saved copy is a local run log for whoever ran the factory — it is not comm
 {/if}
 
 ## Files Modified During Debug
-- `deploy/helm/templates/app-server.yaml` — added emptyDir volume, fixed env var
-- `deploy/helm/values.yaml` — updated storage class name
+- `chart/templates/app-server.yaml` — added emptyDir volume, fixed env var
+- `chart/values.yaml` — updated storage class name
 
 ## Artifacts
 - Cluster state (handoff to `rh-qs-document`): `{project_path}/pipeline/deploy-state.yaml`

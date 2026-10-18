@@ -1,6 +1,7 @@
 """Tests for pipeline-checkpoint.py."""
 
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -45,6 +46,7 @@ def mod(tmp_path, monkeypatch):
 
     spec.loader.exec_module(m)
     m.LOG_DIR = log_dir
+    m.FACTORY_ROOT = tmp_path
     return m
 
 
@@ -56,7 +58,7 @@ SAMPLE_SKILLS = [
         "expected_inputs": [
             {"name": "qs-name", "description": "Quickstart slug"},
         ],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/flow/output-1.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/flow/output-1.md"}],
         "review_guidance": "Check output-1.",
     },
     {
@@ -66,7 +68,7 @@ SAMPLE_SKILLS = [
         "expected_inputs": [
             {"name": "qs-name", "description": "Quickstart slug"},
         ],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/flow/output-2.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/flow/output-2.md"}],
         "review_guidance": "Check output-2.",
     },
     {
@@ -77,7 +79,7 @@ SAMPLE_SKILLS = [
             {"name": "qs-name", "description": "Quickstart slug"},
             {"name": "file-name", "description": "File name to create"},
         ],
-        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/flow/output-3.md"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/flow/output-3.md"}],
         "review_guidance": "",
     },
 ]
@@ -137,11 +139,11 @@ class TestValidateOutputs:
         assert mod.validate_outputs(skill, "demo") is False
 
     def test_qs_name_substitution(self, mod, tmp_path):
-        out_dir = tmp_path / ".rhoai-qs" / "demo" / "flow"
+        out_dir = tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow"
         out_dir.mkdir(parents=True)
         out_file = out_dir / "output-1.md"
         out_file.write_text("content")
-        pattern = str(tmp_path / ".rhoai-qs/{qs-name}/flow/output-1.md")
+        pattern = str(tmp_path / ".rhoai-qs/{qs-name}/.qs-factory/flow/output-1.md")
         skill = {"id": "x", "expected_outputs": [{"path": pattern}]}
         assert mod.validate_outputs(skill, "demo") is True
 
@@ -240,6 +242,72 @@ class TestRenderDashboard:
         assert "67%" in md
 
 
+# ── emitted link targets ─────────────────────────────────────────────────
+
+
+class TestEmittedLinksResolve:
+    """Every relative link the dashboard emits must resolve from the dashboard's
+    own directory. This pins the invariant that makes the dashboard's depth below
+    the factory root irrelevant — move it and these links must still land."""
+
+    LINKED_SKILL = {
+        "id": "skill-1",
+        "order": 1,
+        "description": "First step",
+        "expected_inputs": [{"name": "qs-name", "description": "Quickstart slug"}],
+        "expected_outputs": [{"path": ".rhoai-qs/{qs-name}/.qs-factory/prds/prd.md"}],
+        # A sibling of the dashboard inside the quickstart, plus a target that
+        # lives outside it entirely — a fixed prefix cannot serve both.
+        "review_guidance": (
+            "- PRD at [prd.md](.rhoai-qs/{qs-name}/.qs-factory/prds/prd.md)\n"
+            "- Run log at [deploy-report.md](.tmp/{qs-name}/debug/deploy-report.md)\n"
+        ),
+    }
+
+    TARGETS = (".rhoai-qs/demo/.qs-factory/prds/prd.md", ".tmp/demo/debug/deploy-report.md")
+
+    def _render(self, mod, tmp_path):
+        # The dashboard dir must exist for `..` segments in a link to resolve.
+        mod.dashboard_dir_for("demo").mkdir(parents=True, exist_ok=True)
+        for rel in self.TARGETS:
+            p = tmp_path / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("content")
+        state = {
+            "skill-1": {
+                "status": "done",
+                "completed_at": "2026-01-01",
+                "outputs_verified": True,
+            }
+        }
+        return mod.render_dashboard("demo", [self.LINKED_SKILL], state)
+
+    def test_every_relative_link_resolves(self, mod, tmp_path):
+        md = self._render(mod, tmp_path)
+        dashboard_dir = mod.dashboard_dir_for("demo")
+
+        targets = [t for _, t in re.findall(r"\[([^\]]*)\]\(([^)\s]+)\)", md)]
+        relative = [t for t in targets if not re.match(r"^(?:\w+:|//|#|/)", t)]
+        assert len(relative) == 3, f"expected 3 relative links, got {relative}"
+
+        for target in relative:
+            assert (dashboard_dir / target).exists(), (
+                f"link {target!r} does not resolve from {dashboard_dir}"
+            )
+
+    def test_links_are_not_factory_root_relative(self, mod, tmp_path):
+        """The raw registry form must never reach the rendered dashboard."""
+        md = self._render(mod, tmp_path)
+        assert "](.rhoai-qs/" not in md
+        assert "](.tmp/" not in md
+
+    def test_banner_is_an_absolute_url(self, mod, tmp_path):
+        """The banner is depth-independent, so moving the dashboard cannot break it."""
+        md = self._render(mod, tmp_path)
+        assert f'<img src="{mod.BANNER_URL}"' in md
+        assert mod.BANNER_URL.startswith("https://")
+
+
 # ── update_dashboard ─────────────────────────────────────────────────────
 
 
@@ -278,7 +346,7 @@ class TestUpdateDashboard:
 
     def test_dashboard_directory_structure(self, mod, tmp_path):
         mod.update_dashboard("demo", "skill-1", SAMPLE_SKILLS, True)
-        assert (tmp_path / ".rhoai-qs" / "demo" / "flow" / "dashboard.md").exists()
+        assert (tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow" / "dashboard.md").exists()
         assert (tmp_path / ".tmp" / "demo" / "dashboard.lock").exists()
 
     def test_unverified_outputs_recorded(self, mod):
@@ -320,7 +388,7 @@ class TestMain:
 
     def test_known_skill_creates_dashboard(self, mod, tmp_path):
         self._write_registry(mod, tmp_path)
-        out_dir = tmp_path / ".rhoai-qs" / "demo" / "flow"
+        out_dir = tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow"
         out_dir.mkdir(parents=True)
         out_file = out_dir / "output-1.md"
         out_file.write_text("content")
@@ -333,7 +401,7 @@ class TestMain:
 
         with patch("sys.argv", ["prog", "--skill-name", "skill-1", "--qs-name", "demo"]):
             mod.main()
-        assert (tmp_path / ".rhoai-qs" / "demo" / "flow" / "dashboard.md").exists()
+        assert (tmp_path / ".rhoai-qs" / "demo" / ".qs-factory" / "flow" / "dashboard.md").exists()
 
     def test_missing_registry_exits(self, mod, tmp_path):
         mod.REGISTRY_PATH = tmp_path / "no-such-file.yaml"
