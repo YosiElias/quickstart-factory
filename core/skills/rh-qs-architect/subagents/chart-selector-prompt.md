@@ -20,7 +20,10 @@ This is a **capability-matching task**. For each chart, understand what it provi
 
 ### Step 1: Read the charts reference
 
-Read the file at `{charts_reference_path}`. It contains a JSON object where each key is a chart name (the Helm directory name) with `provides` (array of capabilities) and `use_when` (guidance) fields.
+Read the file at `{charts_reference_path}`. It contains a JSON object where each key is a chart name (the Helm directory name) with:
+- `description`: one-line overview of what the chart provides
+- `provides`: array of specific capabilities
+- `use_when`: guidance on when to use this chart
 
 ### Step 2: Match by capability
 

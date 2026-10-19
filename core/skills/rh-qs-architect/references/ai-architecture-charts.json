@@ -1,5 +1,6 @@
 {
   "llama-stack": {
+    "description": "Comprehensive AI orchestration platform that provides a unified API for multiple model providers, safety shields, and AI agent capabilities.",
     "provides": [
       "Multi-provider model support (local, remote, VertexAI)",
       "Safety shields with Llama Guard and other safety models",
@@ -9,6 +10,7 @@
     "use_when": "Comprehensive AI orchestration platform needed"
   },
   "ogx-ai": {
+    "description": "Successor chart providing orchestration with OpenAI-compatible APIs, multi-provider model support, and MCP-style tool integration.",
     "provides": [
       "OpenAI-compatible agentic API server",
       "Multi-provider model support (local, remote, VertexAI)",
@@ -20,6 +22,7 @@
     "use_when": "Agentic orchestration with OpenAI compatibility needed"
   },
   "llm-service": {
+    "description": "High-performance model serving using vLLM runtime with OpenShift AI/KServe integration supporting GPU and CPU deployment modes.",
     "provides": [
       "vLLM-based model serving with OpenAI-compatible API",
       "Support for any vLLM-compatible models and sizes",
@@ -30,6 +33,7 @@
     "use_when": "On-cluster GPU model serving required"
   },
   "pgvector": {
+    "description": "PostgreSQL with pgvector extension enabling high-performance vector database capabilities for embeddings in AI/ML applications.",
     "provides": [
       "Vector similarity search (cosine, L2, inner product)",
       "Multiple index types (IVFFlat, HNSW)",
@@ -39,6 +43,7 @@
     "use_when": "Vector database for RAG/semantic retrieval needed"
   },
   "minio": {
+    "description": "S3-compatible object storage server for documents, models, and data in AI/ML pipelines with scalable storage and web console management.",
     "provides": [
       "S3-compatible API",
       "Web-based management console",
@@ -48,6 +53,7 @@
     "use_when": "Object storage for documents/models/data needed"
   },
   "oracle-db": {
+    "description": "Oracle Database Free 23ai with AI Vector features providing enterprise-grade database capabilities with built-in vector operations.",
     "provides": [
       "Native vector operations and similarity search",
       "JSON duality and graph analytics",
@@ -60,6 +66,7 @@
     "use_when": "Enterprise database with AI vector features needed"
   },
   "ingestion-pipeline": {
+    "description": "Comprehensive data ingestion pipeline processing documents from various sources and storing vector embeddings for semantic search and RAG.",
     "provides": [
       "Multi-source data ingestion (S3/MinIO, GitHub, URLs)",
       "Document chunking and embedding generation",
@@ -69,6 +76,7 @@
     "use_when": "Automated document ingestion and embedding pipeline needed"
   },
   "configure-pipeline": {
+    "description": "Jupyter notebook environment for RAG configuration and pipeline setup with interactive tools and MinIO integration for data access.",
     "provides": [
       "Pre-configured Jupyter environment",
       "RAG pipeline configuration tools",
@@ -78,6 +86,7 @@
     "use_when": "Interactive RAG configuration and pipeline setup needed"
   },
   "mcp-servers": {
+    "description": "Model Context Protocol servers providing external tools and capabilities to AI models for interacting with external systems and APIs.",
     "provides": [
       "Weather information services",
       "Server-Sent Events (SSE) endpoints",
@@ -87,6 +96,7 @@
     "use_when": "External tools and capabilities for AI agents needed"
   },
   "oracle-sqlcl": {
+    "description": "MCP server exposing Oracle SQLcl capabilities to AI agents via Toolhive, enabling database tooling and interactions from AI platforms.",
     "provides": [
       "Execute SQL/PLSQL against Oracle databases via Model Context Protocol",
       "Integrates with Toolhive Operator (CRDs and operator managed as chart dependencies)",
@@ -95,6 +105,7 @@
     "use_when": "Oracle database tooling for AI agents needed"
   },
   "keycloak": {
+    "description": "Identity and access management solution providing authentication and authorization for AI applications via OAuth2, OpenID Connect, and SAML.",
     "provides": [
       "Official Keycloak container images",
       "OAuth2, OpenID Connect, and SAML protocols",

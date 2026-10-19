@@ -56,7 +56,10 @@ def load_chart_capabilities(path: Path) -> dict:
 
 
 def build_input_context(input_features: dict, deployment_questions: list, chart_capabilities: dict) -> str:
-    """Build input context JSON string for Decision API."""
+    """Build input context JSON string for Decision API.
+
+    Includes chart descriptions, capabilities (provides), and use_when guidance.
+    """
     context = {
         "input_features": input_features,
         "deployment_questions": deployment_questions,
