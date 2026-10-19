@@ -74,7 +74,7 @@ def get_predicate_questions() -> list:
         {
             "type": "predicate",
             "name": "needs_llama_stack",
-            "instructions": """Does this quickstart need the llama-stack chart?
+            "instructions": """Based on the llama-stack chart description and capabilities, does this quickstart need it?
 
 NOTE: llama-stack is available for backwards compatibility. For new deployments, prefer ogx-ai.
 
@@ -93,7 +93,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_ogx",
-            "instructions": """Does this quickstart need the ogx-ai chart for agent orchestration?
+            "instructions": """Based on the ogx-ai chart description and capabilities, does this quickstart need it?
 
 NOTE: ogx-ai is the successor to llama-stack. Use for new deployments.
 
@@ -112,7 +112,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_llm_service",
-            "instructions": """Does this quickstart need the llm-service chart for on-cluster model serving?
+            "instructions": """Based on the llm-service chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart requires GPU/CPU model serving
@@ -129,7 +129,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_pgvector",
-            "instructions": """Does this quickstart need the pgvector chart for vector database capabilities?
+            "instructions": """Based on the pgvector chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The ai_pattern includes 'rag', 'semantic-search', or 'retrieval'
@@ -145,7 +145,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_minio",
-            "instructions": """Does this quickstart need the minio chart for object storage?
+            "instructions": """Based on the minio chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart needs S3-compatible storage for documents, models, or datasets
@@ -162,7 +162,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_oracle_db",
-            "instructions": """Does this quickstart need the oracle-db chart with AI vector features?
+            "instructions": """Based on the oracle-db chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart specifically requires Oracle database with vector operations
@@ -178,7 +178,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_ingestion_pipeline",
-            "instructions": """Does this quickstart need the ingestion-pipeline chart for automated data ingestion?
+            "instructions": """Based on the ingestion-pipeline chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart requires automated document ingestion from S3/GitHub/URLs
@@ -194,7 +194,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_configure_pipeline",
-            "instructions": """Does this quickstart need the configure-pipeline chart for interactive RAG configuration?
+            "instructions": """Based on the configure-pipeline chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart benefits from Jupyter-based RAG configuration tools
@@ -210,7 +210,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_mcp_servers",
-            "instructions": """Does this quickstart need the mcp-servers chart for external agent tools?
+            "instructions": """Based on the mcp-servers chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart's agents require external tools (weather, custom MCP servers)
@@ -226,7 +226,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_oracle_sqlcl",
-            "instructions": """Does this quickstart need the oracle-sqlcl chart for Oracle database tooling via MCP?
+            "instructions": """Based on the oracle-sqlcl chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart's agents need to execute SQL/PLSQL against Oracle databases
@@ -242,7 +242,7 @@ Evaluate FALSE if:
         {
             "type": "predicate",
             "name": "needs_keycloak",
-            "instructions": """Does this quickstart need the keycloak chart for identity and access management?
+            "instructions": """Based on the keycloak chart description and capabilities, does this quickstart need it?
 
 Evaluate TRUE if:
 - The quickstart requires OAuth2, OpenID Connect, SAML, or multi-user authentication
