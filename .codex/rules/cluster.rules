@@ -1,0 +1,7 @@
+prefix_rule(
+    pattern = [["oc", "kubectl", "helm"]],
+    decision = "prompt",
+    justification = "Cluster command requires review. Verify namespace and verb before execution.",
+    match = ["oc get pods", "kubectl get pods", "helm list"],
+    not_match = ["git status", "helmfile version"],
+)

@@ -16,13 +16,16 @@ __pycache__/
 *.key
 *.pem
 
-# Client-specific tracked files (currently only claude supports the policy hook)
+# Client-specific tracked files
 .claude/*
 !.claude/skills/
 !.claude/hooks/
 !.claude/settings.json
 .codex/*
 !.codex/skills/
+!.codex/hooks/
+!.codex/hooks.json
+!.codex/rules/
 .cursor/*
 !.cursor/rules/
 !.cursor/skills/

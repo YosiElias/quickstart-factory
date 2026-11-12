@@ -6,7 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SKILLS_DIR="$ROOT_DIR/core/skills"
 POLICY_GATE_DIR="$ROOT_DIR/core/oc-policy-gate"
 CLIENTS=(.claude .codex .cursor .gemini)
-POLICY_GATE_SUPPORTED_CLIENTS=(.claude)
+POLICY_GATE_SUPPORTED_CLIENTS=(.claude .codex)
 
 POLICY_GATE_HOOK_FILES=(openshift-policy.sh openshift-policy.yaml openshift-policy.example.yaml)
 
@@ -34,14 +34,11 @@ for client in "${POLICY_GATE_SUPPORTED_CLIENTS[@]}"; do
   hooks_target="$ROOT_DIR/$client/hooks"
   mkdir -p "$hooks_target"
 
-  # Clean old hook symlinks
-  for link in "$hooks_target"/*; do
-    [ -L "$link" ] && rm -f "$link"
-  done
-
-  # Link each hook file
+  # Replace only the links owned by the policy gate; preserve other hooks.
   for file in "${POLICY_GATE_HOOK_FILES[@]}"; do
     [ -f "$POLICY_GATE_DIR/$file" ] || continue
+    link="$hooks_target/$file"
+    [ ! -L "$link" ] || rm -f "$link"
     ln -sr "$POLICY_GATE_DIR/$file" "$hooks_target/$file"
     echo "  ✓ $client/hooks/$file"
   done
