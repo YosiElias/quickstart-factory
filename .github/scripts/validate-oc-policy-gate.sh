@@ -3,7 +3,7 @@
 # exist, are relative, and are not broken.
 set -euo pipefail
 
-POLICY_GATE_CLIENTS=(.claude)
+POLICY_GATE_CLIENTS=(.claude .codex)
 POLICY_GATE_FILES=(openshift-policy.sh openshift-policy.yaml openshift-policy.example.yaml)
 errors=0
 
