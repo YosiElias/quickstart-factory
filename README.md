@@ -4,6 +4,8 @@ An AI-powered tool for managing the full lifecycle of [Red Hat AI Quickstarts](h
 
 Ready to use after cloning with the prerequisites below. Engineers review key decisions and outputs throughout the process.
 
+Codex and Claude Code support the full workflow, including the [cluster policy hooks](#cluster-access-with-oc-policy-gate) shown below. The workflow has been tested mainly with Codex.
+
 > **Status: Skills and workflows are being refined.**
 
 ## What it does
@@ -36,7 +38,7 @@ cd quickstart-factory
 2. Open the cloned directory using your AI client's usual launch method. For example:
 
 ```bash
-claude                       # Claude Code
+codex                        # Codex CLI
 ```
 
 Skills and client configuration are included in the clone — no manual skill installation or initial sync needed. Follow [Build or resume a quickstart](#build-or-resume-a-quickstart) to start discovery.
@@ -75,8 +77,8 @@ Start the chats from the factory root.
 
 1. Run `/rh-qs-discovery` and describe your idea or supply a document, such as a plan for a document Q&A assistant.
 2. Discovery generates the lowercase, hyphenated name (the **slug**) and initializes a local repo from [ai-quickstart-template](https://github.com/rh-ai-quickstart/ai-quickstart-template). Answer its questions and approve the PRD, then follow its instructions to create the GitHub repo and push the local work. Next, run `/rh-qs-architect qs-name=document-assistant`, using the slug discovery generated.
-3. Approve the architecture, then run `/rh-qs-implement qs-name=document-assistant`. Review its implementation spec before coding begins, and continue through the remaining pipeline stages, reviewing each output before handoff.
-4. When returning to work, open the dashboard and copy the **Next Step** command into a new chat. Commands use `/<skill-name> qs-name=<slug>`, for example `/rh-qs-implement qs-name=document-assistant`.
+3. Approve the architecture, then run `/rh-qs-implement qs-name=document-assistant`. Review its implementation spec before coding begins.
+4. After implementation, work through `/rh-qs-debug-and-deploy`, `/rh-qs-test-suite`, `/rh-qs-document`, and `/rh-qs-ship` in order. Start each skill in a new chat with `qs-name=document-assistant`. After each stage, the dashboard below updates its **Review Before Continuing** guidance for the completed skill and its **Next Step** command. At the end, review the publication PR and blog draft.
 
 ### Track progress in the dashboard
 
@@ -87,23 +89,26 @@ It shows the flow, progress, output links, **Review Before Continuing** guidance
 ![Pipeline dashboard](screenshots/pipeline-dashboard.png)
 
 
-## Skills
+## Working with and maintaining existing quickstarts
 
-For an existing quickstart, first clone its repo into `.rhoai-qs/<slug>/` under the factory root. Then start a new chat and invoke a skill with the same slug. For example: `/rh-qs-debug-and-deploy qs-name=document-assistant`.
+You can also use these skills with an existing quickstart. First clone its repo into `.rhoai-qs/<slug>/` under the factory root. Then start a new chat and invoke a skill with the same slug. For example: `/rh-qs-debug-and-deploy qs-name=document-assistant`.
 
 | Skill | What it does |
 |-------|-------------|
 | **rh-qs-debug-and-deploy** | Deploy existing quickstart source, scan health and fix resource failures, then run E2E tests and fix failures, with limited retries in each phase. |
 | **rh-qs-test-suite** | Expand or refresh CI checks, E2E tests, evaluations, and nightly runs. |
 | **rh-qs-secure** | Security guidance during architecture, implementation, and deployment. |
-| **rh-qs-bump-versions / rh-qs-minio-conversion** | Update dependencies or migrate MinIO to S4-backed `aws-compatible-storage`. |
+| **rh-qs-bump-versions** | Update dependencies and chart versions. |
+| **rh-qs-minio-conversion** | Migrate MinIO to S4-backed `aws-compatible-storage`. |
 | **qs-extract-knowledge** | Extract reusable patterns from completed quickstarts and enrich the shared knowledge base. |
 | **validate-skill** | Run Factory skills against fixtures and compare their output with expected repositories. |
 
-<details>
-<summary>Backlog tools and CLI usage</summary>
+## Backlog management
 
 Say **"hello"** or run `/rh-qs-session-start` for backlog browsing, issue creation, grooming, gap analysis, and blog drafts. See the [walkthrough with screenshots](screenshots/README.md).
+
+<details>
+<summary>Backlog tools and CLI usage</summary>
 
 ![Backlog dashboard](screenshots/06-dashboard.png)
 
